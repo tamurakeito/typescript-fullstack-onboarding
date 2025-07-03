@@ -1,0 +1,9 @@
+{
+  "name": "@typescript-fullstack-onboarding/schema",
+  "version": "0.1.0",
+  "description": "APIスキーマ定義",
+  "type": "module",
+  "scripts": {
+    "clean": "rm -rf dist node_modules"
+  }
+} 
