@@ -6,6 +6,9 @@
   "volta": {
     "node": "22.16.0"
   },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4"
+  },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "dev": "pnpm --parallel dev",
@@ -16,6 +19,9 @@
     "db:generate": "pnpm --filter backend db:generate",
     "db:migrate": "pnpm --filter backend db:migrate",
     "db:seed": "pnpm --filter backend db:seed",
-    "schema:generate": "pnpm --filter schema generate"
+    "schema:generate": "pnpm --filter schema generate",
+    "format": "biome format --write .",
+    "lint": "biome lint .",
+    "check": "biome check --write ."
   }
 } 
