@@ -4,12 +4,24 @@
   "description": "フロントエンドアプリケーション",
   "type": "module",
   "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
     "clean": "rm -rf dist node_modules",
     "format": "biome format --write .",
     "lint": "biome lint .",
     "check": "biome check --write .",
     "test": "vitest",
-    "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^5.2.8"
   }
 }
