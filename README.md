@@ -57,6 +57,13 @@
 - **OpenAPI生成**: TypeSpec → OpenAPI
 - **クライアント生成**: @hey-api/openapi-ts（フロントエンド）openapi-zod-client（バックエンド）
 
+### インフラ・デプロイ
+- **管理ツール**: Terraform
+- **クラウドプロバイダ**: Google Cloud Platform (GCP)
+- **コンテナ化**: Docker
+- **コンテナ実行環境**: Cloud Run
+- **データベース**: Cloud SQL (PostgreSQL)
+
 ## プロジェクト構造
 
 ```
@@ -93,6 +100,12 @@ typescript-fullstack-onboarding/
 │   │   ├── users.tsp           # ユーザー関連API
 │   │   └── organizations.tsp   # 組織関連API
 │   └── package.json
+├── infra/                      # インフラストラクチャ定義
+│   ├── terraform/              # Terraform設定
+│   ├── docker/                 # Docker設定
+│   │   ├── frontend/           # フロントエンド用Dockerfile
+│   │   └── backend/            # バックエンド用Dockerfile
+│   └── scripts/                # デプロイスクリプト
 ├── package.json                # ルートパッケージ設定
 └── README.md
 ```
