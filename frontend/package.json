@@ -1,0 +1,9 @@
+{
+  "name": "@typescript-fullstack-onboarding/frontend",
+  "version": "1.0.0",
+  "description": "フロントエンドアプリケーション",
+  "type": "module",
+  "scripts": {
+    "clean": "rm -rf dist node_modules"
+  }
+} 

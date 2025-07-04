@@ -1,0 +1,9 @@
+{
+  "name": "@typescript-fullstack-onboarding/backend",
+  "version": "0.1.0",
+  "description": "バックエンドアプリケーション",
+  "type": "module",
+  "scripts": {
+    "clean": "rm -rf dist node_modules"
+  }
+} 
