@@ -33,6 +33,30 @@
 - **リンター/フォーマッター**: Biome
 - **テストフレームワーク**: Vitest
 
+## 開発・テスト
+
+### セットアップ
+```bash
+# 依存関係のインストール
+pnpm install
+
+# または下記をルートで実行
+pnpm install -r
+
+# 開発サーバーの起動
+pnpm dev
+
+# テストの実行
+pnpm test
+
+# テストUIの起動 # frontendのみ
+pnpm test:ui
+
+# カバレッジレポートの生成 # frontend, backend
+pnpm test:coverage
+```
+
+
 ### フロントエンド（React + TypeScript + Vite）
 - **フレームワーク**: React 18
 - **言語**: TypeScript

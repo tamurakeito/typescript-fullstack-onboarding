@@ -7,7 +7,12 @@
     "node": "22.16.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.9.4"
+    "@biomejs/biome": "1.9.4",
+    "vitest": "^2.1.8",
+    "@vitest/ui": "^2.1.8",
+    "@vitest/coverage-v8": "^2.1.8",
+    "@types/node": "^22.0.0",
+    "jsdom": "^24.0.0"
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
@@ -24,4 +29,4 @@
     "lint": "biome lint .",
     "check": "biome check --write ."
   }
-} 
+}
