@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "description": "組織向けTodo管理アプリ - TypeScript Fullstack Onboarding",
   "private": true,
+  "volta": {
+    "node": "22.16.0"
+  },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "dev": "pnpm --parallel dev",
