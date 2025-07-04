@@ -4,6 +4,9 @@
   "description": "フロントエンドアプリケーション",
   "type": "module",
   "scripts": {
-    "clean": "rm -rf dist node_modules"
+    "clean": "rm -rf dist node_modules",
+    "format": "biome format --write .",
+    "lint": "biome lint .",
+    "check": "biome check --write ."
   }
 } 
