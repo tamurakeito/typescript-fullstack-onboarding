@@ -1,9 +1,16 @@
 {
-  "name": "@typescript-fullstack-onboarding/schema",
+  "name": "schema",
   "version": "0.1.0",
-  "description": "APIスキーマ定義",
   "type": "module",
+  "private": true,
   "scripts": {
-    "clean": "rm -rf dist node_modules"
+    "compile": "tsp compile ."
+  },
+  "dependencies": {
+    "@typespec/compiler": "latest",
+    "@typespec/http": "latest",
+    "@typespec/rest": "latest",
+    "@typespec/openapi": "latest",
+    "@typespec/openapi3": "latest"
   }
-} 
+}
