@@ -14,7 +14,7 @@
     "test": "vitest",
     "test:coverage": "vitest --coverage" ,
     "schema:copy": "cp ../schema/openapi.yaml ./openapi.yaml",
-    "generate:client": "schema:copy && openapi-ts"
+    "generate:client": "pnpm schema:copy && openapi-ts"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",
