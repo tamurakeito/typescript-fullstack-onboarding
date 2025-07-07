@@ -8,13 +8,6 @@
 .idea/usage.statistics.xml
 .idea/shelf
 
-# deps
-node_modules/
-
-# env
-.env
-.env.production
-
 # logs
 logs/
 *.log
@@ -24,10 +17,4 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# misc
-.DS_Store
-
 /src/generated/client/*
-!src/generated/client/.gitkeep
-
-openapi.yaml
