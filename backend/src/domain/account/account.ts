@@ -1,4 +1,4 @@
-import { ok, err, Result } from "neverthrow";
+import { type Result, err, ok } from "neverthrow";
 
 export type Role = "SuperAdmin" | "Manager" | "Operator";
 
