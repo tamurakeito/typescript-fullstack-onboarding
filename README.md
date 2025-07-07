@@ -1,4 +1,4 @@
-# TypeScript Fullstack Onboarding | 組織向けTodo管理アプリ
+# TypeScript Fullstack Onboarding | 組織向けTodo管理アプリ🐋
 
 ## プロジェクト概要
 
