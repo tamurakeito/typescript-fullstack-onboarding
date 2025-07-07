@@ -12,7 +12,9 @@
     "lint": "biome lint .",
     "check": "biome check --write .",
     "test": "vitest",
-    "test:coverage": "vitest --coverage"
+    "test:coverage": "vitest --coverage" ,
+    "schema:copy": "cp ../schema/openapi.yaml ./openapi.yaml",
+    "generate:client": "schema:copy && openapi-ts"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",
@@ -28,6 +30,7 @@
     "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
+    "@hey-api/openapi-ts": "^0.78.2",
     "@tailwindcss/postcss": "^4.1.11",
     "@tailwindcss/vite": "^4.1.11",
     "@tanstack/router-plugin": "^1.124.0",
