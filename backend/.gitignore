@@ -27,7 +27,7 @@ lerna-debug.log*
 # misc
 .DS_Store
 
-/src/generated/prisma
-/src/generated/client
+/src/generated/client/*
+!src/generated/client/.gitkeep
 
 openapi.yaml

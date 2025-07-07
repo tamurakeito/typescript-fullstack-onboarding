@@ -24,7 +24,9 @@ dist-ssr
 *.sw?
 
 # Generated files
-src/client
+src/client/*
+!src/client/.gitkeep
+
 src/routeTree.gen.ts
 
 openapi.yaml
