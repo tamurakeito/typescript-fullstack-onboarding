@@ -12,7 +12,7 @@
     "lint": "biome lint .",
     "check": "biome check --write .",
     "test": "vitest",
-    "test:coverage": "vitest --coverage" ,
+    "test:coverage": "vitest --coverage",
     "schema:copy": "cp ../schema/openapi.yaml ./openapi.yaml",
     "generate:client": "pnpm schema:copy && openapi-ts"
   },
