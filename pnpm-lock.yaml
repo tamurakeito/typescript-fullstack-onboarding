@@ -44,6 +44,9 @@ importers:
       hono:
         specifier: ^4.8.4
         version: 4.8.4
+      neverthrow:
+        specifier: ^8.2.0
+        version: 8.2.0
       zod:
         specifier: ^3.25.74
         version: 3.25.74
