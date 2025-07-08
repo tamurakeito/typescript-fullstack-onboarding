@@ -2,7 +2,6 @@ import { Account } from "@/domain/account/account.js";
 import type { PasswordHash } from "@/domain/account/password-hash.js";
 import {
   type AppError,
-  BadRequestError,
   InvalidPasswordError,
   UnExistUserError,
   UnexpectedError,
@@ -11,10 +10,7 @@ import { PrismaClient } from "@/generated/prisma/index.js";
 import { type Result, err, ok } from "neverthrow";
 
 export interface AuthQuery {
-  execute(
-    userId: string | undefined,
-    password: string | undefined
-  ): Promise<Result<Account, AppError>>;
+  execute(userId: string, password: string): Promise<Result<Account, AppError>>;
 }
 
 export class AuthQueryImpl implements AuthQuery {
@@ -22,14 +18,7 @@ export class AuthQueryImpl implements AuthQuery {
 
   private prisma = new PrismaClient();
 
-  async execute(
-    userId: string | undefined,
-    password: string | undefined
-  ): Promise<Result<Account, AppError>> {
-    if (!userId || !password) {
-      return err(new BadRequestError());
-    }
-
+  async execute(userId: string, password: string): Promise<Result<Account, AppError>> {
     const data = await this.prisma.account.findUnique({
       where: {
         userId,

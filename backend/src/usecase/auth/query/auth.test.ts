@@ -57,24 +57,6 @@ describe("AuthQueryImpl", () => {
     }
   });
 
-  it("パラメータ（ユーザーID）が不整", async () => {
-    const authQuery = new AuthQueryImpl(mockPasswordHash);
-    const result = await authQuery.execute(undefined, "password0123");
-    expect(result.isErr()).toBe(true);
-    if (result.isErr()) {
-      expect(result.error).toBeInstanceOf(BadRequestError);
-    }
-  });
-
-  it("パラメータ（パスワード）が不整", async () => {
-    const authQuery = new AuthQueryImpl(mockPasswordHash);
-    const result = await authQuery.execute("test-user", undefined);
-    expect(result.isErr()).toBe(true);
-    if (result.isErr()) {
-      expect(result.error).toBeInstanceOf(BadRequestError);
-    }
-  });
-
   it("アカウントが存在しない", async () => {
     const authQuery = new AuthQueryImpl(mockPasswordHash);
     const invalidUserId = "not-exist-user";
