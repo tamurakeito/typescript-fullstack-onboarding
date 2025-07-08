@@ -1,5 +1,5 @@
 import { Account } from "@/domain/account/account.js";
-import { InvalidPasswordError, UnExistUserError } from "@/errors/errors.js";
+import { BadRequestError, InvalidPasswordError, UnExistUserError } from "@/errors/errors.js";
 import { PrismaClient } from "@/generated/prisma/index.js";
 import { describe, expect, it, vi } from "vitest";
 import { AuthQueryImpl } from "./auth.js";
@@ -54,6 +54,24 @@ describe("AuthQueryImpl", () => {
       expect(account.userId).toBe(userId);
       expect(account.name).toBe("テストユーザー");
       expect(mockFindUnique).toHaveBeenCalledWith({ where: { userId } });
+    }
+  });
+
+  it("パラメータ（ユーザーID）が不整", async () => {
+    const authQuery = new AuthQueryImpl(mockPasswordHash);
+    const result = await authQuery.execute(undefined, "password0123");
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error).toBeInstanceOf(BadRequestError);
+    }
+  });
+
+  it("パラメータ（パスワード）が不整", async () => {
+    const authQuery = new AuthQueryImpl(mockPasswordHash);
+    const result = await authQuery.execute("test-user", undefined);
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error).toBeInstanceOf(BadRequestError);
     }
   });
 
