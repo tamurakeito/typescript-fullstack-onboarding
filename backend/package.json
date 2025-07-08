@@ -36,5 +36,8 @@
     "openapi-zod-client": "^1.18.3",
     "prisma": "^6.11.1",
     "tsx": "^4.7.1"
+  },
+  "prisma": {
+    "schema": "./prisma"
   }
 }
