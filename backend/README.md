@@ -25,5 +25,9 @@ open http://localhost:3000
 開発時は下記をあらかじめ実行する。
 
 ```
+// 環境変数ファイルの作成
 cp .env.example .env
+
+// Prismaクライアントの生成
+pnpm db:generate
 ```
