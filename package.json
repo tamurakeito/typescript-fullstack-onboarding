@@ -36,6 +36,7 @@
     "lint-staged": "^16.1.2"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx,json,jsonc,md}": "biome format --write"
+    "*.{ts,tsx,js,jsx,json,jsonc,md}": "biome format --write",
+    "*.{prisma}": "prisma format"
   }
 }
