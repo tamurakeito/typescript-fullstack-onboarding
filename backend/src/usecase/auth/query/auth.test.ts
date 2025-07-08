@@ -1,4 +1,5 @@
 import { Account } from "@/domain/account/account.js";
+import { InvalidPasswordError, UnExistUserError } from "@/errors/errors.js";
 import { PrismaClient } from "@/generated/prisma/index.js";
 import { describe, expect, it, vi } from "vitest";
 import { AuthQueryImpl } from "./auth.js";
@@ -67,8 +68,7 @@ describe("AuthQueryImpl", () => {
 
     expect(result.isErr()).toBe(true);
     if (result.isErr()) {
-      expect(result.error).toBeInstanceOf(Error);
-      expect(result.error.message).toBe("ユーザーが見つかりません");
+      expect(result.error).toBeInstanceOf(UnExistUserError);
     }
   });
 
@@ -96,8 +96,7 @@ describe("AuthQueryImpl", () => {
 
     expect(result.isErr()).toBe(true);
     if (result.isErr()) {
-      expect(result.error).toBeInstanceOf(Error);
-      expect(result.error.message).toBe("パスワードが間違っています");
+      expect(result.error).toBeInstanceOf(InvalidPasswordError);
     }
   });
 });

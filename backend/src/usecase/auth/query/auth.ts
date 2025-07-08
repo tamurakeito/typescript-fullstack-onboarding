@@ -1,5 +1,6 @@
 import { Account } from "@/domain/account/account.js";
 import type { PasswordHash } from "@/domain/account/password-hash.js";
+import { InvalidPasswordError, UnExistUserError } from "@/errors/errors.js";
 import { PrismaClient } from "@/generated/prisma/index.js";
 import { type Result, err, ok } from "neverthrow";
 
@@ -30,13 +31,13 @@ export class AuthQueryImpl implements AuthQuery {
     });
 
     if (!data) {
-      return err(new Error("ユーザーが見つかりません"));
+      return err(new UnExistUserError());
     }
 
     const hashedPassword = await this.passwordHash.hash(password);
 
     if (hashedPassword !== data.password) {
-      return err(new Error("パスワードが間違っています"));
+      return err(new InvalidPasswordError());
     }
 
     const account = Account.create(
