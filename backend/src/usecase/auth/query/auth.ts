@@ -1,10 +1,13 @@
-import type { PasswordHash } from "@/application/services/password-hash.js";
 import { Account } from "@/domain/account/account.js";
+import type { PasswordHash } from "@/domain/account/password-hash.js";
 import { PrismaClient } from "@/generated/prisma/index.js";
 import { type Result, err, ok } from "neverthrow";
 
 export interface AuthQuery {
-  execute(userId: string, password: string): Promise<Result<Account, Error>>;
+  execute(
+    userId: string | undefined,
+    password: string | undefined
+  ): Promise<Result<Account, Error>>;
 }
 
 export class AuthQueryImpl implements AuthQuery {
@@ -12,7 +15,14 @@ export class AuthQueryImpl implements AuthQuery {
 
   private prisma = new PrismaClient();
 
-  async execute(userId: string, password: string): Promise<Result<Account, Error>> {
+  async execute(
+    userId: string | undefined,
+    password: string | undefined
+  ): Promise<Result<Account, Error>> {
+    if (!userId || !password) {
+      return err(new Error("ユーザーIDとパスワードは必須です"));
+    }
+
     const data = await this.prisma.account.findUnique({
       where: {
         userId,
