@@ -1,7 +1,5 @@
-import type { PasswordHash } from "@/application/services/password-hash.js";
 import { Account } from "@/domain/account/account.js";
 import { PrismaClient } from "@/generated/prisma/index.js";
-import { err, ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
 import { AuthQueryImpl } from "./auth.js";
 
