@@ -11,14 +11,16 @@
     "format": "biome format --write .",
     "lint": "biome lint .",
     "check": "biome check --write .",
-    "test": "vitest",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "test:coverage": "vitest --coverage",
     "db:start": "docker-compose up -d",
     "db:stop": "docker-compose down",
     "db:migrate": "prisma migrate deploy",
     "db:generate": "prisma generate",
     "schema:copy": "cp ../schema/openapi.yaml ./openapi.yaml",
-    "generate:client": "pnpm schema:copy && openapi-zod-client ./openapi.yaml -o ./src/client/client.gen.ts"
+    "generate:client": "pnpm schema:copy && openapi-zod-client ./openapi.yaml -o ./src/client/client.gen.ts",
+    "format:prisma": "prisma format"
   },
   "dependencies": {
     "@hono/node-server": "^1.15.0",
