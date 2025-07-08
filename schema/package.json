@@ -4,7 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "compile": "tsp compile ."
+    "compile": "tsp compile .",
+    "format": "tsp format '**/*.tsp'"
   },
   "dependencies": {
     "@typespec/compiler": "latest",
