@@ -1,9 +1,13 @@
 import { BadRequestError, UnexpectedError } from "@/errors/errors.js";
+import type { JwtService } from "@/infrastructure/account/jwt-service.js";
 import type { AuthQuery } from "@/usecase/auth/query/auth.js";
 import type { Context } from "hono";
 
 export class AuthHandler {
-  constructor(private readonly authQuery: AuthQuery) {}
+  constructor(
+    private readonly authQuery: AuthQuery,
+    private readonly jwtService: JwtService
+  ) {}
 
   async signIn(c: Context) {
     const body = await c.req.json();
@@ -23,6 +27,8 @@ export class AuthHandler {
       return c.json({ message: user.error.message }, user.error.statusCode);
     }
 
+    const token = await this.jwtService.generate({ role: user.value.role });
+    c.header("Authorization", `Bearer ${token}`);
     return c.json(user.value, 200);
   }
 }
