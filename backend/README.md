@@ -30,4 +30,7 @@ cp .env.example .env
 
 // Prismaクライアントの生成
 pnpm db:generate
+
+// Prisma シード挿入
+pnpm db:seed
 ```
