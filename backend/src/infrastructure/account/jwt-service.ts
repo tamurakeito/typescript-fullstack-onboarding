@@ -23,7 +23,7 @@ export class JwtServiceImpl implements JwtService {
       if (!isString(decoded.role)) {
         return err(new Error("Invalid token payload"));
       }
-      return ok({ role: decoded.role as string });
+      return ok({ role: decoded.role });
     } catch (error) {
       return err(error as Error);
     }
