@@ -29,9 +29,7 @@ export class AuthQueryImpl implements AuthQuery {
       return err(new UnExistUserError());
     }
 
-    const hashedPassword = await this.passwordHash.hash(password);
-
-    if (hashedPassword !== data.password) {
+    if (!(await this.passwordHash.compare(password, data.password))) {
       return err(new InvalidPasswordError());
     }
 

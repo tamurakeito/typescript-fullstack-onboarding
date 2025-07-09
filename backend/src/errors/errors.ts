@@ -3,6 +3,10 @@ import type { ContentfulStatusCode } from "hono/utils/http-status";
 export abstract class AppError extends Error {
   abstract readonly statusCode: ContentfulStatusCode;
   abstract readonly message: string;
+  constructor(discription?: string) {
+    super(discription);
+    console.error(`[ERROR LOG]: ${this.constructor.name} was instantiated.`);
+  }
 }
 
 /* auth */

@@ -10,7 +10,7 @@ export class AuthHandler {
     const userId = body.userId;
     const password = body.password;
 
-    console.log(userId, password);
+    console.log("signIn: ", { userId, password });
 
     try {
       if (!userId || !password) {
