@@ -112,6 +112,9 @@ typescript-fullstack-onboarding/
 │   │   │   ├── query/          # 読み取り操作
 │   │   │   └── command/        # 書き込み操作
 │   │   ├── presentation/       # プレゼンテーション層
+│   │   │   ├── handler/        # 各APIのハンドラ
+│   │   │   ├── middleware/     # ミドルウェア
+│   │   │   └── routes.ts       # ルーティング
 │   │   ├── infrastructure/     # インフラ層
 │   │   └── utils/              # 共通ユーティリティ
 │   ├── prisma/                 # データベーススキーマ
