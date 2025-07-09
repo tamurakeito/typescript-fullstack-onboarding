@@ -16,6 +16,7 @@ vi.mock("@/generated/prisma/index.js", () => ({
 
 const mockPasswordHash = {
   hash: vi.fn(),
+  compare: vi.fn(),
 };
 
 vi.mock("@/application/services/password-hash.js", () => ({
@@ -43,7 +44,7 @@ describe("AuthQueryImpl", () => {
       updatedAt: new Date(),
     };
     mockPrismaClient.account.findUnique.mockResolvedValue(mockData);
-    mockPasswordHash.hash.mockResolvedValue(hashedPassword);
+    mockPasswordHash.compare.mockResolvedValue(true);
 
     const result = await authQuery.execute(userId, password);
 
@@ -77,7 +78,6 @@ describe("AuthQueryImpl", () => {
     const userId = "test-user";
     const invalidPassword = "incorrect-password0123";
     const hashedPassword = "hashed-password0123";
-    const invalidHashedPassword = "hashed-incorrect-password";
 
     const mockData = {
       id: "mock-uuid-123",
@@ -90,7 +90,7 @@ describe("AuthQueryImpl", () => {
       updatedAt: new Date(),
     };
     mockPrismaClient.account.findUnique.mockResolvedValue(mockData);
-    mockPasswordHash.hash.mockResolvedValue(invalidHashedPassword);
+    mockPasswordHash.compare.mockResolvedValue(false);
 
     const result = await authQuery.execute(userId, invalidPassword);
 
