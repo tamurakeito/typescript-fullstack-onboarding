@@ -25,5 +25,6 @@
   },
   "biome.lsp.bin": "./node_modules/.bin/biome",
   "biome.enableLinting": true,
-  "biome.enableFormatting": true
+  "biome.enableFormatting": true,
+  "[prisma]": { "editor.defaultFormatter": "Prisma.prisma" }
 }

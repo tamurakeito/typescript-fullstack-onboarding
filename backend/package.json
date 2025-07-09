@@ -11,27 +11,37 @@
     "format": "biome format --write .",
     "lint": "biome lint .",
     "check": "biome check --write .",
-    "test": "vitest",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "test:coverage": "vitest --coverage",
     "db:start": "docker-compose up -d",
     "db:stop": "docker-compose down",
     "db:migrate": "prisma migrate deploy",
     "db:generate": "prisma generate",
+    "db:seed": "tsx prisma/seed.ts",
+    "format:prisma": "prisma format",
     "schema:copy": "cp ../schema/openapi.yaml ./openapi.yaml",
     "generate:client": "pnpm schema:copy && openapi-zod-client ./openapi.yaml -o ./src/client/client.gen.ts"
   },
   "dependencies": {
     "@hono/node-server": "^1.15.0",
     "@prisma/client": "^6.11.1",
+    "@types/bcrypt": "^5.0.2",
     "@zodios/core": "^10.9.6",
+    "bcrypt": "^6.0.0",
     "hono": "^4.8.4",
     "neverthrow": "^8.2.0",
     "zod": "^3.25.74"
   },
   "devDependencies": {
     "@pnpm/client": "^1000.0.20",
+    "dotenv": "^17.1.0",
     "openapi-zod-client": "^1.18.3",
     "prisma": "^6.11.1",
-    "tsx": "^4.7.1"
+    "tsx": "^4.7.1",
+    "uuid": "^11.1.0"
+  },
+  "prisma": {
+    "schema": "./prisma"
   }
 }

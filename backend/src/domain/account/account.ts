@@ -3,14 +3,14 @@ import { type Result, err, ok } from "neverthrow";
 export type Role = "SuperAdmin" | "Manager" | "Operator";
 
 export class Account {
-  public readonly id: number;
+  public readonly id: string;
   public readonly userId: string;
   public readonly name: string;
   public readonly organizationId: string | undefined;
   public readonly role: Role;
 
   private constructor(
-    id: number,
+    id: string,
     userId: string,
     name: string,
     organizationId: string | undefined,
@@ -24,7 +24,7 @@ export class Account {
   }
 
   static create(
-    id: number,
+    id: string,
     userId: string,
     name: string,
     organizationId: string | undefined,

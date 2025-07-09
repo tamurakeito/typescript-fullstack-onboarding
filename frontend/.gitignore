@@ -24,3 +24,4 @@ dist-ssr
 # Generated files
 src/client/*
 src/routeTree.gen.ts
+!*/.gitkeep
