@@ -36,7 +36,7 @@
     "lint-staged": "^16.1.2"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx,json,jsonc,md}": "biome format --write",
+    "*.{ts,tsx,js,jsx,json,jsonc}": "biome format --write",
     "backend/**/*.prisma": "pnpm --filter backend exec prisma format",
     "schema/**/*.tsp": "pnpm --filter schema exec tsp format"
   }
