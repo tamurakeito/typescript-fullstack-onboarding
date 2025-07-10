@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -22,7 +23,18 @@ const formSchema = z.object({
 });
 
 export const SignIn = () => {
-  // 1. フォームを定義します。
+  const mutation = useMutation({
+    mutationFn: (formData: z.infer<typeof formSchema>) => {
+      return fetch("http://localhost:51002/sign-in", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+    },
+  });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -31,11 +43,10 @@ export const SignIn = () => {
     },
   });
 
-  // 2. サブミットハンドラーを定義します。
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // フォームの値で何かを行います。
-    // ✅ これはタイプセーフで検証済みになります。
     console.log(values);
+    mutation.mutate(values);
+    console.log(mutation.data);
   }
 
   return (
@@ -58,7 +69,7 @@ export const SignIn = () => {
                     <FormControl>
                       <Input
                         placeholder="ユーザーIDを入力"
-                        className="h-12 px-4 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                        className="h-12 px-4 border-gray-300"
                         {...field}
                       />
                     </FormControl>
@@ -77,7 +88,7 @@ export const SignIn = () => {
                       <Input
                         type="password"
                         placeholder="パスワードを入力"
-                        className="h-12 px-4 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                        className="h-12 px-4 border-gray-300"
                         {...field}
                       />
                     </FormControl>
