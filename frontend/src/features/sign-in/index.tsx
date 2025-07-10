@@ -1,3 +1,4 @@
+import { authSignInMutation } from "@/client/@tanstack/react-query.gen";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -28,14 +29,17 @@ export const SignIn = () => {
   const navigate = useNavigate();
 
   const mutation = useMutation({
-    mutationFn: (formData: z.infer<typeof formSchema>) => {
-      return fetch("http://localhost:51002/sign-in", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+    ...authSignInMutation(),
+    onSuccess: () => {
+      toast.success("サインインしました");
+      navigate({ to: "/" });
+    },
+    onError: (error) => {
+      if (error.message === "Unauthorized") {
+        toast.error("ユーザーIDまたはパスワードが間違っています");
+      } else {
+        toast.error(error.message || "エラーが発生しました");
+      }
     },
   });
 
@@ -72,23 +76,10 @@ export const SignIn = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     console.log(values);
-    const result = await mutation.mutateAsync(values);
+    const result = await mutation.mutateAsync({
+      body: values,
+    });
     console.log(result);
-
-    if (result.ok) {
-      toast.success("サインインしました");
-      navigate({ to: "/" });
-    } else {
-      if (result.status === 400) {
-        toast.error("不正なリクエストです");
-      }
-      if (result.status === 401) {
-        toast.error("ユーザーIDまたはパスワードが間違っています");
-      }
-      if (result.status === 500) {
-        toast.error("サーバーエラーが発生しました");
-      }
-    }
   };
 
   return (
