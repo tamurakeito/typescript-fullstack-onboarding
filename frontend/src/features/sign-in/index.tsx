@@ -69,19 +69,17 @@ export const SignIn = () => {
     }
   };
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     console.log(values);
-    mutation.mutate(values);
-    console.log(mutation.data);
+    const result = await mutation.mutateAsync(values);
+    console.log(result);
 
-    if (mutation.isSuccess) {
+    if (result.ok) {
       navigate({ to: "/" });
+    } else {
+      console.log(result.statusText);
     }
-
-    if (mutation.isError) {
-      console.log(mutation.error);
-    }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50 p-4">
