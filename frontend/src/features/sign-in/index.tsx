@@ -2,13 +2,13 @@ import { authLoginMutation } from "@/client/@tanstack/react-query.gen";
 import { type zSignInRequest, zSignInResponse } from "@/client/zod.gen";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAuthStore } from "@/store/auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { useAuth } from "./auth-provider";
 
 const formSchema = z.object({
   userId: z.string().min(1, {
@@ -21,7 +21,6 @@ const formSchema = z.object({
 
 export const SignIn = () => {
   const navigate = useNavigate();
-  const { setAuth } = useAuth();
 
   const mutation = useMutation({
     ...authLoginMutation(),
@@ -34,7 +33,7 @@ export const SignIn = () => {
       const response = validationResult.data;
 
       toast.success("サインインしました");
-      setAuth(response.account, response.token);
+      useAuthStore.getState().signIn(response.account, response.token);
       navigate({ to: "/" });
     },
     onError: (error) => {

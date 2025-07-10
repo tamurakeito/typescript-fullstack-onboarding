@@ -1,15 +1,14 @@
 import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/store/auth-store";
 import { useNavigate } from "@tanstack/react-router";
-import { useAuth } from "../sign-in/auth-provider";
+import { toast } from "sonner";
 
 export const Home = () => {
   const navigate = useNavigate();
-  const { setAuth } = useAuth();
 
   const handleSignOut = () => {
-    localStorage.removeItem("account");
-    localStorage.removeItem("token");
-    setAuth(undefined, undefined);
+    toast.success("サインアウトしました");
+    useAuthStore.getState().signOut();
     navigate({ to: "/sign-in" });
   };
 
