@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import { forwardRef } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -93,6 +94,12 @@ export const SignIn = () => {
     console.log(result);
   };
 
+  const RefInput = forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
+    ({ className, type, ...props }, ref) => {
+      return <Input type={type} className={className} {...props} ref={ref} />;
+    }
+  );
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50 p-4">
       <div className="w-full max-w-md">
@@ -115,7 +122,7 @@ export const SignIn = () => {
                   <FormItem>
                     <FormLabel className="text-sm font-medium text-gray-700">ユーザーID</FormLabel>
                     <FormControl>
-                      <Input
+                      <RefInput
                         placeholder="ユーザーIDを入力"
                         className="h-12 px-4 border-gray-300"
                         {...field}
@@ -133,7 +140,7 @@ export const SignIn = () => {
                   <FormItem>
                     <FormLabel className="text-sm font-medium text-gray-700">パスワード</FormLabel>
                     <FormControl>
-                      <Input
+                      <RefInput
                         type="password"
                         placeholder="パスワードを入力"
                         className="h-12 px-4 border-gray-300"
