@@ -1,4 +1,5 @@
-import { authSignInMutation } from "@/client/@tanstack/react-query.gen";
+import { authLoginMutation } from "@/client/@tanstack/react-query.gen";
+import { client } from "@/client/client.gen";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -13,6 +14,7 @@ import { AccountSchema } from "@/schema/auccount";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -26,13 +28,18 @@ const formSchema = z.object({
   }),
 });
 
+const SignInResponseSchema = z.object({
+  account: AccountSchema,
+  token: z.string(),
+});
+
 export const SignIn = () => {
   const navigate = useNavigate();
 
   const mutation = useMutation({
-    ...authSignInMutation(),
+    ...authLoginMutation(),
     onSuccess: (data) => {
-      const validationResult = AccountSchema.safeParse(data);
+      const validationResult = SignInResponseSchema.safeParse(data);
       if (!validationResult.success) {
         toast.error("ユーザー情報の取得に失敗しました");
         return;
