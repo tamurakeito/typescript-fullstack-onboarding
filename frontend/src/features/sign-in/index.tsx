@@ -12,6 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const formSchema = z.object({
@@ -77,7 +78,15 @@ export const SignIn = () => {
     if (result.ok) {
       navigate({ to: "/" });
     } else {
-      console.log(result.statusText);
+      if (result.status === 400) {
+        toast.error("不正なリクエストです。");
+      }
+      if (result.status === 401) {
+        toast.error("ユーザーIDまたはパスワードが間違っています。");
+      }
+      if (result.status === 500) {
+        toast.error("サーバーエラーが発生しました。");
+      }
     }
   };
 
