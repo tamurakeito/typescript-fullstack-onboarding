@@ -10,6 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -23,6 +24,8 @@ const formSchema = z.object({
 });
 
 export const SignIn = () => {
+  const navigate = useNavigate();
+
   const mutation = useMutation({
     mutationFn: (formData: z.infer<typeof formSchema>) => {
       return fetch("http://localhost:51002/sign-in", {
@@ -43,10 +46,41 @@ export const SignIn = () => {
     },
   });
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+    if (e.key !== "Enter") {
+      return;
+    }
+
+    e.preventDefault();
+    const form = e.currentTarget;
+
+    const userIdElement = form.elements.namedItem("userId");
+    const passwordElement = form.elements.namedItem("password");
+    const submitElement = form.elements.namedItem("submit");
+
+    if (userIdElement === document.activeElement) {
+      (passwordElement as HTMLInputElement)?.focus();
+    }
+    if (passwordElement === document.activeElement) {
+      (submitElement as HTMLButtonElement)?.focus();
+    }
+    if (submitElement === document.activeElement) {
+      (submitElement as HTMLButtonElement)?.click();
+    }
+  };
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
     mutation.mutate(values);
     console.log(mutation.data);
+
+    if (mutation.isSuccess) {
+      navigate({ to: "/" });
+    }
+
+    if (mutation.isError) {
+      console.log(mutation.error);
+    }
   }
 
   return (
@@ -59,7 +93,11 @@ export const SignIn = () => {
           </div>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              onKeyDown={handleKeyDown}
+              className="space-y-6"
+            >
               <FormField
                 control={form.control}
                 name="userId"
@@ -99,6 +137,7 @@ export const SignIn = () => {
 
               <Button
                 type="submit"
+                name="submit"
                 className="w-full h-12 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors duration-200 cursor-pointer"
               >
                 サインイン
