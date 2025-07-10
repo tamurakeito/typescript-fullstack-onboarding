@@ -9,6 +9,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { AccountSchema } from "@/schema/auccount";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
@@ -30,7 +31,14 @@ export const SignIn = () => {
 
   const mutation = useMutation({
     ...authSignInMutation(),
-    onSuccess: () => {
+    onSuccess: (data) => {
+      const validationResult = AccountSchema.safeParse(data);
+      if (!validationResult.success) {
+        toast.error("ユーザー情報の取得に失敗しました");
+        return;
+      }
+      const account = validationResult.data;
+      console.log(account);
       toast.success("サインインしました");
       navigate({ to: "/" });
     },
