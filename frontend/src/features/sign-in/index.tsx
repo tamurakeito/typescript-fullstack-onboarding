@@ -1,5 +1,4 @@
 import { authLoginMutation } from "@/client/@tanstack/react-query.gen";
-import { client } from "@/client/client.gen";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -14,10 +13,10 @@ import { AccountSchema } from "@/schema/auccount";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useAuth } from "./auth-provider";
 
 const formSchema = z.object({
   userId: z.string().min(1, {
@@ -35,6 +34,7 @@ const SignInResponseSchema = z.object({
 
 export const SignIn = () => {
   const navigate = useNavigate();
+  const { setAuth } = useAuth();
 
   const mutation = useMutation({
     ...authLoginMutation(),
@@ -44,9 +44,10 @@ export const SignIn = () => {
         toast.error("ユーザー情報の取得に失敗しました");
         return;
       }
-      const account = validationResult.data;
-      console.log(account);
+      const response = validationResult.data;
+
       toast.success("サインインしました");
+      setAuth(response.account, response.token);
       navigate({ to: "/" });
     },
     onError: (error) => {
@@ -152,7 +153,7 @@ export const SignIn = () => {
               <Button
                 type="submit"
                 name="submit"
-                className="w-full h-12 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors duration-200 cursor-pointer"
+                className="w-full h-12 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors duration-200"
               >
                 サインイン
               </Button>

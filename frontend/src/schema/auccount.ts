@@ -7,5 +7,3 @@ export const AccountSchema = z.object({
   organizationId: z.string().uuid().optional(),
   role: z.enum(["SuperAdmin", "Manager", "Operator"]),
 });
-
-export type Account = z.infer<typeof AccountSchema>;
