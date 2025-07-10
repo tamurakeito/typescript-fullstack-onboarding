@@ -76,16 +76,17 @@ export const SignIn = () => {
     console.log(result);
 
     if (result.ok) {
+      toast.success("サインインしました");
       navigate({ to: "/" });
     } else {
       if (result.status === 400) {
-        toast.error("不正なリクエストです。");
+        toast.error("不正なリクエストです");
       }
       if (result.status === 401) {
-        toast.error("ユーザーIDまたはパスワードが間違っています。");
+        toast.error("ユーザーIDまたはパスワードが間違っています");
       }
       if (result.status === 500) {
-        toast.error("サーバーエラーが発生しました。");
+        toast.error("サーバーエラーが発生しました");
       }
     }
   };
