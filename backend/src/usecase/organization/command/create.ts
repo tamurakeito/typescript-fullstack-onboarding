@@ -16,10 +16,10 @@ export class OrganizationCreateCommandImpl implements OrganizationCreateCommand 
       id: uuidv4(),
       name,
     };
-    const organization = await this.organizationRepository.save(data);
-    if (organization.isErr()) {
-      return err(organization.error);
+    const result = await this.organizationRepository.save(data);
+    if (result.isErr()) {
+      return err(result.error);
     }
-    return ok(organization.value);
+    return ok(result.value);
   }
 }

@@ -10,9 +10,9 @@ export class OrganizationUpdateCommandImpl implements OrganizationUpdateCommand 
   constructor(private readonly organizationRepository: OrganizationRepository) {}
 
   async execute(id: string, name: string): Promise<Result<void, AppError>> {
-    const organization = await this.organizationRepository.save({ id, name });
-    if (organization.isErr()) {
-      return err(organization.error);
+    const result = await this.organizationRepository.save({ id, name });
+    if (result.isErr()) {
+      return err(result.error);
     }
     return ok(undefined);
   }

@@ -33,6 +33,11 @@ export class DuplicateOrganizationNameError extends AppError {
   readonly message = "Bad Request";
 }
 
+export class UnExistOrganizationError extends AppError {
+  readonly statusCode = 404;
+  readonly message = "UnExist Organization";
+}
+
 /* 共通 */
 
 export class BadRequestError extends AppError {
