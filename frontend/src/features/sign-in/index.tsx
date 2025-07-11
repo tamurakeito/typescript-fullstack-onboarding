@@ -6,7 +6,7 @@ import { useAuthStore } from "@/store/auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { type KeyboardEvent, useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -23,28 +23,6 @@ const formSchema = z.object({
 export const SignIn = () => {
   const navigate = useNavigate();
   const search = useSearch({ from: "/sign-in" });
-
-  const userIdRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
-  const submitRef = useRef<HTMLButtonElement>(null);
-
-  const handleKeyDown = (event: KeyboardEvent<HTMLFormElement>) => {
-    if (event.key === "Enter") {
-      const userId = userIdRef.current;
-      const password = passwordRef.current;
-      const submit = submitRef.current;
-
-      if (userId) {
-        password?.focus();
-      }
-      if (password) {
-        submit?.focus();
-      }
-      if (submit) {
-        submit.click();
-      }
-    }
-  };
 
   const mutation = useMutation({
     ...authLoginMutation(),
@@ -104,11 +82,7 @@ export const SignIn = () => {
             <h1 className="text-2xl font-bold text-gray-900">組織用Todo管理システム</h1>
             <p className="text-gray-500">ユーザーIDとパスワードを入力してください</p>
           </div>
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col gap-4"
-            onKeyDown={(e: KeyboardEvent<HTMLFormElement>) => handleKeyDown(e)}
-          >
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
             <Controller
               control={control}
               name="userId"
