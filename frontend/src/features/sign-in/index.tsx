@@ -1,4 +1,5 @@
 import { authLoginMutation } from "@/client/@tanstack/react-query.gen";
+import { zSignInRequest, zSignInResponse } from "@/client/zod.gen";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -9,7 +10,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { AccountSchema } from "@/schema/auccount";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
@@ -27,11 +27,6 @@ const formSchema = z.object({
   }),
 });
 
-const SignInResponseSchema = z.object({
-  account: AccountSchema,
-  token: z.string(),
-});
-
 export const SignIn = () => {
   const navigate = useNavigate();
   const { setAuth } = useAuth();
@@ -39,7 +34,7 @@ export const SignIn = () => {
   const mutation = useMutation({
     ...authLoginMutation(),
     onSuccess: (data) => {
-      const validationResult = SignInResponseSchema.safeParse(data);
+      const validationResult = zSignInResponse.safeParse(data);
       if (!validationResult.success) {
         toast.error("ユーザー情報の取得に失敗しました");
         return;
@@ -59,8 +54,8 @@ export const SignIn = () => {
     },
   });
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof zSignInRequest>>({
+    resolver: zodResolver(zSignInRequest),
     defaultValues: {
       userId: "",
       password: "",
@@ -90,7 +85,7 @@ export const SignIn = () => {
     }
   };
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof zSignInRequest>) => {
     console.log(values);
     const result = await mutation.mutateAsync({
       body: values,
