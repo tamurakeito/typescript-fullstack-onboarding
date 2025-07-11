@@ -6,8 +6,8 @@ import { useAuthStore } from "@/store/auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { type KeyboardEvent, useRef } from "react";
-import { Controller, type SubmitHandler, useForm } from "react-hook-form";
+import { forwardRef } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -23,47 +23,28 @@ const formSchema = z.object({
 export const SignIn = () => {
   const navigate = useNavigate();
 
-  const userIdRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
-  const submitRef = useRef<HTMLButtonElement>(null);
-
-  const handleKeyDown = (event: KeyboardEvent<HTMLFormElement>) => {
-    if (event.key === "Enter") {
-      const userId = userIdRef.current;
-      const password = passwordRef.current;
-      const submit = submitRef.current;
-
-      if (userId) {
-        password?.focus();
-      }
-      if (password) {
-        submit?.focus();
-      }
-      if (submit) {
-        submit.click();
-      }
-    }
-  };
-
   const mutation = useMutation({
     ...authLoginMutation(),
     onSuccess: (data) => {
       const validationResult = zSignInResponse.safeParse(data);
       if (!validationResult.success) {
-        toast.error("ユーザー情報の取得に失敗しました");
+        toast.error("ユーザー情報の取得に失敗しました", { duration: 500 });
         return;
       }
       const response = validationResult.data;
 
-      toast.success("サインインしました");
+      toast.success("サインインしました", { duration: 500 });
       useAuthStore.getState().signIn(response.account, response.token);
-      navigate({ to: "/" });
+
+      const redirectParam = (search as { redirect?: string }).redirect;
+      const redirectTo = redirectParam ? new URL(redirectParam).pathname : "/";
+      navigate({ to: redirectTo as "/" });
     },
     onError: (error) => {
       if (error.message === "Unauthorized") {
-        toast.error("ユーザーIDまたはパスワードが間違っています");
+        toast.error("ユーザーIDまたはパスワードが間違っています", { duration: 500 });
       } else {
-        toast.error(error.message || "エラーが発生しました");
+        toast.error(error.message || "エラーが発生しました", { duration: 500 });
       }
     },
   });
@@ -87,6 +68,12 @@ export const SignIn = () => {
     });
     console.log(result);
   };
+
+  const RefInput = forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
+    ({ className, type, ...props }, ref) => {
+      return <Input type={type} className={className} {...props} ref={ref} />;
+    }
+  );
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50 p-4">
