@@ -5,24 +5,46 @@ import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { forwardRef } from "react";
+import { type KeyboardEvent, useRef } from "react";
 import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import type { z } from "zod";
+import { z } from "zod";
 import { useAuth } from "./auth-provider";
 
-// const formSchema = z.object({
-//   userId: z.string().min(1, {
-//     message: "ユーザーIDを入力してください。",
-//   }),
-//   password: z.string().min(1, {
-//     message: "パスワードを入力してください。",
-//   }),
-// });
+const formSchema = z.object({
+  userId: z.string().min(1, {
+    message: "ユーザーIDを入力してください。",
+  }),
+  password: z.string().min(1, {
+    message: "パスワードを入力してください。",
+  }),
+});
 
 export const SignIn = () => {
   const navigate = useNavigate();
   const { setAuth } = useAuth();
+
+  const userIdRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const submitRef = useRef<HTMLButtonElement>(null);
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLFormElement>) => {
+    if (event.key === "Enter") {
+      const userId = userIdRef.current;
+      const password = passwordRef.current;
+      const submit = submitRef.current;
+
+      if (userId) {
+        password?.focus();
+      }
+      if (password) {
+        submit?.focus();
+      }
+      if (submit) {
+        submit.click();
+      }
+    }
+  };
 
   const mutation = useMutation({
     ...authLoginMutation(),
@@ -47,38 +69,17 @@ export const SignIn = () => {
     },
   });
 
-  // const form = useForm<z.infer<typeof zSignInRequest>>({
-  //   resolver: zodResolver(zSignInRequest),
-  //   defaultValues: {
-  //     userId: "",
-  //     password: "",
-  //   },
-  // });
-
-  // const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
-  //   if (e.key !== "Enter") {
-  //     return;
-  //   }
-
-  //   e.preventDefault();
-  //   const form = e.currentTarget;
-
-  //   const userIdElement = form.elements.namedItem("userId");
-  //   const passwordElement = form.elements.namedItem("password");
-  //   const submitElement = form.elements.namedItem("submit");
-
-  //   if (userIdElement === document.activeElement) {
-  //     (passwordElement as HTMLInputElement)?.focus();
-  //   }
-  //   if (passwordElement === document.activeElement) {
-  //     (submitElement as HTMLButtonElement)?.focus();
-  //   }
-  //   if (submitElement === document.activeElement) {
-  //     (submitElement as HTMLButtonElement)?.click();
-  //   }
-  // };
-
-  const { control, handleSubmit } = useForm<z.infer<typeof zSignInRequest>>();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<z.infer<typeof zSignInRequest>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      userId: "",
+      password: "",
+    },
+  });
 
   const onSubmit: SubmitHandler<z.infer<typeof zSignInRequest>> = async (data) => {
     console.log(data);
@@ -96,29 +97,43 @@ export const SignIn = () => {
             <h1 className="text-2xl font-bold text-gray-900">組織用Todo管理システム</h1>
             <p className="text-gray-500">ユーザーIDとパスワードを入力してください</p>
           </div>
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-4"
+            onKeyDown={(e: KeyboardEvent<HTMLFormElement>) => handleKeyDown(e)}
+          >
             <Controller
               control={control}
               name="userId"
               render={({ field }) => (
-                <Input
-                  type="text"
-                  placeholder="ユーザーIDを入力"
-                  className="h-12 px-4"
-                  {...field}
-                />
+                <>
+                  <Input
+                    type="text"
+                    placeholder="ユーザーIDを入力"
+                    className="h-12 px-4"
+                    {...field}
+                  />
+                  {errors.userId && (
+                    <p className="text-sm text-red-700 px-2">{errors.userId.message}</p>
+                  )}
+                </>
               )}
             />
             <Controller
               control={control}
               name="password"
               render={({ field }) => (
-                <Input
-                  type="password"
-                  placeholder="パスワードを入力"
-                  className="h-12 px-4"
-                  {...field}
-                />
+                <>
+                  <Input
+                    type="password"
+                    placeholder="パスワードを入力"
+                    className="h-12 px-4"
+                    {...field}
+                  />
+                  {errors.password && (
+                    <p className="text-sm text-red-700 px-2">{errors.password.message}</p>
+                  )}
+                </>
               )}
             />
             <Button
