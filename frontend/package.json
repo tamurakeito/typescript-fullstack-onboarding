@@ -19,6 +19,7 @@
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
     "@radix-ui/react-label": "^2.1.7",
+    "@radix-ui/react-navigation-menu": "^1.2.13",
     "@radix-ui/react-slot": "^1.2.3",
     "@tanstack/react-query": "^5.81.5",
     "@tanstack/react-router": "^1.124.0",
@@ -33,7 +34,8 @@
     "react-hook-form": "^7.60.0",
     "sonner": "^2.0.6",
     "tailwind-merge": "^3.3.1",
-    "zod": "^3.25.74"
+    "zod": "^3.25.74",
+    "zustand": "^5.0.6"
   },
   "devDependencies": {
     "@hey-api/openapi-ts": "^0.78.2",
