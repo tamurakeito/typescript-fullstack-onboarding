@@ -33,8 +33,6 @@ describe("OrganizationListQueryImpl", () => {
     expect(result.isOk()).toBe(true);
     if (result.isOk()) {
       const organizations = result.value;
-      expect(organizations).toBeInstanceOf(Array);
-      expect(organizations.length).toBe(1);
       expect(organizations).toEqual([mockData]);
       expect(mockFindMany).toHaveBeenCalled();
     }

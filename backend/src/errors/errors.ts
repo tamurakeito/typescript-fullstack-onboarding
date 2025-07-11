@@ -28,6 +28,11 @@ export class NoOrganizationError extends AppError {
   readonly message = "Not Found";
 }
 
+export class DuplicateOrganizationNameError extends AppError {
+  readonly statusCode = 400;
+  readonly message = "Bad Request";
+}
+
 /* 共通 */
 
 export class BadRequestError extends AppError {

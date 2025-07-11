@@ -60,7 +60,7 @@ async function main() {
     update: {},
     create: {
       id: organizationId01,
-      name: "テスト組織",
+      name: "テスト組織01",
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -70,7 +70,7 @@ async function main() {
     update: {},
     create: {
       id: organizationId02,
-      name: "テスト組織",
+      name: "テスト組織02",
       createdAt: new Date(),
       updatedAt: new Date(),
     },
