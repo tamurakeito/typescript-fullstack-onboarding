@@ -1,5 +1,5 @@
 import { Account } from "@/domain/account/account.js";
-import { BadRequestError, InvalidPasswordError, UnExistUserError } from "@/errors/errors.js";
+import { InvalidPasswordError, UnExistUserError } from "@/errors/errors.js";
 import { PrismaClient } from "@/generated/prisma/index.js";
 import { describe, expect, it, vi } from "vitest";
 import { AuthQueryImpl } from "./auth.js";
