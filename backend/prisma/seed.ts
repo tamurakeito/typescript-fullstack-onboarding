@@ -10,7 +10,8 @@ async function hashPassword(password: string) {
 }
 
 async function main() {
-  const organizationId = "abc-org";
+  const organizationId01 = uuidv4();
+  const organizationId02 = uuidv4();
   const superAdmin = await prisma.account.upsert({
     where: { userId: "super-admin" },
     update: {},
@@ -33,7 +34,7 @@ async function main() {
       userId: "manager",
       name: "監督　花子",
       password: await hashPassword("password"),
-      organizationId: organizationId,
+      organizationId: organizationId01,
       role: "Manager",
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -47,13 +48,34 @@ async function main() {
       userId: "operator",
       name: "実働　次郎",
       password: await hashPassword("password"),
-      organizationId: organizationId,
+      organizationId: organizationId01,
       role: "Operator",
       createdAt: new Date(),
       updatedAt: new Date(),
     },
   });
   console.log({ superAdmin, manager, operator });
+  const organization01 = await prisma.organization.upsert({
+    where: { id: organizationId01 },
+    update: {},
+    create: {
+      id: organizationId01,
+      name: "テスト組織",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+  const organization02 = await prisma.organization.upsert({
+    where: { id: organizationId02 },
+    update: {},
+    create: {
+      id: organizationId02,
+      name: "テスト組織",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+  console.log({ organization01, organization02 });
 }
 main()
   .then(async () => {

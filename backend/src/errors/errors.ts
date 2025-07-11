@@ -21,6 +21,13 @@ export class InvalidPasswordError extends AppError {
   readonly message = "Unauthorized";
 }
 
+/* organization */
+
+export class NoOrganizationError extends AppError {
+  readonly statusCode = 404;
+  readonly message = "Not Found";
+}
+
 /* 共通 */
 
 export class BadRequestError extends AppError {
