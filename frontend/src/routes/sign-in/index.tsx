@@ -1,9 +1,9 @@
+import { SignIn } from "@/features/sign-in";
 import { useAuthStore } from "@/store/auth-store";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { SignIn } from "../features/sign-in";
 
-export const Route = createFileRoute("/sign-in")({
+export const Route = createFileRoute("/sign-in/")({
   component: SignInPage,
   beforeLoad: () => {
     const { account, token } = useAuthStore.getState();

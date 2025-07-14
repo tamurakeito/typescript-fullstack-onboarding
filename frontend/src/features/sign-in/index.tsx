@@ -21,7 +21,7 @@ const formSchema = z.object({
 
 export const SignIn = () => {
   const navigate = useNavigate();
-  const search = useSearch({ from: "/sign-in" });
+  const search = useSearch({ from: "/sign-in/" });
 
   const mutation = useMutation({
     ...authLoginMutation(),
