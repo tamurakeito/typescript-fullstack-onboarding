@@ -1,4 +1,5 @@
 import type { Account } from "@/client/types.gen";
+import { zAccount } from "@/client/zod.gen";
 import { create } from "zustand";
 
 interface AuthState {
@@ -23,18 +24,19 @@ export const useAuthStore = create<AuthState>((set) => ({
     localStorage.removeItem("token");
   },
   initialize: () => {
-    try {
-      const storedAccount = localStorage.getItem("account");
-      const storedToken = localStorage.getItem("token");
+    const storedAccount = localStorage.getItem("account");
+    const storedToken = localStorage.getItem("token");
 
-      if (storedAccount && storedToken) {
-        const account = JSON.parse(storedAccount) as Account;
-        set({ account, token: storedToken });
+    if (storedAccount && storedToken) {
+      const account = JSON.parse(storedAccount);
+      const validationAccount = zAccount.safeParse(account);
+      if (validationAccount.success) {
+        return set({ account: validationAccount.data, token: storedToken });
       }
-    } catch (error) {
-      console.error("Failed to initialize auth state from localStorage:", error);
-      localStorage.removeItem("account");
-      localStorage.removeItem("token");
     }
+
+    console.log("Failed to initialize auth state from localStorage");
+    localStorage.removeItem("account");
+    localStorage.removeItem("token");
   },
 }));

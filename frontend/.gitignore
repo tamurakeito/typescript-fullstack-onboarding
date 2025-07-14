@@ -25,3 +25,5 @@ dist-ssr
 src/client/*
 src/routeTree.gen.ts
 !*/.gitkeep
+
+.tanstack/temp
