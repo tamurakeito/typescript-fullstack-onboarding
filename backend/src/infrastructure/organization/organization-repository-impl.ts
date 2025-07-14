@@ -13,41 +13,18 @@ import { type Result, err, ok } from "neverthrow";
 export class OrganizationRepositoryImpl implements OrganizationRepository {
   private prisma = new PrismaClient();
 
-  async create(name: string): Promise<Result<Organization, AppError>> {
+  async save(organization: Organization): Promise<Result<Organization, AppError>> {
     try {
-      const result = await this.prisma.organization.create({
-        data: {
-          name,
-        },
+      const result = await this.prisma.organization.upsert({
+        where: { id: organization.id },
+        update: { name: organization.name },
+        create: { id: organization.id, name: organization.name },
       });
       return ok(result);
     } catch (error) {
       console.log(error);
       if (error instanceof PrismaClientKnownRequestError) {
         switch (error.code) {
-          case "P2002":
-            return err(new DuplicateOrganizationNameError());
-          default:
-            return err(new UnexpectedError());
-        }
-      }
-      return err(new UnexpectedError());
-    }
-  }
-
-  async update(organization: Organization): Promise<Result<void, AppError>> {
-    try {
-      await this.prisma.organization.update({
-        where: { id: organization.id },
-        data: { name: organization.name },
-      });
-      return ok(undefined);
-    } catch (error) {
-      console.log(error);
-      if (error instanceof PrismaClientKnownRequestError) {
-        switch (error.code) {
-          case "P2001":
-            return err(new UnExistOrganizationError());
           case "P2002":
             return err(new DuplicateOrganizationNameError());
           default:
