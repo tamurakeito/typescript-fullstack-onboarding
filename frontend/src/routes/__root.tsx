@@ -6,7 +6,6 @@ export const Route = createRootRoute({
   component: RootComponent,
   beforeLoad: async () => {
     await useAuthStore.getState().initialize();
-    console.log("root Load!");
   },
 });
 

@@ -45,7 +45,6 @@ export const Route = createFileRoute("/_protected")({
   },
   beforeLoad: () => {
     const { account, token } = useAuthStore.getState();
-    console.log("protected load!");
     if (!account || !token) {
       throw redirect({
         to: "/sign-in",
