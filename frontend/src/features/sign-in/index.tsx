@@ -6,7 +6,6 @@ import { useAuthStore } from "@/store/auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { useEffect } from "react";
 import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -22,7 +21,7 @@ const formSchema = z.object({
 
 export const SignIn = () => {
   const navigate = useNavigate();
-  const search = useSearch({ from: "/sign-in" });
+  const search = useSearch({ from: "/sign-in/" });
 
   const mutation = useMutation({
     ...authLoginMutation(),
@@ -69,10 +68,6 @@ export const SignIn = () => {
     });
     console.log(result);
   };
-
-  useEffect(() => {
-    useAuthStore.getState().signOut();
-  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50 p-4">
