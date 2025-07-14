@@ -27,10 +27,10 @@ export function initRouting(
   app.post("/organization", jwtMiddleware(jwtService), (c) =>
     organizationHandler.createOrganization(c)
   );
-  app.put("organization", jwtMiddleware(jwtService), (c) =>
+  app.put("organization/:id", jwtMiddleware(jwtService), (c) =>
     organizationHandler.updateOrganization(c)
   );
-  app.delete("organization", jwtMiddleware(jwtService), (c) =>
+  app.delete("organization/:id", jwtMiddleware(jwtService), (c) =>
     organizationHandler.deleteOrganization(c)
   );
 }

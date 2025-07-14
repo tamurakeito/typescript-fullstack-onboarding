@@ -1,20 +1,28 @@
-import type { Organization } from "@/domain/organization/organization.js";
-import { type AppError, NoOrganizationError } from "@/errors/errors.js";
+import { Organization } from "@/domain/organization/organization.js";
+import { type AppError, NoOrganizationError, UnexpectedError } from "@/errors/errors.js";
 import { PrismaClient } from "@/generated/prisma/index.js";
 import { type Result, err, ok } from "neverthrow";
 
 export interface OrganizationListQuery {
-  execute(): Promise<Result<Organization[], AppError>>;
+  execute(): Promise<Result<Array<Organization>, AppError>>;
 }
 
 export class OrganizationListQueryImpl implements OrganizationListQuery {
   private prisma = new PrismaClient();
 
-  async execute(): Promise<Result<Organization[], AppError>> {
-    const organizations = await this.prisma.organization.findMany();
-    if (organizations.length === 0) {
+  async execute(): Promise<Result<Array<Organization>, AppError>> {
+    const datas = await this.prisma.organization.findMany();
+    if (datas.length === 0) {
       return err(new NoOrganizationError());
     }
+
+    const results = datas.map((data) => Organization.create(data.id, data.name));
+    const resultError = results.find((results) => results.isErr());
+    if (resultError) {
+      return err(new UnexpectedError());
+    }
+    const organizations: Array<Organization> = results.map((result) => result._unsafeUnwrap());
+
     return ok(organizations);
   }
 }

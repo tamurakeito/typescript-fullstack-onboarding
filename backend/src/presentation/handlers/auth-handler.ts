@@ -12,15 +12,15 @@ export class AuthHandler {
 
   async signIn(c: Context) {
     const body = await c.req.json();
-    const result = schemas.SignInRequest.safeParse(body);
+    const parsedBody = schemas.SignInRequest.safeParse(body);
 
-    if (!result.success) {
+    if (!parsedBody.success) {
       const error = new BadRequestError();
       return c.json({ message: error.message }, error.statusCode);
     }
 
-    const userId = result.data.userId;
-    const password = result.data.password;
+    const userId = body.userId;
+    const password = body.password;
 
     const user = await this.authQuery.execute(userId, password);
 
