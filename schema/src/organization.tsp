@@ -44,6 +44,9 @@ interface OrganizationAPI {
   ): {
     @statusCode
     statusCode: 200;
+
+    @body
+    organization: Organization;
   } | BadRequestError | InternalServerError;
 
   @delete
