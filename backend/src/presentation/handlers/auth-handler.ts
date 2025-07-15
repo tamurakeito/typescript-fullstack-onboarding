@@ -1,4 +1,3 @@
-import { BadRequestError, UnexpectedError } from "@/errors/errors.js";
 import { schemas } from "@/generated/client/client.gen.js";
 import type { JwtService } from "@/infrastructure/account/jwt-service.js";
 import type { AuthQuery } from "@/usecase/auth/query/auth.js";
@@ -12,13 +11,6 @@ export class AuthHandler {
 
   async signIn(c: Context) {
     const body = await c.req.json();
-    const parsedBody = schemas.SignInRequest.safeParse(body);
-
-    if (!parsedBody.success) {
-      const error = new BadRequestError();
-      return c.json({ message: error.message }, error.statusCode);
-    }
-
     const userId = body.userId;
     const password = body.password;
 
@@ -30,17 +22,10 @@ export class AuthHandler {
 
     const token = await this.jwtService.generate({ role: user.value.role });
 
-    const response = {
+    const response = schemas.SignInResponse.parse({
       account: user.value,
       token,
-    };
-
-    const parsedResponse = schemas.SignInResponse.safeParse(response);
-
-    if (!parsedResponse.success) {
-      const error = new UnexpectedError();
-      return c.json({ message: error.message }, error.statusCode);
-    }
+    });
 
     return c.json(response, 200);
   }

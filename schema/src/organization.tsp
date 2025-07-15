@@ -7,6 +7,14 @@ model Organization {
   name: string;
 }
 
+model CreateOrganizationRequest {
+  name: string;
+}
+
+model UpdateOrganizationRequest {
+  name: string;
+}
+
 @tag("Organization")
 interface OrganizationAPI {
   @get
@@ -21,11 +29,7 @@ interface OrganizationAPI {
   @post
   @route("/organization")
   @summary("組織作成")
-  create(
-    @body credentials: {
-      name: string;
-    },
-  ): {
+  create(@body body: CreateOrganizationRequest): {
     @statusCode
     statusCode: 201;
 
@@ -36,12 +40,7 @@ interface OrganizationAPI {
   @put
   @route("/organization/{id}")
   @summary("組織更新")
-  update(
-    @path id: string,
-    @body credentials: {
-      name: string;
-    },
-  ): {
+  update(@path id: string, @body body: UpdateOrganizationRequest): {
     @statusCode
     statusCode: 200;
 

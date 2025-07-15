@@ -1,11 +1,10 @@
-import { BadRequestError, UnexpectedError } from "@/errors/errors.js";
+import type { Organization } from "@/domain/organization/organization.js";
 import { schemas } from "@/generated/client/client.gen.js";
 import type { OrganizationCreateCommand } from "@/usecase/organization/command/create.js";
 import type { OrganizationDeleteCommand } from "@/usecase/organization/command/delete.js";
 import type { OrganizationUpdateCommand } from "@/usecase/organization/command/update.js";
 import type { OrganizationListQuery } from "@/usecase/organization/query/get-list.js";
 import type { Context } from "hono";
-import { z } from "zod";
 
 export class OrganizationHandler {
   constructor(
@@ -22,13 +21,9 @@ export class OrganizationHandler {
       return c.json({ message: result.error.message }, result.error.statusCode);
     }
 
-    const response = result.value;
-    for (const data of response) {
-      const parsed = schemas.Organization.safeParse(data);
-      if (!parsed.success) {
-        const error = new UnexpectedError();
-        return c.json({ message: error.message }, error.statusCode);
-      }
+    const response: Array<Organization> = [];
+    for (const data of result.value) {
+      response.push(schemas.Organization.parse(data));
     }
 
     return c.json(response, 200);
@@ -36,17 +31,6 @@ export class OrganizationHandler {
 
   async createOrganization(c: Context) {
     const body = await c.req.json();
-    const parsedBody = z
-      .object({
-        name: z.string(),
-      })
-      .safeParse(body);
-
-    if (!parsedBody.success) {
-      console.log(parsedBody.error);
-      const error = new BadRequestError();
-      return c.json({ message: error.message }, error.statusCode);
-    }
 
     const result = await this.organizationCreateCommand.execute(body.name);
 
@@ -54,12 +38,7 @@ export class OrganizationHandler {
       return c.json({ message: result.error.message }, result.error.statusCode);
     }
 
-    const response = result.value;
-    const parsedReponse = schemas.Organization.safeParse(response);
-    if (!parsedReponse.success) {
-      const error = new UnexpectedError();
-      return c.json({ message: error.message }, error.statusCode);
-    }
+    const response = schemas.Organization.parse(result.value);
 
     return c.json(response, 201);
   }
@@ -67,16 +46,6 @@ export class OrganizationHandler {
   async updateOrganization(c: Context) {
     const id = c.req.param("id");
     const body = await c.req.json();
-    const parsedBody = z
-      .object({
-        name: z.string(),
-      })
-      .safeParse(body);
-
-    if (!parsedBody.success) {
-      const error = new BadRequestError();
-      return c.json({ message: error.message }, error.statusCode);
-    }
 
     const result = await this.organizationUpdateCommand.execute(id, body.name);
 
@@ -84,14 +53,9 @@ export class OrganizationHandler {
       return c.json({ message: result.error.message }, result.error.statusCode);
     }
 
-    const response = result.value;
-    const parsedReponse = schemas.Organization.safeParse(response);
-    if (!parsedReponse.success) {
-      const error = new UnexpectedError();
-      return c.json({ message: error.message }, error.statusCode);
-    }
+    const response = schemas.Organization.parse(result.value);
 
-    return c.json(result.value, 200);
+    return c.json(response, 200);
   }
 
   async deleteOrganization(c: Context) {
