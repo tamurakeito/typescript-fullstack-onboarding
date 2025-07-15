@@ -7,6 +7,18 @@ model Organization {
   name: string;
 }
 
+model User {
+  id: string;
+  name: string;
+  role: Role;
+}
+
+model OrganizationProfile {
+  id: string;
+  name: string;
+  users: Array<User>;
+}
+
 model CreateOrganizationRequest {
   name: string;
 }
@@ -22,6 +34,15 @@ interface OrganizationAPI {
   @summary("組織一覧の取得")
   getList():
     | Organization[]
+    | BadRequestError
+    | NotFoundError
+    | InternalServerError;
+
+  @get
+  @route("/organization/{id}")
+  @summary("組織プロファイルの取得")
+  get(@path id: string):
+    | OrganizationProfile
     | BadRequestError
     | NotFoundError
     | InternalServerError;

@@ -36,6 +36,9 @@ export function initRouting(
   app.get("/organizations", jwtMiddleware(jwtService), (c) =>
     organizationHandler.getOrganizationList(c)
   );
+  app.get("/organization/:id", jwtMiddleware(jwtService), (c) =>
+    organizationHandler.getOrganizationProfile(c)
+  );
   app.post(
     "/organization",
     zValidator("json", schemas.CreateOrganizationRequest, (result, c) => {

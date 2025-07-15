@@ -1,4 +1,4 @@
-import { AppError, NoOrganizationError } from "@/errors/errors.js";
+import { NoOrganizationError } from "@/errors/errors.js";
 import { PrismaClient } from "@/generated/prisma/index.js";
 import { describe, expect, it, vi } from "vitest";
 import { OrganizationListQueryImpl } from "./get-list.js";
@@ -20,11 +20,11 @@ describe("OrganizationListQueryImpl", () => {
   it("正常に組織一覧を取得", async () => {
     const organizationListQuery = new OrganizationListQueryImpl();
 
+    const mockId = "mock-uuid-123";
+    const mockName = "テスト組織";
     const mockData = {
-      id: "mock-uuid-123",
-      name: "テスト組織",
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      id: mockId,
+      name: mockName,
     };
 
     mockPrismaClient.organization.findMany.mockResolvedValue([mockData]);
@@ -33,7 +33,12 @@ describe("OrganizationListQueryImpl", () => {
     expect(result.isOk()).toBe(true);
     if (result.isOk()) {
       const organizations = result.value;
-      expect(organizations).toEqual([mockData]);
+      expect(organizations).toEqual([
+        {
+          id: mockId,
+          name: mockName,
+        },
+      ]);
       expect(mockFindMany).toHaveBeenCalled();
     }
   });

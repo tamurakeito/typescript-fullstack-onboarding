@@ -4,11 +4,13 @@ import type { OrganizationCreateCommand } from "@/usecase/organization/command/c
 import type { OrganizationDeleteCommand } from "@/usecase/organization/command/delete.js";
 import type { OrganizationUpdateCommand } from "@/usecase/organization/command/update.js";
 import type { OrganizationListQuery } from "@/usecase/organization/query/get-list.js";
+import type { OrganizationProfileQuery } from "@/usecase/organization/query/get-profile.js";
 import type { Context } from "hono";
 
 export class OrganizationHandler {
   constructor(
     private readonly organizationListQuery: OrganizationListQuery,
+    private readonly organizationProfileQuery: OrganizationProfileQuery,
     private readonly organizationCreateCommand: OrganizationCreateCommand,
     private readonly organizationUpdateCommand: OrganizationUpdateCommand,
     private readonly organizationDeleteCommand: OrganizationDeleteCommand
@@ -16,6 +18,17 @@ export class OrganizationHandler {
 
   async getOrganizationList(c: Context) {
     const result = await this.organizationListQuery.execute();
+
+    if (result.isErr()) {
+      return c.json({ message: result.error.message }, result.error.statusCode);
+    }
+
+    return c.json(result.value, 200);
+  }
+
+  async getOrganizationProfile(c: Context) {
+    const id = c.req.param("id");
+    const result = await this.organizationProfileQuery.execute(id);
 
     if (result.isErr()) {
       return c.json({ message: result.error.message }, result.error.statusCode);
