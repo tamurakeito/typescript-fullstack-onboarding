@@ -21,12 +21,7 @@ export class OrganizationHandler {
       return c.json({ message: result.error.message }, result.error.statusCode);
     }
 
-    const response: Array<Organization> = [];
-    for (const data of result.value) {
-      response.push(schemas.Organization.parse(data));
-    }
-
-    return c.json(response, 200);
+    return c.json(result.value, 200);
   }
 
   async createOrganization(c: Context) {
@@ -38,9 +33,7 @@ export class OrganizationHandler {
       return c.json({ message: result.error.message }, result.error.statusCode);
     }
 
-    const response = schemas.Organization.parse(result.value);
-
-    return c.json(response, 201);
+    return c.json(result.value, 201);
   }
 
   async updateOrganization(c: Context) {
@@ -53,9 +46,7 @@ export class OrganizationHandler {
       return c.json({ message: result.error.message }, result.error.statusCode);
     }
 
-    const response = schemas.Organization.parse(result.value);
-
-    return c.json(response, 200);
+    return c.json(result.value, 200);
   }
 
   async deleteOrganization(c: Context) {
