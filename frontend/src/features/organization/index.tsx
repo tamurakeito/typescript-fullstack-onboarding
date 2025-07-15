@@ -1,4 +1,4 @@
-import type { Organization } from "@/client";
+import type { Organization as OrganizationType } from "@/client";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -23,30 +23,13 @@ import { Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
-const organizations = [
-  {
-    id: "e3fa477b-333b-452c-8528-7ac7742c29fb",
-    name: "株式会社テックソリューション",
-  },
-  {
-    id: "e3fa477b-333b-452c-8528-7ac7742c29fb",
-    name: "スタートアップXYZ",
-  },
-  {
-    id: "e3fa477b-333b-452c-8528-7ac7742c29fb",
-    name: "デザインスタジオABC",
-  },
-  {
-    id: "e3fa477b-333b-452c-8528-7ac7742c29fb",
-    name: "マーケティングエージェンシー",
-  },
-];
-
-export const OrganizationBoard = () => {
+export const Organization = ({
+  organizationList,
+}: { organizationList: Array<OrganizationType> }) => {
   const navigate = useNavigate();
   const [isOpenCreateDialog, setIsOpenCreateDialog] = useState<boolean>(false);
-  const [openEditDialog, setOpenEditDialog] = useState<Organization | undefined>(undefined);
-  const [openDeleteDialog, setOpenDeleteDialog] = useState<Organization | undefined>(undefined);
+  const [openEditDialog, setOpenEditDialog] = useState<OrganizationType | undefined>(undefined);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState<OrganizationType | undefined>(undefined);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6">
@@ -70,7 +53,7 @@ export const OrganizationBoard = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {organizations.map((org) => (
+              {organizationList.map((org) => (
                 <TableRow
                   key={org.id}
                   className="cursor-pointer"

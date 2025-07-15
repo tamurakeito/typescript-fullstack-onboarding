@@ -1,3 +1,4 @@
+import type { OrganizationProfile as OrganizationProfileType } from "@/client";
 import {
   Table,
   TableBody,
@@ -7,44 +8,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export const OrganizationProfile = () => {
-  const organization = {
-    id: "e3fa477b-333b-452c-8528-7ac7742c29fb",
-    name: "株式会社テックソリューション",
-    users: [
-      {
-        id: "e3fa477b-333b-452c-8528-7ac7742c29fb",
-        userId: "sato-toru",
-        name: "佐藤　透",
-        role: "Manager",
-      },
-      {
-        id: "a1b2c3d4-5678-9101-1121-314151617181",
-        userId: "tanaka-haruka",
-        name: "田中　はるか",
-        role: "Member",
-      },
-      {
-        id: "b2c3d4e5-6789-1011-1213-141516171819",
-        userId: "yamada-ken",
-        name: "山田　健",
-        role: "Admin",
-      },
-      {
-        id: "c3d4e5f6-7891-0111-2131-415161718192",
-        userId: "suzuki-mio",
-        name: "鈴木　美緒",
-        role: "Member",
-      },
-      {
-        id: "d4e5f6g7-8910-1112-1314-151617181920",
-        userId: "kobayashi-ryota",
-        name: "小林　亮太",
-        role: "Member",
-      },
-    ],
-  };
-
+export const OrganizationProfile = ({
+  organization,
+}: { organization: OrganizationProfileType }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6">
       <div className="max-w-6xl mx-auto">
@@ -66,7 +32,7 @@ export const OrganizationProfile = () => {
             <TableBody>
               {organization.users.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.userId}</TableCell>
+                  <TableCell className="font-medium">{user.id}</TableCell>
                   <TableCell className="font-medium">{user.name}</TableCell>
                 </TableRow>
               ))}
