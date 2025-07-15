@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
@@ -11,33 +12,42 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/_protected")({
   component: () => {
+    const { account, signOut } = useAuthStore.getState();
     const navigate = useNavigate();
 
     const handleSignOut = () => {
       toast.success("サインアウトしました", { duration: 500 });
-      useAuthStore.getState().signOut();
+      signOut();
       navigate({ to: "/sign-in" });
     };
 
     return (
       <div className="m-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-blue-50">
-        <header className="flex items-center justify-between px-6 py-4 border-b">
+        <header className="flex items-center justify-between px-6 py-2 border-b">
           <div className="flex items-center gap-6">
             <h1 className="text-xl font-bold">組織用Todo管理システム</h1>
-            <NavigationMenu>
-              <NavigationMenuList>
-                <NavigationMenuItem>
-                  <NavigationMenuLink href="/">HOME</NavigationMenuLink>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavigationMenuLink href="/about">ABOUT</NavigationMenuLink>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
+            {(account?.role === "SuperAdmin" || account?.role === "Manager") && (
+              <NavigationMenu>
+                <NavigationMenuList>
+                  <NavigationMenuItem>
+                    <NavigationMenuLink href="/">HOME</NavigationMenuLink>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <NavigationMenuLink href="/organization">組織管理</NavigationMenuLink>
+                  </NavigationMenuItem>
+                </NavigationMenuList>
+              </NavigationMenu>
+            )}
           </div>
-          <Button className="bg-gray-600 hover:bg-gray-700" onClick={handleSignOut}>
-            サインアウト
-          </Button>
+          <div className="flex items-center gap-8">
+            <div className="flex items-center gap-4 border rounded-lg px-4 py-2">
+              <Badge>{account?.role}</Badge>
+              <p className="font-semibold text-l text-gray-700">{account?.name}</p>
+            </div>
+            <Button className="bg-gray-600 hover:bg-gray-700" onClick={handleSignOut}>
+              サインアウト
+            </Button>
+          </div>
         </header>
         <Outlet />
       </div>

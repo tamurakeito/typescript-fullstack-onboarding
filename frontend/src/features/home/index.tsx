@@ -8,10 +8,6 @@ export const Home = () => {
             TypeScript Fullstack Onboarding with TanStack Router
           </p>
         </div>
-
-        <div className="space-y-4">
-          <a href="/about">About Page</a>
-        </div>
       </div>
     </div>
   );
