@@ -4,7 +4,6 @@ model ErrorBody {
   message: string;
 }
 
-// 400 Bad Request 用のエラーモデル
 @error
 model BadRequestError {
   @statusCode
@@ -14,7 +13,6 @@ model BadRequestError {
   body: ErrorBody;
 }
 
-// 401 Unauthorized 用のエラーモデル
 @error
 model UnauthorizedError {
   @statusCode
@@ -24,7 +22,15 @@ model UnauthorizedError {
   body: ErrorBody;
 }
 
-// 500 Internal Server Error 用のエラーモデルを追加
+@error
+model NotFoundError {
+  @statusCode
+  statusCode: 404;
+
+  @body
+  body: ErrorBody;
+}
+
 @error
 model InternalServerError {
   @statusCode

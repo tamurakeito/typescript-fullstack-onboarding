@@ -35,7 +35,7 @@ export class DuplicateOrganizationNameError extends AppError {
 
 export class UnExistOrganizationError extends AppError {
   readonly statusCode = 404;
-  readonly message = "UnExist Organization";
+  readonly message = "Not Found";
 }
 
 /* 共通 */
