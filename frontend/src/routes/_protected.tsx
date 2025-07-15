@@ -1,3 +1,4 @@
+import type { Role } from "@/client/types.gen";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +16,8 @@ export const Route = createFileRoute("/_protected")({
     const { account, signOut } = useAuthStore.getState();
     const navigate = useNavigate();
 
+    const allowedRoles: Array<Role> = ["SuperAdmin", "Manager"];
+
     const handleSignOut = () => {
       toast.success("サインアウトしました", { duration: 500 });
       signOut();
@@ -26,7 +29,7 @@ export const Route = createFileRoute("/_protected")({
         <header className="flex items-center justify-between px-6 py-2 border-b">
           <div className="flex items-center gap-6">
             <h1 className="text-xl font-bold">組織用Todo管理システム</h1>
-            {(account?.role === "SuperAdmin" || account?.role === "Manager") && (
+            {allowedRoles.includes(account?.role as Role) && (
               <NavigationMenu>
                 <NavigationMenuList>
                   <NavigationMenuItem>
