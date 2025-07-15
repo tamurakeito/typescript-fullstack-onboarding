@@ -1,3 +1,4 @@
+import type { Role } from "@/client/types.gen";
 import { OrganizationBoard } from "@/features/organization";
 import { useAuthStore } from "@/store/auth-store";
 import { createFileRoute } from "@tanstack/react-router";
@@ -8,7 +9,8 @@ export const Route = createFileRoute("/_protected/organization/")({
   component: OrganizationBoard,
   beforeLoad: () => {
     const { account } = useAuthStore.getState();
-    if (account?.role !== "SuperAdmin") {
+    const allowedRoles: Array<Role> = ["SuperAdmin"];
+    if (!allowedRoles.includes(account?.role as Role)) {
       if (account?.organizationId) {
         throw redirect({
           to: "/organization/$organizationId",
