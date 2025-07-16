@@ -1,16 +1,19 @@
-import { OrganizationProfile, type User } from "@/domain/organization/organization.js";
-import { type AppError, UnExistUserError, UnexpectedError } from "@/errors/errors.js";
+import { type AppError, UnExistUserError } from "@/errors/errors.js";
+import type { schemas } from "@/generated/client/client.gen.js";
 import { PrismaClient } from "@/generated/prisma/index.js";
 import { type Result, err, ok } from "neverthrow";
+import type { z } from "zod";
 
 export interface OrganizationProfileQuery {
-  execute(id: string): Promise<Result<OrganizationProfile, AppError>>;
+  execute(id: string): Promise<Result<z.infer<typeof schemas.OrganizationProfile>, AppError>>;
 }
 
 export class OrganizationProfileQueryImpl implements OrganizationProfileQuery {
   private prisma = new PrismaClient();
 
-  async execute(id: string): Promise<Result<OrganizationProfile, AppError>> {
+  async execute(
+    id: string
+  ): Promise<Result<z.infer<typeof schemas.OrganizationProfile>, AppError>> {
     const organizationData = await this.prisma.organization.findUnique({
       where: {
         id,
@@ -32,22 +35,19 @@ export class OrganizationProfileQueryImpl implements OrganizationProfileQuery {
       },
     });
 
-    const users = usersData.map((user: User) => ({
+    const users = usersData.map((user) => ({
       id: user.id,
       userId: user.userId,
       name: user.name,
       role: user.role,
     }));
 
-    const organizationProfile = OrganizationProfile.createProfile(
-      organizationData?.id,
-      organizationData?.name,
-      users
-    );
+    const organizationProfile = {
+      id: organizationData.id,
+      name: organizationData.name,
+      users,
+    };
 
-    if (organizationProfile.isErr()) {
-      return err(new UnexpectedError(organizationProfile.error.message));
-    }
-    return ok(organizationProfile.value);
+    return ok(organizationProfile);
   }
 }
