@@ -18,7 +18,9 @@ import { OrganizationUpdateDialog } from "./dialog/update-dialog";
 
 export const Organization = ({
   organizationList,
-}: { organizationList: Array<OrganizationType> }) => {
+}: {
+  organizationList: Array<OrganizationType>;
+}) => {
   const navigate = useNavigate();
   const [isOpenCreateDialog, setIsOpenCreateDialog] = useState<boolean>(false);
   const [openEditDialog, setOpenEditDialog] = useState<OrganizationType | undefined>(undefined);

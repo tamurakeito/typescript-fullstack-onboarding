@@ -1,19 +1,16 @@
 import { organizationApiGetListOptions } from "@/client/@tanstack/react-query.gen";
 import type { Role } from "@/client/types.gen";
 import { Organization } from "@/features/organization";
+import { queryClient } from "@/lib/query-client";
 import { useAuthStore } from "@/store/auth-store";
-import { QueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { redirect } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_protected/organization/")({
   loader: async () => {
-    const queryClient = new QueryClient();
     await queryClient.ensureQueryData(organizationApiGetListOptions());
-    return {
-      queryClient,
-    };
   },
   component: () => {
     const { data: organizationList } = useSuspenseQuery(organizationApiGetListOptions());

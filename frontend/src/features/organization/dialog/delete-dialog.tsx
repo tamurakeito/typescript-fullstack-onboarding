@@ -1,5 +1,8 @@
 import type { Organization as OrganizationType } from "@/client";
-import { organizationApiDeleteMutation } from "@/client/@tanstack/react-query.gen";
+import {
+  organizationApiDeleteMutation,
+  organizationApiGetListOptions,
+} from "@/client/@tanstack/react-query.gen";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useMutation } from "@tanstack/react-query";
+import { type QueryClient, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -21,6 +24,7 @@ export const OrganizationDeleteDialog = ({
   openDeleteDialog: OrganizationType | undefined;
   setOpenDeleteDialog: (openDeleteDialog: OrganizationType | undefined) => void;
 }) => {
+  const queryClient = useQueryClient();
   const [deleteOrganizationName, setDeleteOrganizationName] = useState<string | undefined>(
     undefined
   );
@@ -28,6 +32,9 @@ export const OrganizationDeleteDialog = ({
     ...organizationApiDeleteMutation(),
     onSuccess: () => {
       toast.success(`「${deleteOrganizationName}」を削除しました`, { duration: 1000 });
+      queryClient.refetchQueries({
+        queryKey: organizationApiGetListOptions().queryKey,
+      });
       setOpenDeleteDialog(undefined);
     },
     onError: (error) => {

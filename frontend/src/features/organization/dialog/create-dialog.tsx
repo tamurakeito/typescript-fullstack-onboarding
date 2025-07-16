@@ -1,4 +1,7 @@
-import { organizationApiCreateMutation } from "@/client/@tanstack/react-query.gen";
+import {
+  organizationApiCreateMutation,
+  organizationApiGetListOptions,
+} from "@/client/@tanstack/react-query.gen";
 import type { zCreateOrganizationRequest } from "@/client/zod.gen";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { type QueryClient, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -30,10 +33,14 @@ export const OrganizationCreateDialog = ({
   isOpenCreateDialog: boolean;
   setIsOpenCreateDialog: (isOpen: boolean) => void;
 }) => {
+  const queryClient = useQueryClient();
   const mutation = useMutation({
     ...organizationApiCreateMutation(),
     onSuccess: (data) => {
       toast.success(`「${data.name}」を作成しました`, { duration: 1000 });
+      queryClient.refetchQueries({
+        queryKey: organizationApiGetListOptions().queryKey,
+      });
     },
     onError: (error) => {
       toast.error(error.message || "エラーが発生しました", { duration: 500 });

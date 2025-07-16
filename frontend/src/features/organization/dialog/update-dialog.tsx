@@ -1,5 +1,8 @@
 import type { Organization as OrganizationType } from "@/client";
-import { organizationApiUpdateMutation } from "@/client/@tanstack/react-query.gen";
+import {
+  organizationApiGetListOptions,
+  organizationApiUpdateMutation,
+} from "@/client/@tanstack/react-query.gen";
 import type { zUpdateOrganizationRequest } from "@/client/zod.gen";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { type QueryClient, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -32,10 +35,14 @@ export const OrganizationUpdateDialog = ({
   openEditDialog: OrganizationType | undefined;
   setOpenEditDialog: (openEditDialog: OrganizationType | undefined) => void;
 }) => {
+  const queryClient = useQueryClient();
   const mutation = useMutation({
     ...organizationApiUpdateMutation(),
     onSuccess: (data) => {
       toast.success(`「${data.name}」を更新しました`, { duration: 1000 });
+      queryClient.refetchQueries({
+        queryKey: organizationApiGetListOptions().queryKey,
+      });
     },
     onError: (error) => {
       toast.error(error.message || "エラーが発生しました", { duration: 500 });
