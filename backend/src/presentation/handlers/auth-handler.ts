@@ -1,4 +1,3 @@
-import { schemas } from "@/generated/client/client.gen.js";
 import type { JwtService } from "@/infrastructure/account/jwt-service.js";
 import type { AuthQuery } from "@/usecase/auth/query/auth.js";
 import type { Context } from "hono";
@@ -22,10 +21,10 @@ export class AuthHandler {
 
     const token = await this.jwtService.generate({ role: user.value.role });
 
-    const response = schemas.SignInResponse.parse({
+    const response = {
       account: user.value,
       token,
-    });
+    };
 
     return c.json(response, 200);
   }
