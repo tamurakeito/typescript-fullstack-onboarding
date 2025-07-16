@@ -9,7 +9,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -24,6 +23,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { OrganizationCreateDialog } from "./dialog/create-dialog";
+import { OrganizationUpdateDialog } from "./dialog/update-dialog";
 
 export const Organization = ({
   organizationList,
@@ -76,6 +76,7 @@ export const Organization = ({
                           onClick={(e) => {
                             e.stopPropagation();
                             setOpenEditDialog(org);
+                            console.log(org);
                           }}
                           className="text-gray-600 hover:text-gray-900 mr-6 cursor-pointer"
                         />
@@ -112,36 +113,10 @@ export const Organization = ({
         setIsOpenCreateDialog={setIsOpenCreateDialog}
       />
 
-      {/* 編集ダイアログ */}
-      <Dialog open={openEditDialog !== undefined} onOpenChange={() => setOpenEditDialog(undefined)}>
-        <form action="">
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>組織名を編集</DialogTitle>
-              <DialogDescription>組織の名称を変更できます。</DialogDescription>
-            </DialogHeader>
-            <Input
-              type="text"
-              placeholder="組織名を入力してください"
-              value={openEditDialog?.name}
-            />
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant={"outline"}>キャンセル</Button>
-              </DialogClose>
-              <DialogClose>
-                <Button
-                  onClick={() => {
-                    toast.success("名前を変更しました", { duration: 1000 });
-                  }}
-                >
-                  保存する
-                </Button>
-              </DialogClose>
-            </DialogFooter>
-          </DialogContent>
-        </form>
-      </Dialog>
+      <OrganizationUpdateDialog
+        openEditDialog={openEditDialog}
+        setOpenEditDialog={setOpenEditDialog}
+      />
 
       {/* 削除ダイアログ */}
       <Dialog
