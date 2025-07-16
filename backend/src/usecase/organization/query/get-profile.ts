@@ -26,6 +26,7 @@ export class OrganizationProfileQueryImpl implements OrganizationProfileQuery {
       },
       select: {
         id: true,
+        userId: true,
         name: true,
         role: true,
       },
@@ -33,6 +34,7 @@ export class OrganizationProfileQueryImpl implements OrganizationProfileQuery {
 
     const users = usersData.map((user: User) => ({
       id: user.id,
+      userId: user.userId,
       name: user.name,
       role: user.role,
     }));

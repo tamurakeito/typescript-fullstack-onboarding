@@ -32,7 +32,7 @@ export const OrganizationProfile = ({
             <TableBody>
               {organization.users.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.id}</TableCell>
+                  <TableCell className="font-medium">{user.userId}</TableCell>
                   <TableCell className="font-medium">{user.name}</TableCell>
                 </TableRow>
               ))}

@@ -48,6 +48,7 @@ export class OrganizationProfile extends Organization {
 
 export type User = {
   id: string;
+  userId: string;
   name: string;
   role: string;
 };

@@ -9,6 +9,7 @@ model Organization {
 
 model User {
   id: string;
+  userId: string;
   name: string;
   role: Role;
 }
