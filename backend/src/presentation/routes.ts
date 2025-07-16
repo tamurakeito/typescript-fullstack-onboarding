@@ -3,6 +3,7 @@ import { schemas } from "@/generated/client/client.gen.js";
 import type { JwtService } from "@/infrastructure/account/jwt-service.js";
 import { zValidator } from "@hono/zod-validator";
 import type { Hono } from "hono";
+import { z } from "zod";
 import type { AuthHandler } from "./handlers/auth-handler.js";
 import type { OrganizationHandler } from "./handlers/organization-handler.js";
 import { jwtMiddleware } from "./middleware/jwt.js";
@@ -36,8 +37,16 @@ export function initRouting(
   app.get("/organizations", jwtMiddleware(jwtService), (c) =>
     organizationHandler.getOrganizationList(c)
   );
-  app.get("/organization/:id", jwtMiddleware(jwtService), (c) =>
-    organizationHandler.getOrganizationProfile(c)
+  app.get(
+    "/organization/:id",
+    zValidator("param", z.object({ id: z.string().uuid() }), (result, c) => {
+      if (!result.success) {
+        const error = new BadRequestError();
+        return c.json({ message: error.message }, error.statusCode);
+      }
+    }),
+    jwtMiddleware(jwtService),
+    (c) => organizationHandler.getOrganizationProfile(c)
   );
   app.post(
     "/organization",
@@ -51,7 +60,13 @@ export function initRouting(
     (c) => organizationHandler.createOrganization(c)
   );
   app.put(
-    "organization/:id",
+    "/organization/:id",
+    zValidator("param", z.object({ id: z.string().uuid() }), (result, c) => {
+      if (!result.success) {
+        const error = new BadRequestError();
+        return c.json({ message: error.message }, error.statusCode);
+      }
+    }),
     zValidator("json", schemas.UpdateOrganizationRequest, (result, c) => {
       if (!result.success) {
         const error = new BadRequestError();
@@ -61,7 +76,15 @@ export function initRouting(
     jwtMiddleware(jwtService),
     (c) => organizationHandler.updateOrganization(c)
   );
-  app.delete("organization/:id", jwtMiddleware(jwtService), (c) =>
-    organizationHandler.deleteOrganization(c)
+  app.delete(
+    "/organization/:id",
+    zValidator("param", z.object({ id: z.string().uuid() }), (result, c) => {
+      if (!result.success) {
+        const error = new BadRequestError();
+        return c.json({ message: error.message }, error.statusCode);
+      }
+    }),
+    jwtMiddleware(jwtService),
+    (c) => organizationHandler.deleteOrganization(c)
   );
 }
