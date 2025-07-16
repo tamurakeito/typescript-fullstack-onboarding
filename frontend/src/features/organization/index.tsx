@@ -1,9 +1,12 @@
 import type { Organization as OrganizationType } from "@/client";
+import { organizationApiCreateMutation } from "@/client/@tanstack/react-query.gen";
+import type { zCreateOrganizationRequest } from "@/client/zod.gen";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -18,10 +21,20 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { z } from "zod";
+
+const formSchema = z.object({
+  name: z.string().min(1, {
+    message: "組織名を入力してください。",
+  }),
+});
 
 export const Organization = ({
   organizationList,
@@ -31,6 +44,37 @@ export const Organization = ({
   const [openEditDialog, setOpenEditDialog] = useState<OrganizationType | undefined>(undefined);
   const [openDeleteDialog, setOpenDeleteDialog] = useState<OrganizationType | undefined>(undefined);
 
+  const mutation = useMutation({
+    ...organizationApiCreateMutation(),
+    onSuccess: (data) => {
+      toast.success(`「${data.name}」を作成しました`, { duration: 1000 });
+    },
+    onError: (error) => {
+      toast.error(error.message || "エラーが発生しました", { duration: 500 });
+    },
+  });
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<z.infer<typeof zCreateOrganizationRequest>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+    },
+  });
+
+  const onSubmit: SubmitHandler<z.infer<typeof zCreateOrganizationRequest>> = async (data) => {
+    console.log(data);
+    const result = await mutation.mutateAsync({
+      body: data,
+    });
+    console.log(result);
+    setIsOpenCreateDialog(false);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6">
       <div className="max-w-6xl mx-auto">
@@ -39,7 +83,14 @@ export const Organization = ({
           <p className="text-gray-600">登録されている組織一覧</p>
         </div>
         <div className="w-full flex justify-end mb-2">
-          <Button onClick={() => setIsOpenCreateDialog(true)}>新規作成</Button>
+          <Button
+            onClick={() => {
+              reset();
+              setIsOpenCreateDialog(true);
+            }}
+          >
+            新規作成
+          </Button>
         </div>
         <div className="bg-white rounded-lg shadow-sm border">
           <div className="p-4 border-b">
@@ -101,29 +152,28 @@ export const Organization = ({
 
       {/* 新規作成ダイアログ */}
       <Dialog open={isOpenCreateDialog} onOpenChange={() => setIsOpenCreateDialog(false)}>
-        <form action="">
-          <DialogContent>
+        <DialogContent>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <DialogHeader>
               <DialogTitle>組織を新規作成</DialogTitle>
+              <DialogDescription>新しく作成する組織の名称を設定してください。</DialogDescription>
             </DialogHeader>
-            <div>新しく作成する組織の名称を設定してください。</div>
-            <Input type="text" placeholder="組織名を入力してください" />
+            <Controller
+              control={control}
+              name="name"
+              render={({ field }) => (
+                <Input type="text" placeholder="組織名を入力してください" {...field} />
+              )}
+            />
+            {errors.name?.message && <p className="text-red-700">{errors.name.message}</p>}
             <DialogFooter>
               <DialogClose asChild>
                 <Button variant={"outline"}>キャンセル</Button>
               </DialogClose>
-              <DialogClose>
-                <Button
-                  onClick={() => {
-                    toast.success("組織を作成しました", { duration: 1000 });
-                  }}
-                >
-                  作成する
-                </Button>
-              </DialogClose>
+              <Button type="submit">作成する</Button>
             </DialogFooter>
-          </DialogContent>
-        </form>
+          </form>
+        </DialogContent>
       </Dialog>
 
       {/* 編集ダイアログ */}
@@ -132,8 +182,8 @@ export const Organization = ({
           <DialogContent>
             <DialogHeader>
               <DialogTitle>組織名を編集</DialogTitle>
+              <DialogDescription>組織の名称を変更できます。</DialogDescription>
             </DialogHeader>
-            <div>組織の名称を変更できます。</div>
             <Input
               type="text"
               placeholder="組織名を入力してください"
@@ -165,8 +215,8 @@ export const Organization = ({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>「{openDeleteDialog?.name}」を削除します</DialogTitle>
+            <DialogDescription>この操作は元に戻せません。</DialogDescription>
           </DialogHeader>
-          <div>この操作は元に戻せません。</div>
           <DialogFooter>
             <DialogClose asChild>
               <Button variant={"outline"}>キャンセル</Button>
