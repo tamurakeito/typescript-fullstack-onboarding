@@ -44,7 +44,7 @@ const organizations = [
 
 export const OrganizationBoard = () => {
   const navigate = useNavigate();
-  const [openCreateDialog, setOpenCreateDialog] = useState<string | undefined>(undefined);
+  const [isOpenCreateDialog, setIsOpenCreateDialog] = useState<boolean>(false);
   const [openEditDialog, setOpenEditDialog] = useState<Organization | undefined>(undefined);
   const [openDeleteDialog, setOpenDeleteDialog] = useState<Organization | undefined>(undefined);
 
@@ -56,13 +56,7 @@ export const OrganizationBoard = () => {
           <p className="text-gray-600">登録されている組織一覧</p>
         </div>
         <div className="w-full flex justify-end mb-2">
-          <Button
-            onClick={() => {
-              setOpenCreateDialog("");
-            }}
-          >
-            新規作成
-          </Button>
+          <Button onClick={() => setIsOpenCreateDialog(true)}>新規作成</Button>
         </div>
         <div className="bg-white rounded-lg shadow-sm border">
           <div className="p-4 border-b">
@@ -123,17 +117,14 @@ export const OrganizationBoard = () => {
       </div>
 
       {/* 新規作成ダイアログ */}
-      <Dialog
-        open={openCreateDialog !== undefined}
-        onOpenChange={() => setOpenCreateDialog(undefined)}
-      >
+      <Dialog open={isOpenCreateDialog} onOpenChange={() => setIsOpenCreateDialog(false)}>
         <form action="">
           <DialogContent>
             <DialogHeader>
               <DialogTitle>組織を新規作成</DialogTitle>
             </DialogHeader>
             <div>新しく作成する組織の名称を設定してください。</div>
-            <Input type="text" placeholder="組織名を入力してください" value={openCreateDialog} />
+            <Input type="text" placeholder="組織名を入力してください" />
             <DialogFooter>
               <DialogClose asChild>
                 <Button variant={"outline"}>キャンセル</Button>
@@ -141,7 +132,7 @@ export const OrganizationBoard = () => {
               <DialogClose>
                 <Button
                   onClick={() => {
-                    toast.success(`「${openCreateDialog}」を作成しました`, { duration: 1000 });
+                    toast.success("組織を作成しました", { duration: 1000 });
                   }}
                 >
                   作成する
