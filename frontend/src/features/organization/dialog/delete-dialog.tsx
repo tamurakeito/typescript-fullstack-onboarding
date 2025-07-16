@@ -13,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { type QueryClient, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -35,17 +35,19 @@ export const OrganizationDeleteDialog = ({
       queryClient.refetchQueries({
         queryKey: organizationApiGetListOptions().queryKey,
       });
+      setDeleteOrganizationName(undefined);
       setOpenDeleteDialog(undefined);
     },
     onError: (error) => {
       toast.error(error.message || "エラーが発生しました", { duration: 500 });
+      setDeleteOrganizationName(undefined);
       setOpenDeleteDialog(undefined);
     },
   });
   return (
     <Dialog
       open={openDeleteDialog !== undefined}
-      onOpenChange={() => setOpenDeleteDialog(undefined)}
+      onOpenChange={() => setDeleteOrganizationName(undefined)}
     >
       <DialogContent>
         <DialogHeader>
@@ -56,20 +58,18 @@ export const OrganizationDeleteDialog = ({
           <DialogClose asChild>
             <Button variant={"outline"}>キャンセル</Button>
           </DialogClose>
-          <DialogClose>
-            <Button
-              onClick={async () => {
-                await setDeleteOrganizationName(openDeleteDialog?.name);
-                mutation.mutate({
-                  path: {
-                    id: openDeleteDialog?.id ?? "",
-                  },
-                });
-              }}
-            >
-              削除する
-            </Button>
-          </DialogClose>
+          <Button
+            onClick={async () => {
+              await setDeleteOrganizationName(openDeleteDialog?.name);
+              mutation.mutate({
+                path: {
+                  id: openDeleteDialog?.id ?? "",
+                },
+              });
+            }}
+          >
+            削除する
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

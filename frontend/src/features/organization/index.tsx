@@ -69,7 +69,6 @@ export const Organization = ({
                           onClick={(e) => {
                             e.stopPropagation();
                             setOpenEditDialog(org);
-                            console.log(org);
                           }}
                           className="text-gray-600 hover:text-gray-900 mr-6 cursor-pointer"
                         />
