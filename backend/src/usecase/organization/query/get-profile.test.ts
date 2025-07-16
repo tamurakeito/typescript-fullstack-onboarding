@@ -40,13 +40,12 @@ describe("OrganizationProfileQueryImpl", () => {
         role: "Operator",
       },
     ];
-    const mockOrganization = {
+
+    mockPrismaClient.organization.findUnique.mockResolvedValue({
       id: mockId,
       name: mockName,
       accounts: mockUsers,
-    };
-
-    mockPrismaClient.organization.findUnique.mockResolvedValue(mockOrganization);
+    });
 
     const result = await organizationProfileQuery.execute(mockId);
     expect(result.isOk()).toBe(true);
