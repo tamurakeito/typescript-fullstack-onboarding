@@ -47,7 +47,7 @@ export const OrganizationDeleteDialog = ({
   return (
     <Dialog
       open={openDeleteDialog !== undefined}
-      onOpenChange={() => setDeleteOrganizationName(undefined)}
+      onOpenChange={() => setOpenDeleteDialog(undefined)}
     >
       <DialogContent>
         <DialogHeader>
