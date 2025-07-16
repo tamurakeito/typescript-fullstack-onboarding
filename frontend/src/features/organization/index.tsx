@@ -1,15 +1,6 @@
 import type { Organization as OrganizationType } from "@/client";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
   Table,
   TableBody,
   TableCell,
@@ -21,8 +12,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { useNavigate } from "@tanstack/react-router";
 import { Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 import { OrganizationCreateDialog } from "./dialog/create-dialog";
+import { OrganizationDeleteDialog } from "./dialog/delete-dialog";
 import { OrganizationUpdateDialog } from "./dialog/update-dialog";
 
 export const Organization = ({
@@ -107,43 +98,18 @@ export const Organization = ({
           </Table>
         </div>
       </div>
-
       <OrganizationCreateDialog
         isOpenCreateDialog={isOpenCreateDialog}
         setIsOpenCreateDialog={setIsOpenCreateDialog}
       />
-
       <OrganizationUpdateDialog
         openEditDialog={openEditDialog}
         setOpenEditDialog={setOpenEditDialog}
       />
-
-      {/* 削除ダイアログ */}
-      <Dialog
-        open={openDeleteDialog !== undefined}
-        onOpenChange={() => setOpenDeleteDialog(undefined)}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>「{openDeleteDialog?.name}」を削除します</DialogTitle>
-            <DialogDescription>この操作は元に戻せません。</DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant={"outline"}>キャンセル</Button>
-            </DialogClose>
-            <DialogClose>
-              <Button
-                onClick={() => {
-                  toast.success(`「${openDeleteDialog?.name}」を削除しました`, { duration: 1000 });
-                }}
-              >
-                削除する
-              </Button>
-            </DialogClose>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <OrganizationDeleteDialog
+        openDeleteDialog={openDeleteDialog}
+        setOpenDeleteDialog={setOpenDeleteDialog}
+      />
     </div>
   );
 };
