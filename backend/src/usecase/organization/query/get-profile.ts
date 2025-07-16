@@ -18,24 +18,23 @@ export class OrganizationProfileQueryImpl implements OrganizationProfileQuery {
       where: {
         id,
       },
+      include: {
+        accounts: {
+          select: {
+            id: true,
+            userId: true,
+            name: true,
+            role: true,
+          },
+        },
+      },
     });
 
     if (!organizationData) {
       return err(new UnExistUserError());
     }
-    const usersData = await this.prisma.account.findMany({
-      where: {
-        organizationId: id,
-      },
-      select: {
-        id: true,
-        userId: true,
-        name: true,
-        role: true,
-      },
-    });
 
-    const users = usersData.map((user) => ({
+    const users = organizationData.accounts.map((user) => ({
       id: user.id,
       userId: user.userId,
       name: user.name,

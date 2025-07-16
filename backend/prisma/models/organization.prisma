@@ -2,5 +2,7 @@ model Organization {
   id   String @id @default(uuid()) @db.Uuid
   name String @unique @db.VarChar(255)
 
+  accounts Account[]
+
   @@map("organizations")
 }
