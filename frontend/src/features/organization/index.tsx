@@ -23,8 +23,11 @@ export const Organization = ({
 }) => {
   const navigate = useNavigate();
   const [isOpenCreateDialog, setIsOpenCreateDialog] = useState<boolean>(false);
-  const [openEditDialog, setOpenEditDialog] = useState<OrganizationType | undefined>(undefined);
-  const [openDeleteDialog, setOpenDeleteDialog] = useState<OrganizationType | undefined>(undefined);
+  const [isOpenEditDialog, setIsOpenEditDialog] = useState<boolean>(false);
+  const [isOpenDeleteDialog, setIsOpenDeleteDialog] = useState<boolean>(false);
+  const [selectedOrganization, setSelectedOrganization] = useState<OrganizationType | undefined>(
+    undefined
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6">
@@ -68,7 +71,8 @@ export const Organization = ({
                           size={20}
                           onClick={(e) => {
                             e.stopPropagation();
-                            setOpenEditDialog(org);
+                            setIsOpenEditDialog(true);
+                            setSelectedOrganization(org);
                           }}
                           className="text-gray-600 hover:text-gray-900 mr-6 cursor-pointer"
                         />
@@ -83,7 +87,8 @@ export const Organization = ({
                           size={20}
                           onClick={(e) => {
                             e.stopPropagation();
-                            setOpenDeleteDialog(org);
+                            setIsOpenDeleteDialog(true);
+                            setSelectedOrganization(org);
                           }}
                           className="text-gray-600 hover:text-gray-900 cursor-pointer"
                         />
@@ -103,14 +108,22 @@ export const Organization = ({
         isOpenCreateDialog={isOpenCreateDialog}
         setIsOpenCreateDialog={setIsOpenCreateDialog}
       />
-      <OrganizationUpdateDialog
-        openEditDialog={openEditDialog}
-        setOpenEditDialog={setOpenEditDialog}
-      />
-      <OrganizationDeleteDialog
-        openDeleteDialog={openDeleteDialog}
-        setOpenDeleteDialog={setOpenDeleteDialog}
-      />
+      {!!selectedOrganization && (
+        <OrganizationUpdateDialog
+          isOpenEditDialog={isOpenEditDialog}
+          setIsOpenEditDialog={setIsOpenEditDialog}
+          organization={selectedOrganization}
+          setSelectedOrganization={setSelectedOrganization}
+        />
+      )}
+      {!!selectedOrganization && (
+        <OrganizationDeleteDialog
+          isOpenDeleteDialog={isOpenDeleteDialog}
+          setIsOpenDeleteDialog={setIsOpenDeleteDialog}
+          organization={selectedOrganization}
+          setSelectedOrganization={setSelectedOrganization}
+        />
+      )}
     </div>
   );
 };

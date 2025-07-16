@@ -16,7 +16,6 @@ import { DialogForm } from "@/components/ui/dialog-form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
 import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -28,13 +27,23 @@ const formSchema = z.object({
 });
 
 export const OrganizationUpdateDialog = ({
-  openEditDialog,
-  setOpenEditDialog,
+  isOpenEditDialog,
+  setIsOpenEditDialog,
+  organization,
+  setSelectedOrganization,
 }: {
-  openEditDialog: OrganizationType | undefined;
-  setOpenEditDialog: (openEditDialog: OrganizationType | undefined) => void;
+  isOpenEditDialog: boolean;
+  setIsOpenEditDialog: (isOpenEditDialog: boolean) => void;
+  organization: OrganizationType;
+  setSelectedOrganization: (organization: OrganizationType | undefined) => void;
 }) => {
   const queryClient = useQueryClient();
+
+  const resetDialogState = () => {
+    setIsOpenEditDialog(false);
+    setSelectedOrganization(undefined);
+  };
+
   const mutation = useMutation({
     ...organizationApiUpdateMutation(),
     onSuccess: (data) => {
@@ -56,33 +65,25 @@ export const OrganizationUpdateDialog = ({
   } = useForm<z.infer<typeof zUpdateOrganizationRequest>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      name: organization.name,
     },
   });
-
-  useEffect(() => {
-    if (openEditDialog) {
-      reset({
-        name: openEditDialog.name,
-      });
-    }
-  }, [openEditDialog, reset]);
 
   const onSubmit: SubmitHandler<z.infer<typeof zUpdateOrganizationRequest>> = async (data) => {
     await mutation.mutateAsync({
       body: data,
       path: {
-        id: openEditDialog?.id ?? "",
+        id: organization.id,
       },
     });
-    setOpenEditDialog(undefined);
+    resetDialogState();
     reset();
   };
 
   return (
     <DialogForm
-      open={openEditDialog !== undefined}
-      onOpenChange={() => setOpenEditDialog(undefined)}
+      open={isOpenEditDialog}
+      onOpenChange={resetDialogState}
       formProps={{
         onSubmit: handleSubmit(onSubmit),
       }}

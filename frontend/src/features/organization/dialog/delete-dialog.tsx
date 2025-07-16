@@ -5,73 +5,78 @@ import {
 } from "@/client/@tanstack/react-query.gen";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
   DialogClose,
-  DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { DialogForm } from "@/components/ui/dialog-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 export const OrganizationDeleteDialog = ({
-  openDeleteDialog,
-  setOpenDeleteDialog,
+  isOpenDeleteDialog,
+  setIsOpenDeleteDialog,
+  organization,
+  setSelectedOrganization,
 }: {
-  openDeleteDialog: OrganizationType | undefined;
-  setOpenDeleteDialog: (openDeleteDialog: OrganizationType | undefined) => void;
+  isOpenDeleteDialog: boolean;
+  setIsOpenDeleteDialog: (isOpenDeleteDialog: boolean) => void;
+  organization: OrganizationType;
+  setSelectedOrganization: (organization: OrganizationType | undefined) => void;
 }) => {
   const queryClient = useQueryClient();
-  const [deleteOrganizationName, setDeleteOrganizationName] = useState<string | undefined>(
-    undefined
-  );
+
+  const resetDialogState = () => {
+    setIsOpenDeleteDialog(false);
+    setSelectedOrganization(undefined);
+  };
+
   const mutation = useMutation({
     ...organizationApiDeleteMutation(),
     onSuccess: () => {
-      toast.success(`「${deleteOrganizationName}」を削除しました`, { duration: 1000 });
+      toast.success(`「${organization.name}」を削除しました`, { duration: 1000 });
       queryClient.refetchQueries({
         queryKey: organizationApiGetListOptions().queryKey,
       });
-      setDeleteOrganizationName(undefined);
-      setOpenDeleteDialog(undefined);
+      resetDialogState();
     },
     onError: (error) => {
       toast.error(error.message || "エラーが発生しました", { duration: 500 });
-      setDeleteOrganizationName(undefined);
-      setOpenDeleteDialog(undefined);
+      resetDialogState();
     },
   });
+
+  const { handleSubmit } = useForm<never>();
+
+  const onSubmit: SubmitHandler<never> = async () => {
+    await mutation.mutateAsync({
+      path: {
+        id: organization.id,
+      },
+    });
+  };
+
   return (
-    <Dialog
-      open={openDeleteDialog !== undefined}
-      onOpenChange={() => setOpenDeleteDialog(undefined)}
+    <DialogForm
+      open={isOpenDeleteDialog}
+      onOpenChange={resetDialogState}
+      formProps={{
+        onSubmit: handleSubmit(onSubmit),
+      }}
     >
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>「{openDeleteDialog?.name}」を削除します</DialogTitle>
-          <DialogDescription>この操作は元に戻せません。</DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant={"outline"}>キャンセル</Button>
-          </DialogClose>
-          <Button
-            onClick={async () => {
-              await setDeleteOrganizationName(openDeleteDialog?.name);
-              mutation.mutate({
-                path: {
-                  id: openDeleteDialog?.id ?? "",
-                },
-              });
-            }}
-          >
-            削除する
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      <DialogHeader>
+        <DialogTitle>「{organization.name}」を削除します</DialogTitle>
+        <DialogDescription>この操作は元に戻せません。</DialogDescription>
+      </DialogHeader>
+      <DialogFooter>
+        <DialogClose asChild>
+          <Button variant={"outline"}>キャンセル</Button>
+        </DialogClose>
+        <Button type="submit">削除する</Button>
+      </DialogFooter>
+    </DialogForm>
   );
 };
