@@ -11,10 +11,10 @@ export class Organization {
 
   static create(id: string, name: string): Result<Organization, Error> {
     if (!id) {
-      return err(new Error("ID is required"));
+      return err(new Error("IDは必須です"));
     }
     if (!name) {
-      return err(new Error("Name is required"));
+      return err(new Error("名前は必須です"));
     }
     return ok(new Organization(id, name));
   }

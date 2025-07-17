@@ -19,8 +19,6 @@ describe("OrganizationCreateCommandImpl", () => {
     const mockData = {
       id: "mock-uuid-123",
       name: "テスト組織01",
-      createdAt: new Date(),
-      updatedAt: new Date(),
     };
 
     mockOrganizationRepository.save.mockResolvedValue(ok(mockData));

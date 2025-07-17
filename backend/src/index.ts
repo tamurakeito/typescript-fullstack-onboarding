@@ -12,6 +12,7 @@ import { OrganizationCreateCommandImpl } from "./usecase/organization/command/cr
 import { OrganizationDeleteCommandImpl } from "./usecase/organization/command/delete.js";
 import { OrganizationUpdateCommandImpl } from "./usecase/organization/command/update.js";
 import { OrganizationListQueryImpl } from "./usecase/organization/query/get-list.js";
+import { OrganizationProfileQueryImpl } from "./usecase/organization/query/get-profile.js";
 
 const app = new Hono();
 
@@ -25,11 +26,13 @@ const authHandler = new AuthHandler(authQuery, jwtService);
 
 const organizationRepository = new OrganizationRepositoryImpl();
 const organizationListQuery = new OrganizationListQueryImpl();
+const organizationProfileQuery = new OrganizationProfileQueryImpl();
 const organizationCreateCommand = new OrganizationCreateCommandImpl(organizationRepository);
 const organizationUpdateCommand = new OrganizationUpdateCommandImpl(organizationRepository);
 const organizationDeleteCommand = new OrganizationDeleteCommandImpl(organizationRepository);
 const organizationHandler = new OrganizationHandler(
   organizationListQuery,
+  organizationProfileQuery,
   organizationCreateCommand,
   organizationUpdateCommand,
   organizationDeleteCommand
