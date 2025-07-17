@@ -22,7 +22,6 @@ export class OrganizationRepositoryImpl implements OrganizationRepository {
       });
       return ok(result);
     } catch (error) {
-      console.log(error);
       if (error instanceof PrismaClientKnownRequestError) {
         switch (error.code) {
           case "P2002":
@@ -40,7 +39,6 @@ export class OrganizationRepositoryImpl implements OrganizationRepository {
       await this.prisma.organization.delete({ where: { id } });
       return ok(undefined);
     } catch (error) {
-      console.log(error);
       if (error instanceof PrismaClientKnownRequestError) {
         switch (error.code) {
           case "P2001":
