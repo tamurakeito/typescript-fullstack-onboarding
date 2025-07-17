@@ -1,11 +1,12 @@
+import type { Role } from "@/domain/account/account.js";
 import type { OrganizationRepository } from "@/domain/organization/organization-repository.js";
 import type { Organization } from "@/domain/organization/organization.js";
-import { type AppError, UnExistOrganizationError } from "@/errors/errors.js";
+import { type AppError, ForbiddenError, UnExistOrganizationError } from "@/errors/errors.js";
 import { PrismaClient } from "@/generated/prisma/index.js";
 import { type Result, err, ok } from "neverthrow";
 
 export interface OrganizationUpdateCommand {
-  execute(id: string, name: string): Promise<Result<Organization, AppError>>;
+  execute(id: string, name: string, clientRole: Role): Promise<Result<Organization, AppError>>;
 }
 
 export class OrganizationUpdateCommandImpl implements OrganizationUpdateCommand {
@@ -13,7 +14,15 @@ export class OrganizationUpdateCommandImpl implements OrganizationUpdateCommand 
 
   private prisma = new PrismaClient();
 
-  async execute(id: string, name: string): Promise<Result<Organization, AppError>> {
+  async execute(
+    id: string,
+    name: string,
+    clientRole: Role
+  ): Promise<Result<Organization, AppError>> {
+    if (clientRole !== "SuperAdmin") {
+      return err(new ForbiddenError());
+    }
+
     const uniqValidate = await this.prisma.organization.findUnique({
       where: {
         id,

@@ -1,4 +1,8 @@
-import { DuplicateOrganizationNameError, UnExistOrganizationError } from "@/errors/errors.js";
+import {
+  DuplicateOrganizationNameError,
+  ForbiddenError,
+  UnExistOrganizationError,
+} from "@/errors/errors.js";
 import { PrismaClient } from "@/generated/prisma/index.js";
 import { err, ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
@@ -42,12 +46,33 @@ describe("OrganizationUpdateCommandImpl", () => {
     });
     mockOrganizationRepository.save.mockResolvedValue(ok(mockDate));
 
-    const result = await organizationUpdateCommand.execute(mockId, "テスト組織01-new");
+    const result = await organizationUpdateCommand.execute(
+      mockId,
+      "テスト組織01-new",
+      "SuperAdmin"
+    );
     expect(result.isOk()).toBe(true);
     if (result.isOk()) {
       const organization = result.value;
       expect(organization).toEqual(mockDate);
       expect(mockFindUnique).toHaveBeenCalledWith({ where: { id: mockId } });
+    }
+  });
+});
+
+describe("OrganizationUpdateCommandImpl", () => {
+  it("SuperAdminでない場合", async () => {
+    const organizationUpdateCommand = new OrganizationUpdateCommandImpl(mockOrganizationRepository);
+
+    const result = await organizationUpdateCommand.execute(
+      "mock-uuid-123",
+      "テスト組織01-new",
+      "Manager"
+    );
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      const error = result.error;
+      expect(error).toBeInstanceOf(ForbiddenError);
     }
   });
 });
@@ -63,7 +88,11 @@ describe("OrganizationUpdateCommandImpl", () => {
 
     mockPrismaClient.organization.findUnique.mockResolvedValue(undefined);
 
-    const result = await organizationUpdateCommand.execute(mockId, "テスト組織01-new");
+    const result = await organizationUpdateCommand.execute(
+      mockId,
+      "テスト組織01-new",
+      "SuperAdmin"
+    );
 
     expect(result.isErr()).toBe(true);
     if (result.isErr()) {
@@ -90,7 +119,11 @@ describe("OrganizationUpdateCommandImpl", () => {
 
     mockOrganizationRepository.save.mockResolvedValue(err(new DuplicateOrganizationNameError()));
 
-    const result = await organizationUpdateCommand.execute("mock-uuid-123", "テスト組織02");
+    const result = await organizationUpdateCommand.execute(
+      "mock-uuid-123",
+      "テスト組織02",
+      "SuperAdmin"
+    );
     expect(result.isErr()).toBe(true);
     if (result.isErr()) {
       const error = result.error;
