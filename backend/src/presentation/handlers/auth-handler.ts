@@ -1,3 +1,4 @@
+import { schemas } from "@/generated/client/client.gen.js";
 import type { JwtService } from "@/infrastructure/account/jwt-service.js";
 import type { AuthQuery } from "@/usecase/auth/query/auth.js";
 import type { Context } from "hono";
@@ -26,6 +27,11 @@ export class AuthHandler {
       token,
     };
 
-    return c.json(response, 200);
+    const parsedResponse = schemas.SignInResponse.safeParse(response);
+
+    if (!parsedResponse.success) {
+    }
+
+    return c.json(parsedResponse.data, 200);
   }
 }

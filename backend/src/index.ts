@@ -1,6 +1,10 @@
+import type { IncomingMessage, ServerResponse } from "node:http";
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { requestId } from "hono/request-id";
+import type { Logger } from "pino";
+import { pinoHttp } from "pino-http";
 import { JwtServiceImpl } from "./infrastructure/account/jwt-service.js";
 import { PasswordHashImpl } from "./infrastructure/account/password-hash-impl.js";
 import { OrganizationRepositoryImpl } from "./infrastructure/organization/organization-repository-impl.js";
@@ -14,8 +18,27 @@ import { OrganizationUpdateCommandImpl } from "./usecase/organization/command/up
 import { OrganizationListQueryImpl } from "./usecase/organization/query/get-list.js";
 import { OrganizationProfileQueryImpl } from "./usecase/organization/query/get-profile.js";
 
-const app = new Hono();
+export type Env = {
+  Variables: {
+    logger: Logger;
+  };
+  Bindings: {
+    incoming: IncomingMessage;
+    outgoing: ServerResponse;
+  };
+};
 
+const app = new Hono<Env>();
+
+app.use(requestId());
+app.use(async (c, next) => {
+  c.env.incoming.id = c.var.requestId;
+  await new Promise<void>((resolve) => pinoHttp()(c.env.incoming, c.env.outgoing, () => resolve()));
+
+  c.set("logger", c.env.incoming.log);
+
+  await next();
+});
 app.use("*", cors());
 
 // DI

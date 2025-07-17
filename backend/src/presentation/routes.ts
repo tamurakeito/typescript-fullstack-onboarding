@@ -1,5 +1,6 @@
 import { BadRequestError } from "@/errors/errors.js";
 import { schemas } from "@/generated/client/client.gen.js";
+import type { Env } from "@/index.js";
 import type { JwtService } from "@/infrastructure/account/jwt-service.js";
 import { zValidator } from "@hono/zod-validator";
 import type { Hono } from "hono";
@@ -9,7 +10,7 @@ import type { OrganizationHandler } from "./handlers/organization-handler.js";
 import { jwtMiddleware } from "./middleware/jwt.js";
 
 export function initRouting(
-  app: Hono,
+  app: Hono<Env>,
   authHandler: AuthHandler,
   organizationHandler: OrganizationHandler,
   jwtService: JwtService
