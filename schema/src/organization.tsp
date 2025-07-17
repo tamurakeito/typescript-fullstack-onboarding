@@ -7,6 +7,13 @@ model Organization {
   name: string;
 }
 
+model User {
+  id: string;
+  userId: string;
+  name: string;
+  role: Role;
+}
+
 model OrganizationProfile {
   id: string;
   name: string;

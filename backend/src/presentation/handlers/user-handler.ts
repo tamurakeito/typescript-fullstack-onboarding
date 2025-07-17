@@ -27,7 +27,7 @@ export class UserHandler {
       return c.json({ message: result.error.message }, result.error.statusCode);
     }
 
-    const parsedResponse = schemas.CreateUserResponse.safeParse(result.value);
+    const parsedResponse = schemas.Account.safeParse(result.value);
     if (parsedResponse.error) {
       c.get("logger").error(parsedResponse.error.errors);
     }
