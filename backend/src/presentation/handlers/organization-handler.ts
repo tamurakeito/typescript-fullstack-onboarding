@@ -23,6 +23,13 @@ export class OrganizationHandler {
       return c.json({ message: result.error.message }, result.error.statusCode);
     }
 
+    for (const data of result.value) {
+      const parsedResponse = schemas.Organization.safeParse(data);
+      if (parsedResponse.error) {
+        c.get("logger").error(parsedResponse.error.errors);
+      }
+    }
+
     return c.json(result.value, 200);
   }
 
@@ -32,6 +39,11 @@ export class OrganizationHandler {
 
     if (result.isErr()) {
       return c.json({ message: result.error.message }, result.error.statusCode);
+    }
+
+    const parsedResponse = schemas.OrganizationProfile.safeParse(result.value);
+    if (parsedResponse.error) {
+      c.get("logger").error(parsedResponse.error.errors);
     }
 
     return c.json(result.value, 200);
@@ -46,6 +58,11 @@ export class OrganizationHandler {
       return c.json({ message: result.error.message }, result.error.statusCode);
     }
 
+    const parsedResponse = schemas.Organization.safeParse(result.value);
+    if (parsedResponse.error) {
+      c.get("logger").error(parsedResponse.error.errors);
+    }
+
     return c.json(result.value, 201);
   }
 
@@ -57,6 +74,11 @@ export class OrganizationHandler {
 
     if (result.isErr()) {
       return c.json({ message: result.error.message }, result.error.statusCode);
+    }
+
+    const parsedResponse = schemas.Organization.safeParse(result.value);
+    if (parsedResponse.error) {
+      c.get("logger").error(parsedResponse.error.errors);
     }
 
     return c.json(result.value, 200);

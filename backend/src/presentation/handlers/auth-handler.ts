@@ -29,7 +29,8 @@ export class AuthHandler {
 
     const parsedResponse = schemas.SignInResponse.safeParse(response);
 
-    if (!parsedResponse.success) {
+    if (parsedResponse.error) {
+      c.get("logger").error(parsedResponse.error.errors);
     }
 
     return c.json(parsedResponse.data, 200);
