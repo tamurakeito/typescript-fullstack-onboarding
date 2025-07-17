@@ -6,14 +6,14 @@ import { PrismaClient } from "@/generated/prisma/index.js";
 import { type Result, err, ok } from "neverthrow";
 
 export interface OrganizationListQuery {
-  execute(role: Role): Promise<Result<Array<Organization>, AppError>>;
+  execute(clientRole: Role): Promise<Result<Array<Organization>, AppError>>;
 }
 
 export class OrganizationListQueryImpl implements OrganizationListQuery {
   private prisma = new PrismaClient();
 
-  async execute(role: Role): Promise<Result<Array<Organization>, AppError>> {
-    if (role !== "SuperAdmin") {
+  async execute(clientRole: Role): Promise<Result<Array<Organization>, AppError>> {
+    if (clientRole !== "SuperAdmin") {
       return err(new ForbiddenError());
     }
 
