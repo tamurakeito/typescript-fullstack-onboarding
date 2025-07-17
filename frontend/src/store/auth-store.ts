@@ -35,6 +35,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
     }
 
+    console.log("Failed to initialize auth state from localStorage");
     localStorage.removeItem("account");
     localStorage.removeItem("token");
   },
