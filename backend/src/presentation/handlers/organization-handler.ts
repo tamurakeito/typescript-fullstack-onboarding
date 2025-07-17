@@ -20,6 +20,11 @@ export class OrganizationHandler {
     const result = await this.organizationListQuery.execute();
 
     if (result.isErr()) {
+      c.get("logger").error("OrganizationListQuery failed", {
+        error: result.error.constructor.name,
+        message: result.error.message,
+        statusCode: result.error.statusCode,
+      });
       return c.json({ message: result.error.message }, result.error.statusCode);
     }
 
@@ -38,6 +43,11 @@ export class OrganizationHandler {
     const result = await this.organizationProfileQuery.execute(id);
 
     if (result.isErr()) {
+      c.get("logger").error("OrganizationProfileQuery failed", {
+        error: result.error.constructor.name,
+        message: result.error.message,
+        statusCode: result.error.statusCode,
+      });
       return c.json({ message: result.error.message }, result.error.statusCode);
     }
 
@@ -55,6 +65,11 @@ export class OrganizationHandler {
     const result = await this.organizationCreateCommand.execute(body.name);
 
     if (result.isErr()) {
+      c.get("logger").error("OrganizationCreateCommand failed", {
+        error: result.error.constructor.name,
+        message: result.error.message,
+        statusCode: result.error.statusCode,
+      });
       return c.json({ message: result.error.message }, result.error.statusCode);
     }
 
@@ -73,6 +88,11 @@ export class OrganizationHandler {
     const result = await this.organizationUpdateCommand.execute(id, body.name);
 
     if (result.isErr()) {
+      c.get("logger").error("OrganizationUpdateCommand failed", {
+        error: result.error.constructor.name,
+        message: result.error.message,
+        statusCode: result.error.statusCode,
+      });
       return c.json({ message: result.error.message }, result.error.statusCode);
     }
 
@@ -89,6 +109,11 @@ export class OrganizationHandler {
     const result = await this.organizationDeleteCommand.execute(id);
 
     if (result.isErr()) {
+      c.get("logger").error("OrganizationDeleteCommand failed", {
+        error: result.error.constructor.name,
+        message: result.error.message,
+        statusCode: result.error.statusCode,
+      });
       return c.json({ message: result.error.message }, result.error.statusCode);
     }
 

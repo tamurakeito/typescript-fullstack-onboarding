@@ -17,6 +17,11 @@ export class AuthHandler {
     const user = await this.authQuery.execute(userId, password);
 
     if (user.isErr()) {
+      c.get("logger").error("AuthQuery failed", {
+        error: user.error.constructor.name,
+        message: user.error.message,
+        statusCode: user.error.statusCode,
+      });
       return c.json({ message: user.error.message }, user.error.statusCode);
     }
 
