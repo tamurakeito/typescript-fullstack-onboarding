@@ -6,11 +6,6 @@ export const jwtMiddleware = (jwtService: JwtService) => {
   return createMiddleware<{
     Variables: { role: Role; organizationId: string };
   }>(async (c, next) => {
-    const role = c.req.header("role");
-    const organizationId = c.req.header("organizationId");
-    if (!role || !organizationId) {
-      return c.json({ error: "Unauthorized" }, 401);
-    }
     const token = c.req.header("Authorization")?.split(" ")[1];
     if (!token) {
       return c.json({ error: "Unauthorized" }, 401);

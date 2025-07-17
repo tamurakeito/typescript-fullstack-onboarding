@@ -38,7 +38,11 @@ export class OrganizationHandler {
 
   async getOrganizationProfile(c: Context) {
     const id = c.req.param("id");
-    const result = await this.organizationProfileQuery.execute(id);
+    const result = await this.organizationProfileQuery.execute(
+      id,
+      c.get("role"),
+      c.get("organizationId")
+    );
 
     if (result.isErr()) {
       c.get("logger").error("OrganizationProfileQuery failed", {
@@ -60,7 +64,7 @@ export class OrganizationHandler {
   async createOrganization(c: Context) {
     const body = await c.req.json();
 
-    const result = await this.organizationCreateCommand.execute(body.name);
+    const result = await this.organizationCreateCommand.execute(body.name, c.get("role"));
 
     if (result.isErr()) {
       c.get("logger").error("OrganizationCreateCommand failed", {
@@ -83,7 +87,7 @@ export class OrganizationHandler {
     const id = c.req.param("id");
     const body = await c.req.json();
 
-    const result = await this.organizationUpdateCommand.execute(id, body.name);
+    const result = await this.organizationUpdateCommand.execute(id, body.name, c.get("role"));
 
     if (result.isErr()) {
       c.get("logger").error("OrganizationUpdateCommand failed", {
@@ -104,7 +108,7 @@ export class OrganizationHandler {
 
   async deleteOrganization(c: Context) {
     const id = c.req.param("id");
-    const result = await this.organizationDeleteCommand.execute(id);
+    const result = await this.organizationDeleteCommand.execute(id, c.get("role"));
 
     if (result.isErr()) {
       c.get("logger").error("OrganizationDeleteCommand failed", {
