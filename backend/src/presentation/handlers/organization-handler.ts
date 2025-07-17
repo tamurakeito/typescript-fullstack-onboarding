@@ -1,5 +1,3 @@
-import type { Organization } from "@/domain/organization/organization.js";
-import { schemas } from "@/generated/client/client.gen.js";
 import type { OrganizationCreateCommand } from "@/usecase/organization/command/create.js";
 import type { OrganizationDeleteCommand } from "@/usecase/organization/command/delete.js";
 import type { OrganizationUpdateCommand } from "@/usecase/organization/command/update.js";
@@ -17,7 +15,7 @@ export class OrganizationHandler {
   ) {}
 
   async getOrganizationList(c: Context) {
-    const result = await this.organizationListQuery.execute();
+    const result = await this.organizationListQuery.execute(c.get("role"));
 
     if (result.isErr()) {
       c.get("logger").error("OrganizationListQuery failed", {

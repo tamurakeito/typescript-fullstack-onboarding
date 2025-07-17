@@ -41,6 +41,11 @@ export class BadRequestError extends AppError {
   readonly message = "Bad Request";
 }
 
+export class ForbiddenError extends AppError {
+  readonly statusCode = 403;
+  readonly message = "Forbidden";
+}
+
 export class UnexpectedError extends AppError {
   readonly statusCode = 500;
   readonly message = "Internal Server Error";
