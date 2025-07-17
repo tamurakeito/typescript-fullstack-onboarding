@@ -1,0 +1,37 @@
+import { schemas } from "@/generated/client/client.gen.js";
+import type { UserCreateCommand } from "@/usecase/user/command/create.js";
+import type { Context } from "hono";
+
+export class UserHandler {
+  constructor(private readonly userCreateCommand: UserCreateCommand) {}
+
+  async createUser(c: Context) {
+    const body = await c.req.json();
+
+    const result = await this.userCreateCommand.execute(
+      body.userId,
+      body.name,
+      body.password,
+      body.organizationId,
+      body.role,
+      c.get("role"),
+      c.get("organizationId")
+    );
+
+    if (result.isErr()) {
+      c.get("logger").error("UserCreateCommand failed", {
+        error: result.error.constructor.name,
+        message: result.error.message,
+        statusCode: result.error.statusCode,
+      });
+      return c.json({ message: result.error.message }, result.error.statusCode);
+    }
+
+    const parsedResponse = schemas.CreateUserResponse.safeParse(result.value);
+    if (parsedResponse.error) {
+      c.get("logger").error(parsedResponse.error.errors);
+    }
+
+    return c.json(result.value, 201);
+  }
+}

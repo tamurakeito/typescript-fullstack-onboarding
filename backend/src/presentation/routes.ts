@@ -6,6 +6,7 @@ import type { Hono } from "hono";
 import { z } from "zod";
 import type { AuthHandler } from "./handlers/auth-handler.js";
 import type { OrganizationHandler } from "./handlers/organization-handler.js";
+import type { UserHandler } from "./handlers/user-handler.js";
 import { jwtMiddleware } from "./middleware/jwt.js";
 import type { Env } from "./middleware/logger.js";
 
@@ -13,6 +14,7 @@ export function initRouting(
   app: Hono<Env>,
   authHandler: AuthHandler,
   organizationHandler: OrganizationHandler,
+  userHandler: UserHandler,
   jwtService: JwtService
 ) {
   app.get("/", (c) => {
@@ -87,5 +89,18 @@ export function initRouting(
     }),
     jwtMiddleware(jwtService),
     (c) => organizationHandler.deleteOrganization(c)
+  );
+
+  /* User */
+  app.post(
+    "/user",
+    zValidator("json", schemas.CreateUserRequest, (result, c) => {
+      if (!result.success) {
+        const error = new BadRequestError();
+        return c.json({ message: error.message }, error.statusCode);
+      }
+    }),
+    jwtMiddleware(jwtService),
+    (c) => userHandler.createUser(c)
   );
 }

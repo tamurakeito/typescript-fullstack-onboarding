@@ -1,3 +1,4 @@
+import { schemas } from "@/generated/client/client.gen.js";
 import type { OrganizationCreateCommand } from "@/usecase/organization/command/create.js";
 import type { OrganizationDeleteCommand } from "@/usecase/organization/command/delete.js";
 import type { OrganizationUpdateCommand } from "@/usecase/organization/command/update.js";
