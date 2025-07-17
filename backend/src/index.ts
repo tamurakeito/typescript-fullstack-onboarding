@@ -31,8 +31,6 @@ app.use("*", cors());
 // DI
 const jwtService = new JwtServiceImpl(process.env.JWT_SECRET ?? "default_secret");
 const passwordHash = new PasswordHashImpl();
-const userIdCheck = new UserIdCheckImpl();
-const organizationIdCheck = new OrganizationIdCheckImpl();
 
 const authQuery = new AuthQueryImpl(passwordHash);
 const authHandler = new AuthHandler(authQuery, jwtService);
@@ -54,9 +52,8 @@ const organizationHandler = new OrganizationHandler(
 const accountRepository = new AccountRepositoryImpl();
 const userCreateCommand = new UserCreateCommandImpl(
   accountRepository,
-  passwordHash,
-  userIdCheck,
-  organizationIdCheck
+  organizationRepository,
+  passwordHash
 );
 const userHandler = new UserHandler(userCreateCommand);
 
