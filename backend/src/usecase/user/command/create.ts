@@ -4,7 +4,6 @@ import type { PasswordHash } from "@/domain/account/password-hash.js";
 import {
   type AppError,
   DuplicateUserIdError,
-  ForbiddenError,
   UnExistOrganizationError,
   UnexpectedError,
 } from "@/errors/errors.js";
@@ -18,9 +17,7 @@ export interface UserCreateCommand {
     name: string,
     password: string,
     organizationId: string,
-    role: Role,
-    clientRole: Role,
-    clientOrganizationId: string
+    role: Role
   ): Promise<Result<Account, AppError>>;
 }
 
@@ -37,18 +34,8 @@ export class UserCreateCommandImpl implements UserCreateCommand {
     name: string,
     password: string,
     organizationId: string,
-    role: Role,
-    clientRole: Role,
-    clientOrganizationId: string
+    role: Role
   ): Promise<Result<Account, AppError>> {
-    if (
-      clientRole === "Operator" ||
-      (clientRole === "Manager" && clientOrganizationId !== organizationId) ||
-      (clientRole === "Manager" && role === "SuperAdmin")
-    ) {
-      return err(new ForbiddenError());
-    }
-
     const [uniqValidate, existValidate] = await Promise.all([
       this.prisma.account.findUnique({
         where: {
