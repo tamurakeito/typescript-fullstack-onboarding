@@ -46,33 +46,12 @@ describe("OrganizationUpdateCommandImpl", () => {
     });
     mockOrganizationRepository.save.mockResolvedValue(ok(mockDate));
 
-    const result = await organizationUpdateCommand.execute(
-      mockId,
-      "テスト組織01-new",
-      "SuperAdmin"
-    );
+    const result = await organizationUpdateCommand.execute(mockId, "テスト組織01-new");
     expect(result.isOk()).toBe(true);
     if (result.isOk()) {
       const organization = result.value;
       expect(organization).toEqual(mockDate);
       expect(mockFindUnique).toHaveBeenCalledWith({ where: { id: mockId } });
-    }
-  });
-});
-
-describe("OrganizationUpdateCommandImpl", () => {
-  it("SuperAdminでない場合", async () => {
-    const organizationUpdateCommand = new OrganizationUpdateCommandImpl(mockOrganizationRepository);
-
-    const result = await organizationUpdateCommand.execute(
-      "mock-uuid-123",
-      "テスト組織01-new",
-      "Manager"
-    );
-    expect(result.isErr()).toBe(true);
-    if (result.isErr()) {
-      const error = result.error;
-      expect(error).toBeInstanceOf(ForbiddenError);
     }
   });
 });
@@ -88,11 +67,7 @@ describe("OrganizationUpdateCommandImpl", () => {
 
     mockPrismaClient.organization.findUnique.mockResolvedValue(undefined);
 
-    const result = await organizationUpdateCommand.execute(
-      mockId,
-      "テスト組織01-new",
-      "SuperAdmin"
-    );
+    const result = await organizationUpdateCommand.execute(mockId, "テスト組織01-new");
 
     expect(result.isErr()).toBe(true);
     if (result.isErr()) {
@@ -119,11 +94,7 @@ describe("OrganizationUpdateCommandImpl", () => {
 
     mockOrganizationRepository.save.mockResolvedValue(err(new DuplicateOrganizationNameError()));
 
-    const result = await organizationUpdateCommand.execute(
-      "mock-uuid-123",
-      "テスト組織02",
-      "SuperAdmin"
-    );
+    const result = await organizationUpdateCommand.execute("mock-uuid-123", "テスト組織02");
     expect(result.isErr()).toBe(true);
     if (result.isErr()) {
       const error = result.error;

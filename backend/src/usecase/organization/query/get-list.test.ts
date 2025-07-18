@@ -29,7 +29,7 @@ describe("OrganizationListQueryImpl", () => {
 
     mockPrismaClient.organization.findMany.mockResolvedValue([mockData]);
 
-    const result = await organizationListQuery.execute("SuperAdmin");
+    const result = await organizationListQuery.execute();
     expect(result.isOk()).toBe(true);
     if (result.isOk()) {
       const organizations = result.value;
@@ -45,25 +45,12 @@ describe("OrganizationListQueryImpl", () => {
 });
 
 describe("OrganizationListQueryImpl", () => {
-  it("SuperAdminでない場合", async () => {
-    const organizationListQuery = new OrganizationListQueryImpl();
-
-    const result = await organizationListQuery.execute("Manager");
-    expect(result.isErr()).toBe(true);
-    if (result.isErr()) {
-      const error = result.error;
-      expect(error).toBeInstanceOf(ForbiddenError);
-    }
-  });
-});
-
-describe("OrganizationListQueryImpl", () => {
   it("組織が存在しない場合", async () => {
     const organizationListQuery = new OrganizationListQueryImpl();
 
     mockPrismaClient.organization.findMany.mockResolvedValue([]);
 
-    const result = await organizationListQuery.execute("SuperAdmin");
+    const result = await organizationListQuery.execute();
     expect(result.isErr()).toBe(true);
     if (result.isErr()) {
       const error = result.error;

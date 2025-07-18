@@ -50,5 +50,21 @@ export const organizationPermissionMiddleware = (action: Action) => {
   });
 };
 
-// export const accountPermissionMiddleware
+export const accountPermissionMiddleware = (action: Action) => {
+  return createMiddleware(async (c, next) => {
+    const actor = c.get("actor");
+    const targetAccountId = c.req.param("id");
+
+    const allowed = permissionPolicy(actor, action, {
+      type: "Account",
+      content: targetAccountId,
+    });
+
+    if (!allowed) {
+      const error = new ForbiddenError();
+      return c.json({ message: error.message }, error.statusCode);
+    }
+    return next();
+  });
+};
 // export const todoPermissionMiddleware
