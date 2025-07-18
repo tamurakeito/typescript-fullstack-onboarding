@@ -34,7 +34,7 @@ const permissionPolicy = (actor: Account, action: Action, resource: Resource): b
 
 export const organizationPermissionMiddleware = (action: Action) => {
   return createMiddleware(async (c, next) => {
-    const actor = c.get("actor") as Account;
+    const actor = c.get("actor");
     const targetOrgId = c.req.param("id");
 
     const allowed = permissionPolicy(actor, action, {
