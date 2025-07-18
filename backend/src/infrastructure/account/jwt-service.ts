@@ -8,7 +8,7 @@ const isAccount = (obj: any): obj is Account => {
     typeof obj.id === "string" &&
     typeof obj.userId === "string" &&
     typeof obj.name === "string" &&
-    (typeof obj.organizationId === "string" || obj.organizationId === null) &&
+    (typeof obj.organizationId === "string" || obj.organizationId === undefined) &&
     (obj.role === "SuperAdmin" || obj.role === "Manager" || obj.role === "Operator")
   );
 };
