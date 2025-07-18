@@ -41,39 +41,4 @@ export class Account {
     }
     return ok(new Account(id, userId, name, organizationId, role));
   }
-
-  /* Organization Permission */
-  canGetOrganizationList(): boolean {
-    return this.role === "SuperAdmin";
-  }
-
-  canGetOrganizationProfile(targetOrganizationId: string): boolean {
-    return (
-      this.role === "SuperAdmin" ||
-      (this.role === "Manager" && this.organizationId === targetOrganizationId)
-    );
-  }
-
-  canCreateOrganization(): boolean {
-    return this.role === "SuperAdmin";
-  }
-
-  canUpdateOrganization(): boolean {
-    return this.role === "SuperAdmin";
-  }
-
-  canDeleteOrganization(): boolean {
-    return this.role === "SuperAdmin";
-  }
-
-  /* User Permission */
-
-  canCreateUser(targetOrganizationId: string, targetRole: Role): boolean {
-    return (
-      this.role === "SuperAdmin" ||
-      (this.role === "Manager" &&
-        this.organizationId === targetOrganizationId &&
-        targetRole !== "SuperAdmin")
-    );
-  }
 }

@@ -4,7 +4,7 @@ import { createMiddleware } from "hono/factory";
 
 export const jwtMiddleware = (jwtService: JwtService) => {
   return createMiddleware<{
-    Variables: { authAccount: Account };
+    Variables: { actor: Account };
   }>(async (c, next) => {
     const token = c.req.header("Authorization")?.split(" ")[1];
     if (!token) {
@@ -14,7 +14,7 @@ export const jwtMiddleware = (jwtService: JwtService) => {
     if (decoded.isErr()) {
       return c.json({ error: "Unauthorized" }, 401);
     }
-    c.set("authAccount", decoded.value);
+    c.set("actor", decoded.value);
     return next();
   });
 };
