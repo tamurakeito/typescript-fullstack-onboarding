@@ -2,6 +2,10 @@ import { Account } from "@/domain/account/account.js";
 import { sign, verify } from "hono/jwt";
 import { type Result, err, ok } from "neverthrow";
 
+const isAccount = (obj: any): obj is Account => {
+  return obj != null && typeof obj.id === "string" && typeof obj.userId === "string";
+};
+
 export interface JwtService {
   generate(payload: { account: Account }): Promise<string>;
   verify(token: string): Promise<Result<Account, Error>>;
@@ -17,7 +21,7 @@ export class JwtServiceImpl implements JwtService {
   async verify(token: string): Promise<Result<Account, Error>> {
     try {
       const decoded = await verify(token, this.secret);
-      if (!decoded.account) {
+      if (!isAccount(decoded.account)) {
         return err(new Error("Invalid token payload"));
       }
       const accountData = decoded.account as Account;
