@@ -10,7 +10,10 @@ import type { OrganizationHandler } from "./handlers/organization-handler.js";
 import type { UserHandler } from "./handlers/user-handler.js";
 import { jwtMiddleware } from "./middleware/jwt.js";
 import type { Env } from "./middleware/logger.js";
-import { organizationPermissionMiddleware } from "./middleware/permission.js";
+import {
+  accountPermissionMiddleware,
+  organizationPermissionMiddleware,
+} from "./middleware/permission.js";
 
 export function initRouting(
   app: Hono<Env>,
@@ -110,10 +113,7 @@ export function initRouting(
       }
     }),
     jwtMiddleware(jwtService),
-    permissionMiddleware(async (account, c) => {
-      const body = await c.req.json();
-      return account.canCreateUser(c.req.param("organizationId"), body.role as Role);
-    }),
+    accountPermissionMiddleware("create"),
     (c) => userHandler.createUser(c)
   );
 }
