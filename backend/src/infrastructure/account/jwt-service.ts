@@ -3,7 +3,14 @@ import { sign, verify } from "hono/jwt";
 import { type Result, err, ok } from "neverthrow";
 
 const isAccount = (obj: any): obj is Account => {
-  return obj != null && typeof obj.id === "string" && typeof obj.userId === "string";
+  return (
+    obj != null &&
+    typeof obj.id === "string" &&
+    typeof obj.userId === "string" &&
+    typeof obj.name === "string" &&
+    (typeof obj.organizationId === "string" || obj.organizationId === null) &&
+    (obj.role === "SuperAdmin" || obj.role === "Manager" || obj.role === "Operator")
+  );
 };
 
 export interface JwtService {
