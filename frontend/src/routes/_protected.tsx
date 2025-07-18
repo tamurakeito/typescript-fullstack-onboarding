@@ -29,18 +29,18 @@ export const Route = createFileRoute("/_protected")({
         <header className="flex items-center justify-between px-6 py-2 border-b">
           <div className="flex items-center gap-6">
             <h1 className="text-xl font-bold">組織用Todo管理システム</h1>
-            {allowedRoles.includes(account?.role as Role) && (
-              <NavigationMenu>
-                <NavigationMenuList>
-                  <NavigationMenuItem>
-                    <NavigationMenuLink href="/">HOME</NavigationMenuLink>
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <NavigationMenuLink href="/organization">組織管理</NavigationMenuLink>
-                  </NavigationMenuItem>
-                </NavigationMenuList>
-              </NavigationMenu>
-            )}
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuLink href="/">HOME</NavigationMenuLink>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuLink href="/organization">
+                    {allowedRoles.includes(account?.role as Role) ? "組織管理" : "組織"}
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
           </div>
           <div className="flex items-center gap-8">
             <div className="flex items-center gap-4 border rounded-lg px-4 py-2">

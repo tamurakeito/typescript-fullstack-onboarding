@@ -36,6 +36,7 @@ interface OrganizationAPI {
   getList():
     | Organization[]
     | BadRequestError
+    | ForbiddenError
     | NotFoundError
     | InternalServerError;
 
@@ -45,36 +46,49 @@ interface OrganizationAPI {
   get(@path id: string):
     | OrganizationProfile
     | BadRequestError
+    | ForbiddenError
     | NotFoundError
     | InternalServerError;
 
   @post
   @route("/organization")
   @summary("組織作成")
-  create(@body body: CreateOrganizationRequest): {
-    @statusCode
-    statusCode: 201;
+  create(@body body: CreateOrganizationRequest):
+    | {
+        @statusCode
+        statusCode: 201;
 
-    @body
-    organization: Organization;
-  } | BadRequestError | InternalServerError;
+        @body
+        organization: Organization;
+      }
+    | BadRequestError
+    | ForbiddenError
+    | InternalServerError;
 
   @put
   @route("/organization/{id}")
   @summary("組織更新")
-  update(@path id: string, @body body: UpdateOrganizationRequest): {
-    @statusCode
-    statusCode: 200;
+  update(@path id: string, @body body: UpdateOrganizationRequest):
+    | {
+        @statusCode
+        statusCode: 200;
 
-    @body
-    organization: Organization;
-  } | BadRequestError | InternalServerError;
+        @body
+        organization: Organization;
+      }
+    | BadRequestError
+    | ForbiddenError
+    | InternalServerError;
 
   @delete
   @route("/organization/{id}")
   @summary("組織削除")
-  delete(@path id: string): {
-    @statusCode
-    statusCode: 204;
-  } | BadRequestError | InternalServerError;
+  delete(@path id: string):
+    | {
+        @statusCode
+        statusCode: 204;
+      }
+    | BadRequestError
+    | ForbiddenError
+    | InternalServerError;
 }

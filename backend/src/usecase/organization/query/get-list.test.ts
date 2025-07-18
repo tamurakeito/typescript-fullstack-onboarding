@@ -1,4 +1,4 @@
-import { NoOrganizationError } from "@/errors/errors.js";
+import { ForbiddenError, NoOrganizationError } from "@/errors/errors.js";
 import { PrismaClient } from "@/generated/prisma/index.js";
 import { describe, expect, it, vi } from "vitest";
 import { OrganizationListQueryImpl } from "./get-list.js";
@@ -29,7 +29,7 @@ describe("OrganizationListQueryImpl", () => {
 
     mockPrismaClient.organization.findMany.mockResolvedValue([mockData]);
 
-    const result = await organizationListQuery.execute();
+    const result = await organizationListQuery.execute("SuperAdmin");
     expect(result.isOk()).toBe(true);
     if (result.isOk()) {
       const organizations = result.value;
@@ -45,12 +45,25 @@ describe("OrganizationListQueryImpl", () => {
 });
 
 describe("OrganizationListQueryImpl", () => {
+  it("SuperAdminでない場合", async () => {
+    const organizationListQuery = new OrganizationListQueryImpl();
+
+    const result = await organizationListQuery.execute("Manager");
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      const error = result.error;
+      expect(error).toBeInstanceOf(ForbiddenError);
+    }
+  });
+});
+
+describe("OrganizationListQueryImpl", () => {
   it("組織が存在しない場合", async () => {
     const organizationListQuery = new OrganizationListQueryImpl();
 
     mockPrismaClient.organization.findMany.mockResolvedValue([]);
 
-    const result = await organizationListQuery.execute();
+    const result = await organizationListQuery.execute("SuperAdmin");
     expect(result.isErr()).toBe(true);
     if (result.isErr()) {
       const error = result.error;

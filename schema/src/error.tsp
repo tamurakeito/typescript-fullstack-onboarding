@@ -23,6 +23,15 @@ model UnauthorizedError {
 }
 
 @error
+model ForbiddenError {
+  @statusCode
+  statusCode: 403;
+
+  @body
+  body: ErrorBody;
+}
+
+@error
 model NotFoundError {
   @statusCode
   statusCode: 404;

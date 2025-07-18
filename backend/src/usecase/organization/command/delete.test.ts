@@ -1,5 +1,6 @@
 import {
   DuplicateOrganizationNameError,
+  ForbiddenError,
   UnExistOrganizationError,
   UnexpectedError,
 } from "@/errors/errors.js";
@@ -22,11 +23,24 @@ describe("OrganizationDeleteCommandImpl", () => {
 
     mockOrganizationRepository.delete.mockResolvedValue(ok(undefined));
 
-    const result = await organizationDeleteCommand.execute("mock-uuid-123");
+    const result = await organizationDeleteCommand.execute("mock-uuid-123", "SuperAdmin");
     expect(result.isOk()).toBe(true);
     if (result.isOk()) {
       const organization = result.value;
       expect(organization).toEqual(undefined);
+    }
+  });
+});
+
+describe("OrganizationDeleteCommandImpl", () => {
+  it("SuperAdminでない場合", async () => {
+    const organizationDeleteCommand = new OrganizationDeleteCommandImpl(mockOrganizationRepository);
+
+    const result = await organizationDeleteCommand.execute("mock-uuid-123", "Manager");
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      const error = result.error;
+      expect(error).toBeInstanceOf(ForbiddenError);
     }
   });
 });
@@ -37,7 +51,7 @@ describe("OrganizationDeleteCommandImpl", () => {
 
     mockOrganizationRepository.delete.mockResolvedValue(err(new UnExistOrganizationError()));
 
-    const result = await organizationDeleteCommand.execute("mock-uuid-123");
+    const result = await organizationDeleteCommand.execute("mock-uuid-123", "SuperAdmin");
     expect(result.isErr()).toBe(true);
     if (result.isErr()) {
       const error = result.error;

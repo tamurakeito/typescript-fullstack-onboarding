@@ -1,8 +1,11 @@
+import type { Account } from "@/domain/account/account.js";
 import type { JwtService } from "@/infrastructure/account/jwt-service.js";
 import { createMiddleware } from "hono/factory";
 
 export const jwtMiddleware = (jwtService: JwtService) => {
-  return createMiddleware<{ Variables: { role: string } }>(async (c, next) => {
+  return createMiddleware<{
+    Variables: { actor: Account };
+  }>(async (c, next) => {
     const token = c.req.header("Authorization")?.split(" ")[1];
     if (!token) {
       return c.json({ error: "Unauthorized" }, 401);
@@ -11,7 +14,7 @@ export const jwtMiddleware = (jwtService: JwtService) => {
     if (decoded.isErr()) {
       return c.json({ error: "Unauthorized" }, 401);
     }
-    c.set("role", decoded.value.role);
+    c.set("actor", decoded.value);
     return next();
   });
 };
