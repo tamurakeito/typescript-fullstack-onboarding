@@ -6,25 +6,15 @@ import { type Result, err, ok } from "neverthrow";
 import type { z } from "zod";
 
 export interface OrganizationProfileQuery {
-  execute(
-    id: string,
-    clientRole: Role,
-    clientOrganizationId: string
-  ): Promise<Result<z.infer<typeof schemas.OrganizationProfile>, AppError>>;
+  execute(id: string): Promise<Result<z.infer<typeof schemas.OrganizationProfile>, AppError>>;
 }
 
 export class OrganizationProfileQueryImpl implements OrganizationProfileQuery {
   private prisma = new PrismaClient();
 
   async execute(
-    id: string,
-    clientRole: Role,
-    clientOrganizationId: string
+    id: string
   ): Promise<Result<z.infer<typeof schemas.OrganizationProfile>, AppError>> {
-    if (clientRole !== "SuperAdmin" && clientOrganizationId !== id) {
-      return err(new ForbiddenError());
-    }
-
     const organizationData = await this.prisma.organization.findUnique({
       where: {
         id,

@@ -26,8 +26,7 @@ export class AuthHandler {
     }
 
     const token = await this.jwtService.generate({
-      role: user.value.role,
-      organizationId: user.value.organizationId ?? "",
+      account: user.value,
     });
 
     const response = {
