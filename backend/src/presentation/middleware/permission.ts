@@ -3,7 +3,9 @@ import { ForbiddenError } from "@/errors/errors.js";
 import type { Context } from "hono";
 import { createMiddleware } from "hono/factory";
 
-export const permissionMiddleware = (method: (account: Account, c: Context) => boolean) => {
+export const permissionMiddleware = (
+  method: (account: Account, c: Context) => boolean | Promise<boolean>
+) => {
   return createMiddleware(async (c, next) => {
     const authAccount = c.get("authAccount") as Account;
     if (!method(authAccount, c)) {

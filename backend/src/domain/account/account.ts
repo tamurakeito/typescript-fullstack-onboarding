@@ -42,14 +42,15 @@ export class Account {
     return ok(new Account(id, userId, name, organizationId, role));
   }
 
+  /* Organization Permission */
   canGetOrganizationList(): boolean {
     return this.role === "SuperAdmin";
   }
 
-  canGetOrganizationProfile(organizationId: string): boolean {
+  canGetOrganizationProfile(targetOrganizationId: string): boolean {
     return (
       this.role === "SuperAdmin" ||
-      (this.role === "Manager" && this.organizationId === organizationId)
+      (this.role === "Manager" && this.organizationId === targetOrganizationId)
     );
   }
 
@@ -63,5 +64,16 @@ export class Account {
 
   canDeleteOrganization(): boolean {
     return this.role === "SuperAdmin";
+  }
+
+  /* User Permission */
+
+  canCreateUser(targetOrganizationId: string, targetRole: Role): boolean {
+    return (
+      this.role === "SuperAdmin" ||
+      (this.role === "Manager" &&
+        this.organizationId === targetOrganizationId &&
+        targetRole !== "SuperAdmin")
+    );
   }
 }

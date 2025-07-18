@@ -13,9 +13,7 @@ export class UserHandler {
       body.name,
       body.password,
       body.organizationId,
-      body.role,
-      c.get("role"),
-      c.get("organizationId")
+      body.role
     );
 
     if (result.isErr()) {

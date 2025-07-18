@@ -1,3 +1,4 @@
+import type { Role } from "@/domain/account/account.js";
 import { BadRequestError } from "@/errors/errors.js";
 import { schemas } from "@/generated/client/client.gen.js";
 import type { JwtService } from "@/infrastructure/account/jwt-service.js";
@@ -109,6 +110,10 @@ export function initRouting(
       }
     }),
     jwtMiddleware(jwtService),
+    permissionMiddleware(async (account, c) => {
+      const body = await c.req.json();
+      return account.canCreateUser(c.req.param("organizationId"), body.role as Role);
+    }),
     (c) => userHandler.createUser(c)
   );
 }
