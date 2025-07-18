@@ -37,6 +37,7 @@ export class AuthQueryImpl implements AuthQuery {
       data.id,
       data.userId,
       data.name,
+      data.password,
       data.organizationId ?? undefined,
       data.role
     );

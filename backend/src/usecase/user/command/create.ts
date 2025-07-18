@@ -56,14 +56,14 @@ export class UserCreateCommandImpl implements UserCreateCommand {
       return err(new UnExistOrganizationError());
     }
 
-    const account = Account.create(uuidv4(), userId, name, organizationId, role);
+    const hashedPassword = await this.passwordHash.hash(password);
+
+    const account = Account.create(uuidv4(), userId, name, hashedPassword, organizationId, role);
     if (account.isErr()) {
       return err(new UnexpectedError(account.error.message));
     }
 
-    const hashedPassword = await this.passwordHash.hash(password);
-
-    const result = await this.accountRepository.save(account.value, hashedPassword);
+    const result = await this.accountRepository.save(account.value);
 
     if (result.isErr()) {
       return err(new UnexpectedError(result.error.message));

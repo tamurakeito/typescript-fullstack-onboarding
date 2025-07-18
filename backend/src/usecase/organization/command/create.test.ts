@@ -23,24 +23,11 @@ describe("OrganizationCreateCommandImpl", () => {
 
     mockOrganizationRepository.save.mockResolvedValue(ok(mockData));
 
-    const result = await organizationCreateCommand.execute("テスト組織01", "SuperAdmin");
+    const result = await organizationCreateCommand.execute("テスト組織01");
     expect(result.isOk()).toBe(true);
     if (result.isOk()) {
       const organization = result.value;
       expect(organization).toEqual(mockData);
-    }
-  });
-});
-
-describe("OrganizationCreateCommandImpl", () => {
-  it("SuperAdminでない場合", async () => {
-    const organizationCreateCommand = new OrganizationCreateCommandImpl(mockOrganizationRepository);
-
-    const result = await organizationCreateCommand.execute("テスト組織01", "Manager");
-    expect(result.isErr()).toBe(true);
-    if (result.isErr()) {
-      const error = result.error;
-      expect(error).toBeInstanceOf(ForbiddenError);
     }
   });
 });
@@ -51,7 +38,7 @@ describe("OrganizationCreateCommandImpl", () => {
 
     mockOrganizationRepository.save.mockResolvedValue(err(new DuplicateOrganizationNameError()));
 
-    const result = await organizationCreateCommand.execute("テスト組織02", "SuperAdmin");
+    const result = await organizationCreateCommand.execute("テスト組織02");
     expect(result.isErr()).toBe(true);
     if (result.isErr()) {
       const error = result.error;

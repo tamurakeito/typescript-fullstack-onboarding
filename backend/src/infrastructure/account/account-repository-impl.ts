@@ -9,14 +9,14 @@ import { err, ok } from "neverthrow";
 export class AccountRepositoryImpl implements AccountRepository {
   private prisma = new PrismaClient();
 
-  async save(account: Account, hashedPassword: string): Promise<Result<Account, AppError>> {
+  async save(account: Account): Promise<Result<Account, AppError>> {
     try {
       const result = await this.prisma.account.upsert({
         where: { id: account.id },
         update: {
           userId: account.userId,
           name: account.name,
-          password: hashedPassword,
+          password: account.hashedPassword,
           organizationId: account.organizationId,
           role: account.role,
         },
@@ -24,7 +24,7 @@ export class AccountRepositoryImpl implements AccountRepository {
           id: account.id,
           userId: account.userId,
           name: account.name,
-          password: hashedPassword,
+          password: account.hashedPassword,
           organizationId: account.organizationId,
           role: account.role,
         },
@@ -34,6 +34,7 @@ export class AccountRepositoryImpl implements AccountRepository {
         result.id,
         result.userId,
         result.name,
+        result.password,
         result.organizationId ?? undefined,
         result.role
       );
