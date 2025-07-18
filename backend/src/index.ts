@@ -5,6 +5,8 @@ import { requestId } from "hono/request-id";
 import { AccountRepositoryImpl } from "./infrastructure/account/account-repository-impl.js";
 import { JwtServiceImpl } from "./infrastructure/account/jwt-service.js";
 import { PasswordHashImpl } from "./infrastructure/account/password-hash-impl.js";
+import { UserIdCheckImpl } from "./infrastructure/account/user-id-check-impl.js";
+import { OrganizationIdCheckImpl } from "./infrastructure/organization/organization-id-check-impl.js";
 import { OrganizationRepositoryImpl } from "./infrastructure/organization/organization-repository-impl.js";
 import { AuthHandler } from "./presentation/handlers/auth-handler.js";
 import { OrganizationHandler } from "./presentation/handlers/organization-handler.js";
@@ -29,6 +31,8 @@ app.use("*", cors());
 // DI
 const jwtService = new JwtServiceImpl(process.env.JWT_SECRET ?? "default_secret");
 const passwordHash = new PasswordHashImpl();
+const userIdCheck = new UserIdCheckImpl();
+const organizationIdCheck = new OrganizationIdCheckImpl();
 
 const authQuery = new AuthQueryImpl(passwordHash);
 const authHandler = new AuthHandler(authQuery, jwtService);
@@ -48,7 +52,12 @@ const organizationHandler = new OrganizationHandler(
 );
 
 const accountRepository = new AccountRepositoryImpl();
-const userCreateCommand = new UserCreateCommandImpl(accountRepository, passwordHash);
+const userCreateCommand = new UserCreateCommandImpl(
+  accountRepository,
+  passwordHash,
+  userIdCheck,
+  organizationIdCheck
+);
 const userHandler = new UserHandler(userCreateCommand);
 
 initRouting(app, authHandler, organizationHandler, userHandler, jwtService);
