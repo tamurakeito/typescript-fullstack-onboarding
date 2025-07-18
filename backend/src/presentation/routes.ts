@@ -7,9 +7,10 @@ import { z } from "zod";
 import type { AuthHandler } from "./handlers/auth-handler.js";
 import type { OrganizationHandler } from "./handlers/organization-handler.js";
 import { jwtMiddleware } from "./middleware/jwt.js";
+import type { Env } from "./middleware/logger.js";
 
 export function initRouting(
-  app: Hono,
+  app: Hono<Env>,
   authHandler: AuthHandler,
   organizationHandler: OrganizationHandler,
   jwtService: JwtService

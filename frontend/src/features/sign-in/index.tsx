@@ -62,11 +62,9 @@ export const SignIn = () => {
   });
 
   const onSubmit: SubmitHandler<z.infer<typeof zSignInRequest>> = async (data) => {
-    console.log(data);
-    const result = await mutation.mutateAsync({
+    await mutation.mutateAsync({
       body: data,
     });
-    console.log(result);
   };
 
   return (

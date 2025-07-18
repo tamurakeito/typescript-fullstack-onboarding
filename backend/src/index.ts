@@ -1,11 +1,14 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { requestId } from "hono/request-id";
 import { JwtServiceImpl } from "./infrastructure/account/jwt-service.js";
 import { PasswordHashImpl } from "./infrastructure/account/password-hash-impl.js";
 import { OrganizationRepositoryImpl } from "./infrastructure/organization/organization-repository-impl.js";
 import { AuthHandler } from "./presentation/handlers/auth-handler.js";
 import { OrganizationHandler } from "./presentation/handlers/organization-handler.js";
+import { LoggerMiddleware } from "./presentation/middleware/logger.js";
+import type { Env } from "./presentation/middleware/logger.js";
 import { initRouting } from "./presentation/routes.js";
 import { AuthQueryImpl } from "./usecase/auth/query/auth.js";
 import { OrganizationCreateCommandImpl } from "./usecase/organization/command/create.js";
@@ -14,8 +17,10 @@ import { OrganizationUpdateCommandImpl } from "./usecase/organization/command/up
 import { OrganizationListQueryImpl } from "./usecase/organization/query/get-list.js";
 import { OrganizationProfileQueryImpl } from "./usecase/organization/query/get-profile.js";
 
-const app = new Hono();
+const app = new Hono<Env>();
 
+app.use(requestId());
+app.use(LoggerMiddleware());
 app.use("*", cors());
 
 // DI
