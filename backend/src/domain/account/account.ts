@@ -41,4 +41,27 @@ export class Account {
     }
     return ok(new Account(id, userId, name, organizationId, role));
   }
+
+  canGetOrganizationList(): boolean {
+    return this.role === "SuperAdmin";
+  }
+
+  canGetOrganizationProfile(organizationId: string): boolean {
+    return (
+      this.role === "SuperAdmin" ||
+      (this.role === "Manager" && this.organizationId === organizationId)
+    );
+  }
+
+  canCreateOrganization(): boolean {
+    return this.role === "SuperAdmin";
+  }
+
+  canUpdateOrganization(): boolean {
+    return this.role === "SuperAdmin";
+  }
+
+  canDeleteOrganization(): boolean {
+    return this.role === "SuperAdmin";
+  }
 }
