@@ -1,6 +1,6 @@
 import type { AccountRepository } from "@/domain/account/account-repository.js";
 import { Account } from "@/domain/account/account.js";
-import { UnExistUserError, UnexpectedError } from "@/errors/errors.js";
+import { UnExistAccountError, UnExistUserError, UnexpectedError } from "@/errors/errors.js";
 import type { AppError } from "@/errors/errors.js";
 import { PrismaClient } from "@/generated/prisma/index.js";
 import type { Result } from "neverthrow";
@@ -14,7 +14,7 @@ export class AccountRepositoryImpl implements AccountRepository {
       const result = await this.prisma.account.findUnique({ where: { userId: userId } });
 
       if (!result) {
-        return err(new UnExistUserError());
+        return err(new UnExistAccountError());
       }
 
       const data = Account.create(

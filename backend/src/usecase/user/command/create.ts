@@ -5,8 +5,7 @@ import type { OrganizationRepository } from "@/domain/organization/organization-
 import {
   type AppError,
   DuplicateUserIdError,
-  UnExistOrganizationError,
-  UnExistUserError,
+  UnExistAccountError,
   UnexpectedError,
 } from "@/errors/errors.js";
 import { type Result, err, ok } from "neverthrow";
@@ -41,7 +40,7 @@ export class UserCreateCommandImpl implements UserCreateCommand {
       this.organizationRepository.findById(organizationId),
     ]);
 
-    if (accountExist.isErr() && !(accountExist.error instanceof UnExistUserError)) {
+    if (accountExist.isErr() && !(accountExist.error instanceof UnExistAccountError)) {
       return err(accountExist.error);
     }
     if (accountExist.isOk()) {

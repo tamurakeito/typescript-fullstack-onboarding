@@ -36,6 +36,11 @@ export class UnExistOrganizationError extends AppError {
 
 /* user */
 
+export class UnExistAccountError extends AppError {
+  readonly statusCode = 404;
+  readonly message = "Not Found";
+}
+
 export class DuplicateUserIdError extends AppError {
   readonly statusCode = 409;
   readonly message = "Conflict";

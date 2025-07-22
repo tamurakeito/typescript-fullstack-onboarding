@@ -1,5 +1,6 @@
 import {
   DuplicateUserIdError,
+  UnExistAccountError,
   UnExistOrganizationError,
   UnExistUserError,
   UnexpectedError,
@@ -59,7 +60,7 @@ describe("UserCreateCommandImpl", () => {
       role: mockRole,
     };
 
-    mockAccountRepository.findByUserId.mockResolvedValue(err(new UnExistUserError()));
+    mockAccountRepository.findByUserId.mockResolvedValue(err(new UnExistAccountError()));
     mockOrganizationRepository.findById.mockResolvedValue(ok({ id: mockOrganizationId }));
     mockPasswordHash.hash.mockResolvedValue(mockHashedPassword);
     mockAccountRepository.save.mockResolvedValue(ok(mockData));
@@ -75,6 +76,10 @@ describe("UserCreateCommandImpl", () => {
     if (result.isOk()) {
       const account = result.value;
       expect(account).toEqual(mockData);
+      expect(mockAccountRepository.findByUserId).toHaveBeenCalledWith(mockUserId);
+      expect(mockOrganizationRepository.findById).toHaveBeenCalledWith(mockOrganizationId);
+      expect(mockPasswordHash.hash).toHaveBeenCalledWith("password");
+      expect(mockAccountRepository.save).toHaveBeenCalled();
     }
   });
 
@@ -99,6 +104,7 @@ describe("UserCreateCommandImpl", () => {
     if (result.isErr()) {
       const error = result.error;
       expect(error).toBeInstanceOf(DuplicateUserIdError);
+      expect(mockAccountRepository.findByUserId).toHaveBeenCalledWith("mock-user-id");
     }
   });
 
@@ -110,7 +116,7 @@ describe("UserCreateCommandImpl", () => {
     );
 
     mockOrganizationRepository.findById.mockResolvedValue(err(new UnExistOrganizationError()));
-    mockAccountRepository.findByUserId.mockResolvedValue(err(new UnExistUserError()));
+    mockAccountRepository.findByUserId.mockResolvedValue(err(new UnExistAccountError()));
 
     const result = await userCreateCommand.execute(
       "mock-user-id",
@@ -124,6 +130,8 @@ describe("UserCreateCommandImpl", () => {
     if (result.isErr()) {
       const error = result.error;
       expect(error).toBeInstanceOf(UnExistOrganizationError);
+      expect(mockAccountRepository.findByUserId).toHaveBeenCalledWith("mock-user-id");
+      expect(mockOrganizationRepository.findById).toHaveBeenCalledWith("mock-uuid-123");
     }
   });
 
@@ -134,24 +142,31 @@ describe("UserCreateCommandImpl", () => {
       mockPasswordHash
     );
 
+    const mockUserId = "mock-user-id";
+    const mockName = "テストユーザー";
     const mockOrganizationId = "mock-uuid-123";
+    const mockRole = "Manager";
 
-    mockAccountRepository.findByUserId.mockResolvedValue(err(new UnExistUserError()));
+    mockAccountRepository.findByUserId.mockResolvedValue(err(new UnExistAccountError()));
     mockOrganizationRepository.findById.mockResolvedValue(ok({ id: mockOrganizationId }));
     mockPasswordHash.hash.mockResolvedValue("hashed-password");
     mockAccountRepository.save.mockResolvedValue(err(new UnexpectedError("データベースエラー")));
 
     const result = await userCreateCommand.execute(
-      "mock-user-id",
-      "テストユーザー",
+      mockUserId,
+      mockName,
       "password",
       mockOrganizationId,
-      "Manager"
+      mockRole
     );
     expect(result.isErr()).toBe(true);
     if (result.isErr()) {
       const error = result.error;
       expect(error).toBeInstanceOf(UnexpectedError);
+      expect(mockAccountRepository.findByUserId).toHaveBeenCalledWith(mockUserId);
+      expect(mockOrganizationRepository.findById).toHaveBeenCalledWith(mockOrganizationId);
+      expect(mockPasswordHash.hash).toHaveBeenCalledWith("password");
+      expect(mockAccountRepository.save).toHaveBeenCalled();
     }
   });
 });
