@@ -13,8 +13,6 @@ export class AccountRepositoryImpl implements AccountRepository {
     try {
       const result = await this.prisma.account.findUnique({ where: { userId: userId } });
 
-      console.log("result: ", result);
-
       if (!result) {
         return ok(null);
       }
