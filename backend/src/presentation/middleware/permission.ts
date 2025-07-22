@@ -25,6 +25,7 @@ const permissionPolicy = (actor: Account, action: Action, resource: Resource): b
     switch (action) {
       case "read":
         if (actor.role === "Manager" && actor.organizationId === resource.content) {
+          return true;
         }
     }
   }
