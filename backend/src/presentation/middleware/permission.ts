@@ -10,6 +10,7 @@ export type AccountContent = {
   userId: string;
   organizationId: string | undefined;
   role: Role;
+  roleGranted: Role | undefined;
 };
 export type AccountResource = {
   type: "Account";
@@ -51,7 +52,9 @@ const permissionPolicy = (actor: Account, action: Action, resource: Resource): b
         if (
           actor.role === "Manager" &&
           actor.organizationId === resource.content?.organizationId &&
-          (resource.content?.role === "Manager" || resource.content?.role === "Operator")
+          (resource.content?.role === "Manager" || resource.content?.role === "Operator") &&
+          (resource.content?.roleGranted === "Manager" ||
+            resource.content?.roleGranted === "Operator")
         ) {
           return true;
         }
@@ -80,19 +83,29 @@ export const organizationPermissionMiddleware = (action: Action) => {
   });
 };
 
-export const accountPermissionMiddleware = (action: Action, account?: Account) => {
-  return createMiddleware(async (c, next) => {
+export const accountPermissionMiddleware = (
+  action: Action,
+  accountRepository: AccountRepository
+) => {
+  return createMiddleware<{ Variables: { actor: Account; account: Account } }>(async (c, next) => {
     const actor = c.get("actor");
+    const id = c.req.param("id");
     const body = await c.req.json();
 
-    if (account) {
+    if (id) {
+      const account = await accountRepository.findById(id);
+      if (account.isErr()) {
+        return c.json({ message: account.error.message }, account.error.statusCode);
+      }
+      c.set("account", account.value);
       const allowed = permissionPolicy(actor, action, {
         type: "Account",
         content: {
-          id: account.id,
-          userId: account.userId,
-          organizationId: account.organizationId,
-          role: account.role,
+          id: account.value.id,
+          userId: account.value.userId,
+          organizationId: account.value.organizationId,
+          role: account.value.role,
+          roleGranted: body.role,
         },
       });
 
@@ -108,6 +121,7 @@ export const accountPermissionMiddleware = (action: Action, account?: Account) =
           userId: body.userId,
           organizationId: body.organizationId,
           role: body.role,
+          roleGranted: undefined,
         },
       });
 

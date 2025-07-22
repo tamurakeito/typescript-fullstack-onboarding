@@ -38,7 +38,8 @@ export class UserHandler {
     return c.json(result.value, 201);
   }
 
-  async updateUserRole(c: Context, account: Account) {
+  async updateUserRole(c: Context) {
+    const account = c.get("account");
     const body = await c.req.json();
 
     const result = await this.userUpdateRoleCommand.execute(account, body.role);
