@@ -1,4 +1,3 @@
-import type { AccountRepository } from "@/domain/account/account-repository.js";
 import type { Account, Role } from "@/domain/account/account.js";
 import { ForbiddenError } from "@/errors/errors.js";
 import { createMiddleware } from "hono/factory";
@@ -56,6 +55,11 @@ const permissionPolicy = (actor: Account, action: Action, resource: Resource): b
           (resource.content?.roleGranted === "Manager" ||
             resource.content?.roleGranted === "Operator")
         ) {
+          return true;
+        }
+        break;
+      case "delete":
+        if (actor.role === "Manager" && actor.organizationId === resource.content?.organizationId) {
           return true;
         }
         break;

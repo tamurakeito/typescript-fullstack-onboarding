@@ -137,4 +137,16 @@ export function initRouting(
     accountPermissionMiddleware("update"),
     (c) => userHandler.updateUserRole(c)
   );
+  app.delete(
+    "/user/:id",
+    zValidator("param", z.object({ id: z.string().uuid() }), (result, c) => {
+      if (!result.success) {
+        const error = new BadRequestError();
+        return c.json({ message: error.message }, error.statusCode);
+      }
+    }),
+    jwtMiddleware(jwtService),
+    accountPermissionMiddleware("delete"),
+    (c) => userHandler.deleteUser(c)
+  );
 }
