@@ -16,21 +16,18 @@ export class UserUpdateRoleCommandImpl implements UserUpdateRoleCommand {
     const account = await this.accountRepository.findById(id);
 
     if (account.isErr()) {
-      console.log("here");
       return err(account.error);
     }
 
     const updatedAccount = account.value.update(undefined, undefined, undefined, undefined, role);
 
     if (updatedAccount.isErr()) {
-      console.log("updatedAccount: ", updatedAccount);
       return err(new UnexpectedError(updatedAccount.error.message));
     }
 
     const result = await this.accountRepository.save(updatedAccount.value);
 
     if (result.isErr()) {
-      console.log("result: ", result);
       return err(new UnexpectedError(result.error.message));
     }
 

@@ -32,7 +32,6 @@ export class AccountRepositoryImpl implements AccountRepository {
 
       return ok(data.value);
     } catch (error) {
-      console.log("error: ", error);
       return err(new UnexpectedError());
     }
   }
