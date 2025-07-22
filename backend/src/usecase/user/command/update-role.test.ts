@@ -43,34 +43,15 @@ describe("UserUpdateRoleCommandImpl", () => {
       mockRole
     )._unsafeUnwrap();
 
-    mockAccountRepository.findById.mockResolvedValue(ok(mockData));
     mockAccountRepository.save.mockResolvedValue(ok(mockNewData));
 
-    const result = await userUpdateRoleCommand.execute(mockId, mockRole);
+    const result = await userUpdateRoleCommand.execute(mockData, mockRole);
 
     expect(result.isOk()).toBe(true);
     if (result.isOk()) {
       const account = result.value;
       expect(account).toEqual(mockNewData);
-      expect(mockAccountRepository.findById).toHaveBeenCalledWith(mockId);
       expect(mockAccountRepository.save).toHaveBeenCalledWith(mockNewData);
-    }
-  });
-
-  it("ユーザーが存在しない場合", async () => {
-    const userUpdateRoleCommand = new UserUpdateRoleCommandImpl(mockAccountRepository);
-
-    const mockId = "mock-uuid-123";
-    const mockRole = "Manager";
-
-    mockAccountRepository.findById.mockResolvedValue(err(new UnExistUserError()));
-
-    const result = await userUpdateRoleCommand.execute(mockId, mockRole);
-
-    expect(result.isErr()).toBe(true);
-    if (result.isErr()) {
-      expect(result.error).toBeInstanceOf(UnExistUserError);
-      expect(mockAccountRepository.findById).toHaveBeenCalledWith(mockId);
     }
   });
 
@@ -88,15 +69,13 @@ describe("UserUpdateRoleCommandImpl", () => {
       mockRole
     )._unsafeUnwrap();
 
-    mockAccountRepository.findById.mockResolvedValue(ok(mockData));
     mockAccountRepository.save.mockResolvedValue(err(new UnexpectedError()));
 
-    const result = await userUpdateRoleCommand.execute(mockId, mockRole);
+    const result = await userUpdateRoleCommand.execute(mockData, mockRole);
 
     expect(result.isErr()).toBe(true);
     if (result.isErr()) {
       expect(result.error).toBeInstanceOf(UnexpectedError);
-      expect(mockAccountRepository.findById).toHaveBeenCalledWith(mockId);
       expect(mockAccountRepository.save).toHaveBeenCalledWith(mockData);
     }
   });

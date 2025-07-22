@@ -41,11 +41,11 @@ export class UserHandler {
   }
 
   async updateUser(c: Context) {
+    const account = c.get("account");
     const body = await c.req.json();
-    const id = c.req.param("id");
 
     const result = await this.userUpdateCommand.execute(
-      id,
+      account,
       body.userId || undefined,
       body.name || undefined,
       body.password || undefined

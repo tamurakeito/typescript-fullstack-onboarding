@@ -55,38 +55,18 @@ describe("UserUpdateCommandImpl", () => {
       mockRole
     )._unsafeUnwrap();
 
-    mockAccountRepository.findById.mockResolvedValue(ok(mockData));
     mockAccountRepository.findByUserId.mockResolvedValue(err(new UnExistAccountError()));
     mockPasswordHash.hash.mockResolvedValue(mockHashedPassword);
     mockAccountRepository.save.mockResolvedValue(ok(mockNewData));
 
-    const result = await userUpdateCommand.execute(mockId, mockUserId, mockName, mockPassword);
+    const result = await userUpdateCommand.execute(mockData, mockUserId, mockName, mockPassword);
 
     expect(result.isOk()).toBe(true);
     if (result.isOk()) {
       const account = result.value;
       expect(account).toEqual(mockNewData);
-      expect(mockAccountRepository.findById).toHaveBeenCalledWith(mockId);
       expect(mockAccountRepository.findByUserId).toHaveBeenCalledWith(mockUserId);
       expect(mockAccountRepository.save).toHaveBeenCalledWith(mockNewData);
-    }
-  });
-
-  it("ユーザーが存在しない場合", async () => {
-    const userUpdateCommand = new UserUpdateCommandImpl(mockAccountRepository, mockPasswordHash);
-
-    const mockId = "mock-uuid-123";
-    const mockUserId = "new-mock-user-id";
-    const mockName = "new-mock-name";
-    const mockPassword = "new-password";
-
-    mockAccountRepository.findById.mockResolvedValue(err(new UnExistAccountError()));
-
-    const result = await userUpdateCommand.execute(mockId, mockUserId, mockName, mockPassword);
-
-    expect(result.isErr()).toBe(true);
-    if (result.isErr()) {
-      expect(result.error).toBeInstanceOf(UnExistAccountError);
     }
   });
 
@@ -96,18 +76,6 @@ describe("UserUpdateCommandImpl", () => {
     const mockId = "mock-uuid-123";
     const mockUserId = "mock-user-id";
 
-    mockAccountRepository.findById.mockResolvedValue(
-      ok(
-        Account.create(
-          mockId,
-          mockUserId,
-          "テストユーザー",
-          "hashed-password",
-          "mock-organization-id",
-          "Operator"
-        )._unsafeUnwrap()
-      )
-    );
     mockAccountRepository.findByUserId.mockResolvedValue(
       ok(
         Account.create(
@@ -122,7 +90,14 @@ describe("UserUpdateCommandImpl", () => {
     );
 
     const result = await userUpdateCommand.execute(
-      mockId,
+      Account.create(
+        mockId,
+        mockUserId,
+        "テストユーザー",
+        "hashed-password",
+        "mock-organization-id",
+        "Operator"
+      )._unsafeUnwrap(),
       mockUserId,
       "new-mock-name",
       "new-password"
@@ -131,7 +106,6 @@ describe("UserUpdateCommandImpl", () => {
     expect(result.isErr()).toBe(true);
     if (result.isErr()) {
       expect(result.error).toBeInstanceOf(DuplicateUserIdError);
-      expect(mockAccountRepository.findById).toHaveBeenCalledWith(mockId);
       expect(mockAccountRepository.findByUserId).toHaveBeenCalledWith(mockUserId);
     }
   });
@@ -166,17 +140,15 @@ describe("UserUpdateCommandImpl", () => {
       mockRole
     )._unsafeUnwrap();
 
-    mockAccountRepository.findById.mockResolvedValue(ok(mockData));
     mockAccountRepository.findByUserId.mockResolvedValue(err(new UnExistAccountError()));
     mockPasswordHash.hash.mockResolvedValue(mockHashedPassword);
     mockAccountRepository.save.mockResolvedValue(err(new UnexpectedError()));
 
-    const result = await userUpdateCommand.execute(mockId, mockUserId, mockName, mockPassword);
+    const result = await userUpdateCommand.execute(mockData, mockUserId, mockName, mockPassword);
 
     expect(result.isErr()).toBe(true);
     if (result.isErr()) {
       expect(result.error).toBeInstanceOf(UnexpectedError);
-      expect(mockAccountRepository.findById).toHaveBeenCalledWith(mockId);
       expect(mockAccountRepository.findByUserId).toHaveBeenCalledWith(mockUserId);
       expect(mockAccountRepository.save).toHaveBeenCalledWith(mockNewData);
     }
