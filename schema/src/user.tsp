@@ -46,7 +46,7 @@ interface UserAPI {
     | ForbiddenError
     | InternalServerError;
 
-      @delete
+  @delete
   @route("/user/{id}")
   @summary("ユーザー削除")
   delete(@path id: string):
