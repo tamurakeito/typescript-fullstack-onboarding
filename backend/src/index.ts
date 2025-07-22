@@ -20,6 +20,7 @@ import { OrganizationListQueryImpl } from "./usecase/organization/query/get-list
 import { OrganizationProfileQueryImpl } from "./usecase/organization/query/get-profile.js";
 import { UserCreateCommandImpl } from "./usecase/user/command/create.js";
 import { UserUpdateRoleCommandImpl } from "./usecase/user/command/update-role.js";
+import { UserUpdateCommandImpl } from "./usecase/user/command/update.js";
 
 const app = new Hono<Env>();
 
@@ -54,8 +55,9 @@ const userCreateCommand = new UserCreateCommandImpl(
   organizationRepository,
   passwordHash
 );
+const userUpdateCommand = new UserUpdateCommandImpl(accountRepository, passwordHash);
 const userUpdateRoleCommand = new UserUpdateRoleCommandImpl(accountRepository);
-const userHandler = new UserHandler(userCreateCommand, userUpdateRoleCommand);
+const userHandler = new UserHandler(userCreateCommand, userUpdateCommand, userUpdateRoleCommand);
 
 initRouting(app, authHandler, organizationHandler, userHandler, jwtService, accountRepository);
 
