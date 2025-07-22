@@ -11,7 +11,6 @@ model CreateUserRequest {
 }
 
 model UpdateUserRoleRequest {
-  userId: string;
   role: Role;
 }
 
@@ -33,9 +32,9 @@ interface UserAPI {
     | InternalServerError;
 
   @put
-  @route("/user-role")
+  @route("/user-role/{id}")
   @summary("ユーザーロール更新")
-  updateRole(@body body: UpdateUserRoleRequest):
+  updateRole(@path id: string, @body body: UpdateUserRoleRequest):
     | {
         @statusCode
         statusCode: 200;

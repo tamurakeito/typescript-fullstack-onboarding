@@ -1,4 +1,4 @@
-import type { Role } from "@/domain/account/account.js";
+import type { AccountRepository } from "@/domain/account/account-repository.js";
 import { BadRequestError } from "@/errors/errors.js";
 import { schemas } from "@/generated/client/client.gen.js";
 import type { JwtService } from "@/infrastructure/account/jwt-service.js";
@@ -20,7 +20,8 @@ export function initRouting(
   authHandler: AuthHandler,
   organizationHandler: OrganizationHandler,
   userHandler: UserHandler,
-  jwtService: JwtService
+  jwtService: JwtService,
+  accountRepository: AccountRepository
 ) {
   app.get("/", (c) => {
     return c.text("This is Org-Todo-App🐋");
@@ -113,7 +114,25 @@ export function initRouting(
       }
     }),
     jwtMiddleware(jwtService),
-    accountPermissionMiddleware("create"),
+    accountPermissionMiddleware("create", accountRepository),
     (c) => userHandler.createUser(c)
+  );
+  app.put(
+    "/user-role/:id",
+    zValidator("param", z.object({ id: z.string().uuid() }), (result, c) => {
+      if (!result.success) {
+        const error = new BadRequestError();
+        return c.json({ message: error.message }, error.statusCode);
+      }
+    }),
+    zValidator("json", schemas.UpdateUserRoleRequest, (result, c) => {
+      if (!result.success) {
+        const error = new BadRequestError();
+        return c.json({ message: error.message }, error.statusCode);
+      }
+    }),
+    jwtMiddleware(jwtService),
+    accountPermissionMiddleware("update", accountRepository),
+    (c) => userHandler.updateUserRole(c)
   );
 }
