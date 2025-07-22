@@ -2,11 +2,13 @@ import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { requestId } from "hono/request-id";
+import { AccountRepositoryImpl } from "./infrastructure/account/account-repository-impl.js";
 import { JwtServiceImpl } from "./infrastructure/account/jwt-service.js";
 import { PasswordHashImpl } from "./infrastructure/account/password-hash-impl.js";
 import { OrganizationRepositoryImpl } from "./infrastructure/organization/organization-repository-impl.js";
 import { AuthHandler } from "./presentation/handlers/auth-handler.js";
 import { OrganizationHandler } from "./presentation/handlers/organization-handler.js";
+import { UserHandler } from "./presentation/handlers/user-handler.js";
 import { LoggerMiddleware } from "./presentation/middleware/logger.js";
 import type { Env } from "./presentation/middleware/logger.js";
 import { initRouting } from "./presentation/routes.js";
@@ -16,6 +18,7 @@ import { OrganizationDeleteCommandImpl } from "./usecase/organization/command/de
 import { OrganizationUpdateCommandImpl } from "./usecase/organization/command/update.js";
 import { OrganizationListQueryImpl } from "./usecase/organization/query/get-list.js";
 import { OrganizationProfileQueryImpl } from "./usecase/organization/query/get-profile.js";
+import { UserCreateCommandImpl } from "./usecase/user/command/create.js";
 
 const app = new Hono<Env>();
 
@@ -25,8 +28,9 @@ app.use("*", cors());
 
 // DI
 const jwtService = new JwtServiceImpl(process.env.JWT_SECRET ?? "default_secret");
+const passwordHash = new PasswordHashImpl();
 
-const authQuery = new AuthQueryImpl(new PasswordHashImpl());
+const authQuery = new AuthQueryImpl(passwordHash);
 const authHandler = new AuthHandler(authQuery, jwtService);
 
 const organizationRepository = new OrganizationRepositoryImpl();
@@ -43,7 +47,15 @@ const organizationHandler = new OrganizationHandler(
   organizationDeleteCommand
 );
 
-initRouting(app, authHandler, organizationHandler, jwtService);
+const accountRepository = new AccountRepositoryImpl();
+const userCreateCommand = new UserCreateCommandImpl(
+  accountRepository,
+  organizationRepository,
+  passwordHash
+);
+const userHandler = new UserHandler(userCreateCommand);
+
+initRouting(app, authHandler, organizationHandler, userHandler, jwtService);
 
 serve(
   {

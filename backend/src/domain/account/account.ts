@@ -6,6 +6,7 @@ export class Account {
   public readonly id: string;
   public readonly userId: string;
   public readonly name: string;
+  public readonly hashedPassword: string;
   public readonly organizationId: string | undefined;
   public readonly role: Role;
 
@@ -13,12 +14,14 @@ export class Account {
     id: string,
     userId: string,
     name: string,
+    hashedPassword: string,
     organizationId: string | undefined,
     role: Role
   ) {
     this.id = id;
     this.userId = userId;
     this.name = name;
+    this.hashedPassword = hashedPassword;
     this.organizationId = organizationId;
     this.role = role;
   }
@@ -27,6 +30,7 @@ export class Account {
     id: string,
     userId: string,
     name: string,
+    hashedPassword: string,
     organizationId: string | undefined,
     role: Role
   ): Result<Account, Error> {
@@ -39,6 +43,9 @@ export class Account {
     if (!name) {
       return err(new Error("Name is required"));
     }
-    return ok(new Account(id, userId, name, organizationId, role));
+    if (!hashedPassword) {
+      return err(new Error("Hashed password is required"));
+    }
+    return ok(new Account(id, userId, name, hashedPassword, organizationId, role));
   }
 }

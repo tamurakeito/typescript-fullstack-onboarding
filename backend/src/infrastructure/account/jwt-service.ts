@@ -36,6 +36,7 @@ export class JwtServiceImpl implements JwtService {
         accountData.id,
         accountData.userId,
         accountData.name,
+        accountData.hashedPassword,
         accountData.organizationId,
         accountData.role
       );
