@@ -1,13 +1,16 @@
+import type { AccountRepository } from "@/domain/account/account-repository.js";
 import type { Account, Role } from "@/domain/account/account.js";
-import { BadRequestError, ForbiddenError } from "@/errors/errors.js";
+import { ForbiddenError } from "@/errors/errors.js";
 import { createMiddleware } from "hono/factory";
 
 export type Action = "create" | "read" | "update" | "delete" | "readAll";
 
 export type AccountContent = {
+  id: string;
   userId: string;
   organizationId: string | undefined;
   role: Role;
+  roleGranted: Role | undefined;
 };
 export type AccountResource = {
   type: "Account";
@@ -44,6 +47,18 @@ const permissionPolicy = (actor: Account, action: Action, resource: Resource): b
         ) {
           return true;
         }
+        break;
+      case "update":
+        if (
+          actor.role === "Manager" &&
+          actor.organizationId === resource.content?.organizationId &&
+          (resource.content?.role === "Manager" || resource.content?.role === "Operator") &&
+          (resource.content?.roleGranted === "Manager" ||
+            resource.content?.roleGranted === "Operator")
+        ) {
+          return true;
+        }
+        break;
     }
   }
 
@@ -69,22 +84,43 @@ export const organizationPermissionMiddleware = (action: Action) => {
 };
 
 export const accountPermissionMiddleware = (action: Action) => {
-  return createMiddleware(async (c, next) => {
+  return createMiddleware<{ Variables: { actor: Account; account: Account } }>(async (c, next) => {
     const actor = c.get("actor");
+    const account = c.get("account");
     const body = await c.req.json();
 
-    const allowed = permissionPolicy(actor, action, {
-      type: "Account",
-      content: {
-        userId: body.userId,
-        organizationId: body.organizationId,
-        role: body.role,
-      },
-    });
+    if (account) {
+      const allowed = permissionPolicy(actor, action, {
+        type: "Account",
+        content: {
+          id: account.id,
+          userId: account.userId,
+          organizationId: account.organizationId,
+          role: account.role,
+          roleGranted: body.role,
+        },
+      });
 
-    if (!allowed) {
-      const error = new ForbiddenError();
-      return c.json({ message: error.message }, error.statusCode);
+      if (!allowed) {
+        const error = new ForbiddenError();
+        return c.json({ message: error.message }, error.statusCode);
+      }
+    } else {
+      const allowed = permissionPolicy(actor, action, {
+        type: "Account",
+        content: {
+          id: "",
+          userId: body.userId,
+          organizationId: body.organizationId,
+          role: body.role,
+          roleGranted: undefined,
+        },
+      });
+
+      if (!allowed) {
+        const error = new ForbiddenError();
+        return c.json({ message: error.message }, error.statusCode);
+      }
     }
     return next();
   });
