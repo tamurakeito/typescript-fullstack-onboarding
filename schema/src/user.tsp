@@ -10,6 +10,12 @@ model CreateUserRequest {
   role: Role;
 }
 
+model UpdateUserRequest {
+  userId: string;
+  name: string;
+  password: string;
+}
+
 model UpdateUserRoleRequest {
   role: Role;
 }
@@ -23,6 +29,21 @@ interface UserAPI {
     | {
         @statusCode
         statusCode: 201;
+
+        @body
+        account: Account;
+      }
+    | BadRequestError
+    | ForbiddenError
+    | InternalServerError;
+
+  @put
+  @route("/user/{id}")
+  @summary("ユーザープロファイルの更新")
+  update(@path id: string, @body body: UpdateUserRequest):
+    | {
+        @statusCode
+        statusCode: 200;
 
         @body
         account: Account;

@@ -54,7 +54,7 @@ export class Account {
     name: string | undefined,
     hashedPassword: string | undefined,
     organizationId: string | undefined,
-    role: Role
+    role: Role | undefined
   ): Result<Account, Error> {
     const updatedUserId = userId ?? this.userId;
     const updatedName = name ?? this.name;
