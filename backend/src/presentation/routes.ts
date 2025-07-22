@@ -114,7 +114,7 @@ export function initRouting(
       }
     }),
     jwtMiddleware(jwtService),
-    accountPermissionMiddleware("create", accountRepository),
+    accountPermissionMiddleware("create"),
     (c) => userHandler.createUser(c)
   );
   app.put(
@@ -132,7 +132,13 @@ export function initRouting(
       }
     }),
     jwtMiddleware(jwtService),
-    accountPermissionMiddleware("update", accountRepository),
-    (c) => userHandler.updateUserRole(c)
+    async (c) => {
+      const account = await accountRepository.findById(c.req.param("id"));
+      if (account.isErr()) {
+        return c.json({ message: account.error.message }, account.error.statusCode);
+      }
+      accountPermissionMiddleware("update", account.value);
+      return userHandler.updateUserRole(c, account.value);
+    }
   );
 }

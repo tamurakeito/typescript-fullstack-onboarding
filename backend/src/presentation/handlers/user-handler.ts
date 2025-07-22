@@ -1,3 +1,4 @@
+import type { Account } from "@/domain/account/account.js";
 import { schemas } from "@/generated/client/client.gen.js";
 import type { UserCreateCommand } from "@/usecase/user/command/create.js";
 import type { UserUpdateRoleCommand } from "@/usecase/user/command/update-role.js";
@@ -37,11 +38,10 @@ export class UserHandler {
     return c.json(result.value, 201);
   }
 
-  async updateUserRole(c: Context) {
+  async updateUserRole(c: Context, account: Account) {
     const body = await c.req.json();
-    const id = c.req.param("id");
 
-    const result = await this.userUpdateRoleCommand.execute(id, body.role);
+    const result = await this.userUpdateRoleCommand.execute(account, body.role);
 
     if (result.isErr()) {
       c.get("logger").error("UserUpdateRoleCommand failed", {
