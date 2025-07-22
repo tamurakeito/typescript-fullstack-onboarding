@@ -6,6 +6,7 @@ import {
   type AppError,
   DuplicateUserIdError,
   UnExistOrganizationError,
+  UnExistUserError,
   UnexpectedError,
 } from "@/errors/errors.js";
 import { type Result, err, ok } from "neverthrow";
@@ -40,18 +41,15 @@ export class UserCreateCommandImpl implements UserCreateCommand {
       this.organizationRepository.findById(organizationId),
     ]);
 
-    if (accountExist.isErr()) {
-      return err(new UnexpectedError(accountExist.error.message));
+    if (accountExist.isErr() && !(accountExist.error instanceof UnExistUserError)) {
+      return err(accountExist.error);
     }
-    if (accountExist.value) {
+    if (accountExist.isOk()) {
       return err(new DuplicateUserIdError());
     }
 
     if (organizationExist.isErr()) {
-      return err(new UnexpectedError(organizationExist.error.message));
-    }
-    if (!organizationExist.value) {
-      return err(new UnExistOrganizationError());
+      return err(organizationExist.error);
     }
 
     const hashedPassword = await this.passwordHash.hash(password);

@@ -1,6 +1,7 @@
 import {
   DuplicateUserIdError,
   UnExistOrganizationError,
+  UnExistUserError,
   UnexpectedError,
 } from "@/errors/errors.js";
 import { err, ok } from "neverthrow";
@@ -58,7 +59,7 @@ describe("UserCreateCommandImpl", () => {
       role: mockRole,
     };
 
-    mockAccountRepository.findByUserId.mockResolvedValue(ok(null));
+    mockAccountRepository.findByUserId.mockResolvedValue(err(new UnExistUserError()));
     mockOrganizationRepository.findById.mockResolvedValue(ok({ id: mockOrganizationId }));
     mockPasswordHash.hash.mockResolvedValue(mockHashedPassword);
     mockAccountRepository.save.mockResolvedValue(ok(mockData));
@@ -108,8 +109,8 @@ describe("UserCreateCommandImpl", () => {
       mockPasswordHash
     );
 
-    mockOrganizationRepository.findById.mockResolvedValue(ok(null));
-    mockAccountRepository.findByUserId.mockResolvedValue(ok(null));
+    mockOrganizationRepository.findById.mockResolvedValue(err(new UnExistOrganizationError()));
+    mockAccountRepository.findByUserId.mockResolvedValue(err(new UnExistUserError()));
 
     const result = await userCreateCommand.execute(
       "mock-user-id",
@@ -133,8 +134,10 @@ describe("UserCreateCommandImpl", () => {
       mockPasswordHash
     );
 
-    mockAccountRepository.findByUserId.mockResolvedValue(ok(null));
-    mockOrganizationRepository.findById.mockResolvedValue(ok({ id: "mock-uuid-123" }));
+    const mockOrganizationId = "mock-uuid-123";
+
+    mockAccountRepository.findByUserId.mockResolvedValue(err(new UnExistUserError()));
+    mockOrganizationRepository.findById.mockResolvedValue(ok({ id: mockOrganizationId }));
     mockPasswordHash.hash.mockResolvedValue("hashed-password");
     mockAccountRepository.save.mockResolvedValue(err(new UnexpectedError("データベースエラー")));
 
@@ -142,7 +145,7 @@ describe("UserCreateCommandImpl", () => {
       "mock-user-id",
       "テストユーザー",
       "password",
-      "mock-uuid-123",
+      mockOrganizationId,
       "Manager"
     );
     expect(result.isErr()).toBe(true);

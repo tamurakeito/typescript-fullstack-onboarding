@@ -13,12 +13,12 @@ import { type Result, err, ok } from "neverthrow";
 export class OrganizationRepositoryImpl implements OrganizationRepository {
   private prisma = new PrismaClient();
 
-  async findById(id: string): Promise<Result<Organization | null, AppError>> {
+  async findById(id: string): Promise<Result<Organization, AppError>> {
     try {
       const result = await this.prisma.organization.findUnique({ where: { id } });
 
       if (!result) {
-        return ok(null);
+        return err(new UnExistOrganizationError());
       }
 
       const data = Organization.create(result.id, result.name);
