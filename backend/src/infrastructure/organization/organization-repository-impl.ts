@@ -1,5 +1,5 @@
 import type { OrganizationRepository } from "@/domain/organization/organization-repository.js";
-import type { Organization } from "@/domain/organization/organization.js";
+import { Organization } from "@/domain/organization/organization.js";
 import {
   type AppError,
   DuplicateOrganizationNameError,
@@ -12,6 +12,26 @@ import { type Result, err, ok } from "neverthrow";
 
 export class OrganizationRepositoryImpl implements OrganizationRepository {
   private prisma = new PrismaClient();
+
+  async findById(id: string): Promise<Result<Organization | undefined, AppError>> {
+    try {
+      const result = await this.prisma.organization.findUnique({ where: { id } });
+
+      if (!result) {
+        return ok(undefined);
+      }
+
+      const data = Organization.create(result.id, result.name);
+
+      if (data.isErr()) {
+        return err(new UnexpectedError(data.error.message));
+      }
+
+      return ok(data.value);
+    } catch {
+      return err(new UnexpectedError());
+    }
+  }
 
   async save(organization: Organization): Promise<Result<Organization, AppError>> {
     try {

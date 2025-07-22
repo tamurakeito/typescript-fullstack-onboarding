@@ -9,6 +9,35 @@ import { err, ok } from "neverthrow";
 export class AccountRepositoryImpl implements AccountRepository {
   private prisma = new PrismaClient();
 
+  async findByUserId(userId: string): Promise<Result<Account | undefined, AppError>> {
+    try {
+      const result = await this.prisma.account.findUnique({ where: { userId: userId } });
+
+      console.log("result: ", result);
+
+      if (!result) {
+        return ok(undefined);
+      }
+
+      const data = Account.create(
+        result.id,
+        result.userId,
+        result.name,
+        result.password,
+        result.organizationId ?? undefined,
+        result.role
+      );
+
+      if (data.isErr()) {
+        return err(new UnexpectedError(data.error.message));
+      }
+
+      return ok(data.value);
+    } catch {
+      return err(new UnexpectedError());
+    }
+  }
+
   async save(account: Account): Promise<Result<Account, AppError>> {
     try {
       const result = await this.prisma.account.upsert({
