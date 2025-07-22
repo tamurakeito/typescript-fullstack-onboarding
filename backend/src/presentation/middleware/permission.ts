@@ -83,28 +83,20 @@ export const organizationPermissionMiddleware = (action: Action) => {
   });
 };
 
-export const accountPermissionMiddleware = (
-  action: Action,
-  accountRepository: AccountRepository
-) => {
+export const accountPermissionMiddleware = (action: Action) => {
   return createMiddleware<{ Variables: { actor: Account; account: Account } }>(async (c, next) => {
     const actor = c.get("actor");
-    const id = c.req.param("id");
+    const account = c.get("account");
     const body = await c.req.json();
 
-    if (id) {
-      const account = await accountRepository.findById(id);
-      if (account.isErr()) {
-        return c.json({ message: account.error.message }, account.error.statusCode);
-      }
-      c.set("account", account.value);
+    if (account) {
       const allowed = permissionPolicy(actor, action, {
         type: "Account",
         content: {
-          id: account.value.id,
-          userId: account.value.userId,
-          organizationId: account.value.organizationId,
-          role: account.value.role,
+          id: account.id,
+          userId: account.userId,
+          organizationId: account.organizationId,
+          role: account.role,
           roleGranted: body.role,
         },
       });

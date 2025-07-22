@@ -8,6 +8,7 @@ import { z } from "zod";
 import type { AuthHandler } from "./handlers/auth-handler.js";
 import type { OrganizationHandler } from "./handlers/organization-handler.js";
 import type { UserHandler } from "./handlers/user-handler.js";
+import { accountGetMiddleware } from "./middleware/account-get.js";
 import { jwtMiddleware } from "./middleware/jwt.js";
 import type { Env } from "./middleware/logger.js";
 import {
@@ -114,7 +115,7 @@ export function initRouting(
       }
     }),
     jwtMiddleware(jwtService),
-    accountPermissionMiddleware("create", accountRepository),
+    accountPermissionMiddleware("create"),
     (c) => userHandler.createUser(c)
   );
   app.put(
@@ -132,7 +133,8 @@ export function initRouting(
       }
     }),
     jwtMiddleware(jwtService),
-    accountPermissionMiddleware("update", accountRepository),
+    accountGetMiddleware(accountRepository),
+    accountPermissionMiddleware("update"),
     (c) => userHandler.updateUserRole(c)
   );
 }
