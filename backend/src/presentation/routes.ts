@@ -133,7 +133,8 @@ export function initRouting(
       }
     }),
     jwtMiddleware(jwtService),
-    accountPermissionMiddleware("update", accountRepository),
+    accountGetMiddleware(accountRepository),
+    accountPermissionMiddleware("update"),
     (c) => userHandler.updateUser(c)
   );
   app.put(
