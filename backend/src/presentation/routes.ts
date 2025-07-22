@@ -8,6 +8,7 @@ import type { AuthHandler } from "./handlers/auth-handler.js";
 import type { OrganizationHandler } from "./handlers/organization-handler.js";
 import { jwtMiddleware } from "./middleware/jwt.js";
 import type { Env } from "./middleware/logger.js";
+import { organizationPermissionMiddleware } from "./middleware/permission.js";
 
 export function initRouting(
   app: Hono<Env>,
@@ -31,12 +32,15 @@ export function initRouting(
     (c) => authHandler.signIn(c)
   );
   app.get("/auth-check", jwtMiddleware(jwtService), (c) => {
-    return c.text(`Auth Check Success: role=${c.get("role")}`);
+    return c.text(`Auth Check Success: role=${c.get("actor").role}`);
   });
 
   /* Organization */
-  app.get("/organizations", jwtMiddleware(jwtService), (c) =>
-    organizationHandler.getOrganizationList(c)
+  app.get(
+    "/organizations",
+    jwtMiddleware(jwtService),
+    organizationPermissionMiddleware("readAll"),
+    (c) => organizationHandler.getOrganizationList(c)
   );
   app.get(
     "/organization/:id",
@@ -47,6 +51,7 @@ export function initRouting(
       }
     }),
     jwtMiddleware(jwtService),
+    organizationPermissionMiddleware("read"),
     (c) => organizationHandler.getOrganizationProfile(c)
   );
   app.post(
@@ -58,6 +63,7 @@ export function initRouting(
       }
     }),
     jwtMiddleware(jwtService),
+    organizationPermissionMiddleware("create"),
     (c) => organizationHandler.createOrganization(c)
   );
   app.put(
@@ -75,6 +81,7 @@ export function initRouting(
       }
     }),
     jwtMiddleware(jwtService),
+    organizationPermissionMiddleware("update"),
     (c) => organizationHandler.updateOrganization(c)
   );
   app.delete(
@@ -86,6 +93,7 @@ export function initRouting(
       }
     }),
     jwtMiddleware(jwtService),
+    organizationPermissionMiddleware("delete"),
     (c) => organizationHandler.deleteOrganization(c)
   );
 }

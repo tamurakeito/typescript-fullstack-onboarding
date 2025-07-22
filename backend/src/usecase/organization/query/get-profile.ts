@@ -1,4 +1,5 @@
-import { type AppError, UnExistUserError } from "@/errors/errors.js";
+import type { Role } from "@/domain/account/account.js";
+import { type AppError, ForbiddenError, UnExistUserError } from "@/errors/errors.js";
 import type { schemas } from "@/generated/client/client.gen.js";
 import { PrismaClient } from "@/generated/prisma/index.js";
 import { type Result, err, ok } from "neverthrow";
