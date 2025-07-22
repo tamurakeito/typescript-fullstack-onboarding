@@ -48,4 +48,38 @@ export class Account {
     }
     return ok(new Account(id, userId, name, hashedPassword, organizationId, role));
   }
+
+  public update(
+    userId: string | undefined,
+    name: string | undefined,
+    hashedPassword: string | undefined,
+    organizationId: string | undefined,
+    role: Role
+  ): Result<Account, Error> {
+    const updatedUserId = userId ?? this.userId;
+    const updatedName = name ?? this.name;
+    const updatedHashedPassword = hashedPassword ?? this.hashedPassword;
+    const updatedOrganizationId = organizationId ?? this.organizationId;
+    const updatedRole = role ?? this.role;
+
+    if (!updatedUserId) {
+      return err(new Error("User ID is required"));
+    }
+    if (!updatedName) {
+      return err(new Error("Name is required"));
+    }
+    if (!updatedHashedPassword) {
+      return err(new Error("Hashed password is required"));
+    }
+    return ok(
+      new Account(
+        this.id,
+        updatedUserId,
+        updatedName,
+        updatedHashedPassword,
+        updatedOrganizationId,
+        updatedRole
+      )
+    );
+  }
 }
