@@ -77,7 +77,7 @@ export const accountPermissionMiddleware = (action: Action) => {
       type: "Account",
       content: {
         userId: body.userId,
-        organizationId: body.organizationId ?? "",
+        organizationId: body.organizationId,
         role: body.role,
       },
     });

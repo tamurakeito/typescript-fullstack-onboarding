@@ -9,14 +9,14 @@ import { err, ok } from "neverthrow";
 export class AccountRepositoryImpl implements AccountRepository {
   private prisma = new PrismaClient();
 
-  async findByUserId(userId: string): Promise<Result<Account | undefined, AppError>> {
+  async findByUserId(userId: string): Promise<Result<Account | null, AppError>> {
     try {
       const result = await this.prisma.account.findUnique({ where: { userId: userId } });
 
       console.log("result: ", result);
 
       if (!result) {
-        return ok(undefined);
+        return ok(null);
       }
 
       const data = Account.create(

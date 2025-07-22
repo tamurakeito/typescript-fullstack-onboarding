@@ -8,6 +8,7 @@ import { describe, expect, it, vi } from "vitest";
 import { UserCreateCommandImpl } from "./create.js";
 
 const mockAccountRepository = {
+  findByUserId: vi.fn(),
   save: vi.fn(),
   delete: vi.fn(),
 };
@@ -25,29 +26,22 @@ vi.mock("@/domain/account/password-hash.js", () => ({
   PasswordHash: vi.fn(() => mockPasswordHash),
 }));
 
-const mockUserIdCheck = {
-  execute: vi.fn(),
+const mockOrganizationRepository = {
+  findById: vi.fn(),
+  save: vi.fn(),
+  delete: vi.fn(),
 };
 
-vi.mock("@/domain/account/user-id-check.js", () => ({
-  UserIdCheck: vi.fn(() => mockUserIdCheck),
-}));
-
-const mockOrganizationIdCheck = {
-  execute: vi.fn(),
-};
-
-vi.mock("@/domain/organization/organization-id-check.js", () => ({
-  OrganizationIdCheck: vi.fn(() => mockOrganizationIdCheck),
+vi.mock("@/domain/organization/organization-repository.js", () => ({
+  OrganizationRepository: vi.fn(() => mockOrganizationRepository),
 }));
 
 describe("UserCreateCommandImpl", () => {
   it("正常にユーザーを作成", async () => {
     const userCreateCommand = new UserCreateCommandImpl(
       mockAccountRepository,
-      mockPasswordHash,
-      mockUserIdCheck,
-      mockOrganizationIdCheck
+      mockOrganizationRepository,
+      mockPasswordHash
     );
 
     const mockUserId = "mock-user-id";
@@ -64,10 +58,10 @@ describe("UserCreateCommandImpl", () => {
       role: mockRole,
     };
 
+    mockAccountRepository.findByUserId.mockResolvedValue(ok(null));
+    mockOrganizationRepository.findById.mockResolvedValue(ok({ id: mockOrganizationId }));
     mockPasswordHash.hash.mockResolvedValue(mockHashedPassword);
     mockAccountRepository.save.mockResolvedValue(ok(mockData));
-    mockUserIdCheck.execute.mockResolvedValue(ok(false));
-    mockOrganizationIdCheck.execute.mockResolvedValue(ok(true));
 
     const result = await userCreateCommand.execute(
       mockUserId,
@@ -86,12 +80,11 @@ describe("UserCreateCommandImpl", () => {
   it("ユーザーIDが重複している場合エラー", async () => {
     const userCreateCommand = new UserCreateCommandImpl(
       mockAccountRepository,
-      mockPasswordHash,
-      mockUserIdCheck,
-      mockOrganizationIdCheck
+      mockOrganizationRepository,
+      mockPasswordHash
     );
 
-    mockUserIdCheck.execute.mockResolvedValue(ok(true));
+    mockAccountRepository.findByUserId.mockResolvedValue(ok({ id: "existing-user" }));
 
     const result = await userCreateCommand.execute(
       "mock-user-id",
@@ -111,13 +104,12 @@ describe("UserCreateCommandImpl", () => {
   it("組織が存在しない場合エラー", async () => {
     const userCreateCommand = new UserCreateCommandImpl(
       mockAccountRepository,
-      mockPasswordHash,
-      mockUserIdCheck,
-      mockOrganizationIdCheck
+      mockOrganizationRepository,
+      mockPasswordHash
     );
 
-    mockOrganizationIdCheck.execute.mockResolvedValue(ok(false));
-    mockUserIdCheck.execute.mockResolvedValue(ok(false));
+    mockOrganizationRepository.findById.mockResolvedValue(ok(null));
+    mockAccountRepository.findByUserId.mockResolvedValue(ok(null));
 
     const result = await userCreateCommand.execute(
       "mock-user-id",
@@ -137,15 +129,14 @@ describe("UserCreateCommandImpl", () => {
   it("データベースエラー", async () => {
     const userCreateCommand = new UserCreateCommandImpl(
       mockAccountRepository,
-      mockPasswordHash,
-      mockUserIdCheck,
-      mockOrganizationIdCheck
+      mockOrganizationRepository,
+      mockPasswordHash
     );
 
+    mockAccountRepository.findByUserId.mockResolvedValue(ok(null));
+    mockOrganizationRepository.findById.mockResolvedValue(ok({ id: "mock-uuid-123" }));
     mockPasswordHash.hash.mockResolvedValue("hashed-password");
     mockAccountRepository.save.mockResolvedValue(err(new UnexpectedError("データベースエラー")));
-    mockUserIdCheck.execute.mockResolvedValue(ok(false));
-    mockOrganizationIdCheck.execute.mockResolvedValue(ok(true));
 
     const result = await userCreateCommand.execute(
       "mock-user-id",
