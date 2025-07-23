@@ -35,7 +35,7 @@ const formSchema = z.object({
   }),
 });
 
-export const OrganizationUpdateUserDialog = ({
+export const UserUpdateDialog = ({
   isOpenUpdateUserDialog,
   setIsOpenUpdateUserDialog,
   organizationId,

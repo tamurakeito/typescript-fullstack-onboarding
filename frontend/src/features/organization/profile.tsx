@@ -14,7 +14,7 @@ import { useAuthStore } from "@/store/auth-store";
 import { Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { OrganizationCreateUserDialog } from "./dialog/create-user-dialog";
-import { OrganizationUpdateUserDialog } from "./dialog/update-user-dialog";
+import { UserUpdateDialog } from "./dialog/update-user-dialog";
 
 export const OrganizationProfile = ({
   organization,
@@ -93,7 +93,7 @@ export const OrganizationProfile = ({
         organizationId={organization.id}
       />
       {!!selectedUser && (
-        <OrganizationUpdateUserDialog
+        <UserUpdateDialog
           isOpenUpdateUserDialog={isOpenUpdateUserDialog}
           setIsOpenUpdateUserDialog={setIsOpenUpdateUserDialog}
           organizationId={organization.id}
