@@ -1,4 +1,5 @@
 import type { OrganizationProfile as OrganizationProfileType } from "@/client";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -7,16 +8,28 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useState } from "react";
+import { OrganizationCreateUserDialog } from "./dialog/create-user-dialog";
 
 export const OrganizationProfile = ({
   organization,
 }: { organization: OrganizationProfileType }) => {
+  const [isOpenCreateUserDialog, setIsOpenCreateUserDialog] = useState<boolean>(false);
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6">
       <div className="max-w-6xl mx-auto">
         <div className="mb-2">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">{organization.name}</h1>
           <p className="text-gray-600">登録されているユーザー</p>
+        </div>
+        <div className="w-full flex justify-end mb-2">
+          <Button
+            onClick={() => {
+              setIsOpenCreateUserDialog(true);
+            }}
+          >
+            新規ユーザー作成
+          </Button>
         </div>
         <div className="bg-white rounded-lg shadow-sm border">
           <div className="p-4 border-b">
@@ -40,6 +53,11 @@ export const OrganizationProfile = ({
           </Table>
         </div>
       </div>
+      <OrganizationCreateUserDialog
+        isOpenCreateUserDialog={isOpenCreateUserDialog}
+        setIsOpenCreateUserDialog={setIsOpenCreateUserDialog}
+        organizationId={organization.id}
+      />
     </div>
   );
 };
