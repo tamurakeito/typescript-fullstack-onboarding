@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useAuthStore } from "@/store/auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
@@ -48,6 +49,8 @@ export const OrganizationCreateUserDialog = ({
   setIsOpenCreateUserDialog: (isOpen: boolean) => void;
   organizationId: string;
 }) => {
+  const { account } = useAuthStore.getState();
+
   const queryClient = useQueryClient();
   const mutation = useMutation({
     ...userApiCreateMutation(),
@@ -145,7 +148,9 @@ export const OrganizationCreateUserDialog = ({
             <SelectContent>
               <SelectGroup>
                 <SelectLabel>ロール</SelectLabel>
-                <SelectItem value="SuperAdmin">SuperAdmin</SelectItem>
+                {account?.role === "SuperAdmin" && (
+                  <SelectItem value="SuperAdmin">SuperAdmin</SelectItem>
+                )}
                 <SelectItem value="Manager">Manager</SelectItem>
                 <SelectItem value="Operator">Operator</SelectItem>
               </SelectGroup>
