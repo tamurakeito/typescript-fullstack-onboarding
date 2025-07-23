@@ -49,11 +49,12 @@ const permissionPolicy = (actor: Account, action: Action, resource: Resource): b
         break;
       case "update":
         if (
-          actor.role === "Manager" &&
-          actor.organizationId === resource.content?.organizationId &&
-          (resource.content?.role === "Manager" || resource.content?.role === "Operator") &&
-          (resource.content?.roleGranted === "Manager" ||
-            resource.content?.roleGranted === "Operator")
+          (actor.id === resource.content?.id && resource.content?.roleGranted === undefined) ||
+          (actor.role === "Manager" &&
+            actor.organizationId === resource.content?.organizationId &&
+            (resource.content?.role === "Manager" || resource.content?.role === "Operator") &&
+            (resource.content?.roleGranted === "Manager" ||
+              resource.content?.roleGranted === "Operator"))
         ) {
           return true;
         }

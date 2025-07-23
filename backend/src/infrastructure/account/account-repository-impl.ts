@@ -31,7 +31,7 @@ export class AccountRepositoryImpl implements AccountRepository {
       }
 
       return ok(data.value);
-    } catch (error) {
+    } catch {
       return err(new UnexpectedError());
     }
   }
