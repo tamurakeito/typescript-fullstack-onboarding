@@ -59,8 +59,6 @@ const permissionPolicy = (actor: Account, action: Action, resource: Resource): b
         }
         break;
       case "delete":
-        console.log(actor);
-        console.log(resource.content);
         if (actor.role === "Manager" && actor.organizationId === resource.content?.organizationId) {
           return true;
         }
