@@ -39,6 +39,9 @@ export const Route = createFileRoute("/_protected")({
                     {allowedRoles.includes(account?.role as Role) ? "組織管理" : "組織"}
                   </NavigationMenuLink>
                 </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuLink href="/account">アカウント</NavigationMenuLink>
+                </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
           </div>
