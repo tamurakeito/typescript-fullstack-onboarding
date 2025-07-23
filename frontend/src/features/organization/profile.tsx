@@ -13,7 +13,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { useAuthStore } from "@/store/auth-store";
 import { Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { OrganizationCreateUserDialog } from "./dialog/create-user-dialog";
+import { UserCreateDialog } from "./dialog/create-user-dialog";
 import { UserUpdateDialog } from "./dialog/update-user-dialog";
 
 export const OrganizationProfile = ({
@@ -87,7 +87,7 @@ export const OrganizationProfile = ({
           </Table>
         </div>
       </div>
-      <OrganizationCreateUserDialog
+      <UserCreateDialog
         isOpenCreateUserDialog={isOpenCreateUserDialog}
         setIsOpenCreateUserDialog={setIsOpenCreateUserDialog}
         organizationId={organization.id}
