@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import { useAuthStore } from "@/store/auth-store";
 import { useState } from "react";
-import { OrganizationCreateUserDialog } from "./dialog/create-user-dialog";
+import { UserCreateDialog } from "./dialog/create-user-dialog";
 
 export const OrganizationProfile = ({
   organization,
@@ -57,7 +57,7 @@ export const OrganizationProfile = ({
           </Table>
         </div>
       </div>
-      <OrganizationCreateUserDialog
+      <UserCreateDialog
         isOpenCreateUserDialog={isOpenCreateUserDialog}
         setIsOpenCreateUserDialog={setIsOpenCreateUserDialog}
         organizationId={organization.id}

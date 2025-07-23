@@ -42,7 +42,7 @@ const formSchema = z.object({
   }),
 });
 
-export const OrganizationCreateUserDialog = ({
+export const UserCreateDialog = ({
   isOpenCreateUserDialog,
   setIsOpenCreateUserDialog,
   organizationId,
