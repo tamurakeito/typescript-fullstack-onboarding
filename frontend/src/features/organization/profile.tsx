@@ -1,4 +1,5 @@
 import type { OrganizationProfile as OrganizationProfileType } from "@/client";
+import type { Account as UserType } from "@/client";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -8,14 +9,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuthStore } from "@/store/auth-store";
+import { Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { OrganizationCreateUserDialog } from "./dialog/create-user-dialog";
+import { OrganizationUpdateUserDialog } from "./dialog/update-user-dialog";
 
 export const OrganizationProfile = ({
   organization,
 }: { organization: OrganizationProfileType }) => {
   const [isOpenCreateUserDialog, setIsOpenCreateUserDialog] = useState<boolean>(false);
+  const [isOpenUpdateUserDialog, setIsOpenUpdateUserDialog] = useState<boolean>(false);
+  const [selectedUser, setSelectedUser] = useState<UserType | undefined>(undefined);
   const { account } = useAuthStore.getState();
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6">
@@ -44,6 +50,8 @@ export const OrganizationProfile = ({
               <TableRow>
                 <TableHead className="w-[80px]">ID</TableHead>
                 <TableHead>名前</TableHead>
+                <TableHead className="w-[100px]">ロール</TableHead>
+                <TableHead className="w-[120px]"> </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -51,6 +59,28 @@ export const OrganizationProfile = ({
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.userId}</TableCell>
                   <TableCell className="font-medium">{user.name}</TableCell>
+                  <TableCell className="font-medium">{user.role}</TableCell>{" "}
+                  <TableCell className="flex justify-center items-center">
+                    {(account?.role === "SuperAdmin" ||
+                      (account?.role === "Manager" && user.role !== "SuperAdmin")) && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Pencil
+                            size={20}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setIsOpenUpdateUserDialog(true);
+                              setSelectedUser(user);
+                            }}
+                            className="text-gray-600 hover:text-gray-900 mr-6 cursor-pointer"
+                          />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>編集</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -62,6 +92,15 @@ export const OrganizationProfile = ({
         setIsOpenCreateUserDialog={setIsOpenCreateUserDialog}
         organizationId={organization.id}
       />
+      {!!selectedUser && (
+        <OrganizationUpdateUserDialog
+          isOpenUpdateUserDialog={isOpenUpdateUserDialog}
+          setIsOpenUpdateUserDialog={setIsOpenUpdateUserDialog}
+          organizationId={organization.id}
+          user={selectedUser}
+          setSelectedUser={setSelectedUser}
+        />
+      )}
     </div>
   );
 };
