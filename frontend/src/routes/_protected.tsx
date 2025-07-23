@@ -13,7 +13,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/_protected")({
   component: () => {
-    const { account, signOut } = useAuthStore.getState();
+    const { account, signOut } = useAuthStore();
     const navigate = useNavigate();
 
     const allowedRoles: Array<Role> = ["SuperAdmin", "Manager"];
