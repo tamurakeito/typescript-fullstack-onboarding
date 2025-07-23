@@ -28,16 +28,18 @@ import { z } from "zod";
 
 const formSchema = z.object({
   userId: z.string().min(1, {
-    message: "ユーザーIDを入力してください。",
+    message: "ユーザーIDを入力してください",
   }),
   name: z.string().min(1, {
-    message: "ユーザー名を入力してください。",
+    message: "ユーザー名を入力してください",
   }),
   password: z.string().min(1, {
-    message: "パスワードを入力してください。",
+    message: "パスワードを入力してください",
   }),
   organizationId: z.string().optional(),
-  role: z.enum(["SuperAdmin", "Manager", "Operator"]),
+  role: z.enum(["SuperAdmin", "Manager", "Operator"], {
+    required_error: "ロールを選択してください",
+  }),
 });
 
 export const OrganizationCreateUserDialog = ({
