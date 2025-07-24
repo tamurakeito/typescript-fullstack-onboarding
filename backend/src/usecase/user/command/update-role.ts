@@ -13,13 +13,18 @@ export class UserUpdateRoleCommandImpl implements UserUpdateRoleCommand {
   constructor(private readonly accountRepository: AccountRepository) {}
 
   async execute(id: string, role: Role, actor: Account): Promise<Result<Account, AppError>> {
-    if ((actor.role === "Manager" && actor.organizationId !== id) || actor.role === "Operator") {
-      return err(new ForbiddenError());
-    }
-
     const account = await this.accountRepository.findById(id);
     if (account.isErr()) {
       return err(account.error);
+    }
+
+    if (
+      actor.role === "Manager" &&
+      (actor.organizationId !== account.value.organizationId ||
+        account.value.role === "SuperAdmin" ||
+        role === "SuperAdmin")
+    ) {
+      return err(new ForbiddenError());
     }
 
     const updatedAccount = account.value.update(undefined, undefined, undefined, undefined, role);

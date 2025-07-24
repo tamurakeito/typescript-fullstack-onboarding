@@ -39,9 +39,13 @@ describe("AuthQueryImpl", () => {
       name: "テストユーザー",
       password: hashedPassword,
       organizationId: "org-abc",
-      role: "Operator",
+      roleId: "role-uuid-123",
       createdAt: new Date(),
       updatedAt: new Date(),
+      Role: {
+        id: "role-uuid-123",
+        name: "Operator",
+      },
     };
     mockPrismaClient.account.findUnique.mockResolvedValue(mockData);
     mockPasswordHash.compare.mockResolvedValue(true);
@@ -54,7 +58,10 @@ describe("AuthQueryImpl", () => {
       expect(account).toBeInstanceOf(Account);
       expect(account.userId).toBe(userId);
       expect(account.name).toBe("テストユーザー");
-      expect(mockFindUnique).toHaveBeenCalledWith({ where: { userId } });
+      expect(mockFindUnique).toHaveBeenCalledWith({
+        where: { userId },
+        include: { Role: true },
+      });
     }
   });
 
@@ -85,9 +92,13 @@ describe("AuthQueryImpl", () => {
       name: "テストユーザー",
       password: hashedPassword,
       organizationId: "org-abc",
-      role: "Operator",
+      roleId: "role-uuid-123",
       createdAt: new Date(),
       updatedAt: new Date(),
+      Role: {
+        id: "role-uuid-123",
+        name: "Operator",
+      },
     };
     mockPrismaClient.account.findUnique.mockResolvedValue(mockData);
     mockPasswordHash.compare.mockResolvedValue(false);

@@ -1,7 +1,7 @@
-import { describe, mock } from "node:test";
+import { Account } from "@/domain/account/account.js";
 import { ForbiddenError, UnExistUserError } from "@/errors/errors.js";
 import { PrismaClient } from "@/generated/prisma/index.js";
-import { expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { OrganizationProfileQueryImpl } from "./get-profile.js";
 
 const mockPrismaClient = {
@@ -31,15 +31,28 @@ describe("OrganizationProfileQueryImpl", () => {
         id: "mock-uuid-user-01",
         userId: "user-01",
         name: "テストユーザー01",
-        role: "Manager",
+        Role: {
+          name: "Manager",
+        },
       },
       {
         id: "mock-uuid-user-02",
         userId: "user-02",
         name: "テストユーザー02",
-        role: "Operator",
+        Role: {
+          name: "Operator",
+        },
       },
     ];
+
+    const mockActor = Account.create(
+      "mock-uuid-user-01",
+      "user-01",
+      "テストユーザー01",
+      "password",
+      mockId,
+      "Manager"
+    )._unsafeUnwrap();
 
     mockPrismaClient.organization.findUnique.mockResolvedValue({
       id: mockId,
@@ -47,14 +60,27 @@ describe("OrganizationProfileQueryImpl", () => {
       accounts: mockUsers,
     });
 
-    const result = await organizationProfileQuery.execute(mockId);
+    const result = await organizationProfileQuery.execute(mockId, mockActor);
     expect(result.isOk()).toBe(true);
     if (result.isOk()) {
       const organization = result.value;
       expect(organization).toEqual({
         id: mockId,
         name: mockName,
-        users: mockUsers,
+        users: [
+          {
+            id: "mock-uuid-user-01",
+            userId: "user-01",
+            name: "テストユーザー01",
+            role: "Manager",
+          },
+          {
+            id: "mock-uuid-user-02",
+            userId: "user-02",
+            name: "テストユーザー02",
+            role: "Operator",
+          },
+        ],
       });
       expect(mockFindUnique).toHaveBeenCalledWith({
         where: { id: mockId },
@@ -64,11 +90,61 @@ describe("OrganizationProfileQueryImpl", () => {
               id: true,
               userId: true,
               name: true,
-              role: true,
+              Role: {
+                select: {
+                  name: true,
+                },
+              },
             },
           },
         },
       });
+    }
+  });
+
+  it("組織のロールがManager以下で自分の組織ではない場合", async () => {
+    const organizationProfileQuery = new OrganizationProfileQueryImpl();
+
+    const mockId = "mock-uuid-123";
+    const mockName = "テスト組織";
+    const mockUsers = [
+      {
+        id: "mock-uuid-user-01",
+        userId: "user-01",
+        name: "テストユーザー01",
+        Role: {
+          name: "Manager",
+        },
+      },
+      {
+        id: "mock-uuid-user-02",
+        userId: "user-02",
+        name: "テストユーザー02",
+        Role: {
+          name: "Operator",
+        },
+      },
+    ];
+
+    const mockActor = Account.create(
+      "mock-uuid-user-01",
+      "user-01",
+      "テストユーザー01",
+      "password",
+      "mock-uuid-456",
+      "Manager"
+    )._unsafeUnwrap();
+
+    mockPrismaClient.organization.findUnique.mockResolvedValue({
+      id: mockId,
+      name: mockName,
+      accounts: mockUsers,
+    });
+
+    const result = await organizationProfileQuery.execute(mockId, mockActor);
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error).toBeInstanceOf(ForbiddenError);
     }
   });
 
@@ -77,9 +153,18 @@ describe("OrganizationProfileQueryImpl", () => {
 
     const mockId = "un-exist-uuid";
 
+    const mockActor = Account.create(
+      "mock-uuid-user-01",
+      "user-01",
+      "テストユーザー01",
+      "password",
+      mockId,
+      "Manager"
+    )._unsafeUnwrap();
+
     mockPrismaClient.organization.findUnique.mockResolvedValue(null);
 
-    const result = await organizationProfileQuery.execute(mockId);
+    const result = await organizationProfileQuery.execute(mockId, mockActor);
     expect(result.isErr()).toBe(true);
     if (result.isErr()) {
       expect(result.error).toBeInstanceOf(UnExistUserError);
@@ -91,7 +176,11 @@ describe("OrganizationProfileQueryImpl", () => {
               id: true,
               userId: true,
               name: true,
-              role: true,
+              Role: {
+                select: {
+                  name: true,
+                },
+              },
             },
           },
         },

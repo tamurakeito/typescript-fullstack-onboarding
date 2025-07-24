@@ -157,8 +157,7 @@ export function initRouting(
       }
     }),
     jwtMiddleware(jwtService),
-    accountGetMiddleware(accountRepository),
-    accountPermissionMiddleware("delete"),
+    permissionMiddleware("delete", "Account"),
     (c) => userHandler.deleteUser(c)
   );
 }

@@ -44,11 +44,11 @@ export class UserHandler {
   }
 
   async updateUser(c: Context) {
-    const account = c.get("account");
+    const id = c.req.param("id");
     const body = await c.req.json();
 
     const result = await this.userUpdateCommand.execute(
-      account,
+      id,
       body.userId || undefined,
       body.name || undefined,
       body.password || undefined,
@@ -73,10 +73,10 @@ export class UserHandler {
   }
 
   async updateUserRole(c: Context) {
-    const account = c.get("account");
+    const id = c.req.param("id");
     const body = await c.req.json();
 
-    const result = await this.userUpdateRoleCommand.execute(account, body.role, c.get("actor"));
+    const result = await this.userUpdateRoleCommand.execute(id, body.role, c.get("actor"));
 
     if (result.isErr()) {
       c.get("logger").error("UserUpdateRoleCommand failed", {
@@ -96,7 +96,7 @@ export class UserHandler {
 
   async deleteUser(c: Context) {
     const id = c.req.param("id");
-    const result = await this.userDeleteCommand.execute(id);
+    const result = await this.userDeleteCommand.execute(id, c.get("actor"));
 
     if (result.isErr()) {
       c.get("logger").error("UserDeleteCommand failed", {
