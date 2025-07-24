@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_protected/account/")({
     const { account, token } = useAuthStore.getState();
     if (!account || !token) {
       // 理論上ここには到達しない
-      throw new Error("No Authentization Data");
+      throw new Error("No Authentication Data");
     }
     await queryClient.ensureQueryData(
       userApiGetOptions({
