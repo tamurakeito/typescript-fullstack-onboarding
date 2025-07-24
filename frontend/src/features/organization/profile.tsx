@@ -14,6 +14,7 @@ import { useAuthStore } from "@/store/auth-store";
 import { Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { UserCreateDialog } from "./dialog/create-user-dialog";
+import { UserDeleteDialog } from "./dialog/delete-user-dialog";
 import { UserUpdateDialog } from "./dialog/update-user-dialog";
 
 export const OrganizationProfile = ({
@@ -21,6 +22,7 @@ export const OrganizationProfile = ({
 }: { organization: OrganizationProfileType }) => {
   const [isOpenCreateUserDialog, setIsOpenCreateUserDialog] = useState<boolean>(false);
   const [isOpenUpdateUserDialog, setIsOpenUpdateUserDialog] = useState<boolean>(false);
+  const [isOpenDeleteUserDialog, setIsOpenDeleteUserDialog] = useState<boolean>(false);
   const [selectedUser, setSelectedUser] = useState<UserType | undefined>(undefined);
   const { account } = useAuthStore.getState();
   return (
@@ -63,22 +65,40 @@ export const OrganizationProfile = ({
                   <TableCell className="flex justify-center items-center">
                     {(account?.role === "SuperAdmin" ||
                       (account?.role === "Manager" && user.role !== "SuperAdmin")) && (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Pencil
-                            size={20}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setIsOpenUpdateUserDialog(true);
-                              setSelectedUser(user);
-                            }}
-                            className="text-gray-600 hover:text-gray-900 mr-6 cursor-pointer"
-                          />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>編集</p>
-                        </TooltipContent>
-                      </Tooltip>
+                      <>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Pencil
+                              size={20}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setIsOpenUpdateUserDialog(true);
+                                setSelectedUser(user);
+                              }}
+                              className="text-gray-600 hover:text-gray-900 mr-6 cursor-pointer"
+                            />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>編集</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Trash2
+                              size={20}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setIsOpenDeleteUserDialog(true);
+                                setSelectedUser(user);
+                              }}
+                              className="text-gray-600 hover:text-gray-900 mr-6 cursor-pointer"
+                            />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>削除</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </>
                     )}
                   </TableCell>
                 </TableRow>
@@ -96,6 +116,15 @@ export const OrganizationProfile = ({
         <UserUpdateDialog
           isOpenUpdateUserDialog={isOpenUpdateUserDialog}
           setIsOpenUpdateUserDialog={setIsOpenUpdateUserDialog}
+          organizationId={organization.id}
+          user={selectedUser}
+          setSelectedUser={setSelectedUser}
+        />
+      )}
+      {!!selectedUser && (
+        <UserDeleteDialog
+          isOpenDeleteUserDialog={isOpenDeleteUserDialog}
+          setIsOpenDeleteUserDialog={setIsOpenDeleteUserDialog}
           organizationId={organization.id}
           user={selectedUser}
           setSelectedUser={setSelectedUser}
