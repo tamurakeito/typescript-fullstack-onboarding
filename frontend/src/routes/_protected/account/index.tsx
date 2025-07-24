@@ -9,7 +9,7 @@ export const Route = createFileRoute("/_protected/account/")({
   loader: async () => {
     const { account, token } = useAuthStore.getState();
     if (!account || !token) {
-      // 理論上ここには到達しない
+      // _protected.tsxのbeforeLoadで認証チェック済みのため、理論上ここには到達しない
       throw new Error("No Authentication Data");
     }
     await queryClient.ensureQueryData(
