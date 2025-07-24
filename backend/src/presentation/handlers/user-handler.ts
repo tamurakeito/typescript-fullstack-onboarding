@@ -22,7 +22,8 @@ export class UserHandler {
       body.name,
       body.password,
       body.organizationId,
-      body.role
+      body.role,
+      c.get("actor")
     );
 
     if (result.isErr()) {
@@ -50,7 +51,8 @@ export class UserHandler {
       account,
       body.userId || undefined,
       body.name || undefined,
-      body.password || undefined
+      body.password || undefined,
+      c.get("actor")
     );
 
     if (result.isErr()) {
@@ -74,7 +76,7 @@ export class UserHandler {
     const account = c.get("account");
     const body = await c.req.json();
 
-    const result = await this.userUpdateRoleCommand.execute(account, body.role);
+    const result = await this.userUpdateRoleCommand.execute(account, body.role, c.get("actor"));
 
     if (result.isErr()) {
       c.get("logger").error("UserUpdateRoleCommand failed", {

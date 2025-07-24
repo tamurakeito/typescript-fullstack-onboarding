@@ -5,6 +5,7 @@ import type { OrganizationRepository } from "@/domain/organization/organization-
 import {
   type AppError,
   DuplicateUserIdError,
+  ForbiddenError,
   UnExistAccountError,
   UnexpectedError,
 } from "@/errors/errors.js";
@@ -17,7 +18,8 @@ export interface UserCreateCommand {
     name: string,
     password: string,
     organizationId: string,
-    role: Role
+    role: Role,
+    actor: Account
   ): Promise<Result<Account, AppError>>;
 }
 
@@ -33,8 +35,13 @@ export class UserCreateCommandImpl implements UserCreateCommand {
     name: string,
     password: string,
     organizationId: string,
-    role: Role
+    role: Role,
+    actor: Account
   ): Promise<Result<Account, AppError>> {
+    if (actor.role === "Manager" && actor.organizationId !== organizationId) {
+      return err(new ForbiddenError());
+    }
+
     const [accountExist, organizationExist] = await Promise.all([
       this.accountRepository.findByUserId(userId),
       this.organizationRepository.findById(organizationId),
