@@ -13,23 +13,19 @@ import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-const userIdFormSchema = z.object({
+const accountFormSchema = z.object({
   userId: z.string().min(1, {
     message: "ユーザーIDを入力してください",
   }),
-});
-
-const nameFormSchema = z.object({
   name: z.string().min(1, {
     message: "名前を入力してください",
   }),
-});
-
-const passwordFormSchema = z.object({
   password: z.string().min(1, {
     message: "パスワードを入力してください",
   }),
 });
+
+type AccountFormData = z.infer<typeof accountFormSchema>;
 
 export const Account = ({ profile }: { profile: UserProfile }) => {
   const { account, token } = useLoaderData({ from: "/_protected/account/" });
@@ -65,45 +61,24 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
   });
 
   const {
-    control: userIdControl,
-    handleSubmit: handleUserIdSubmit,
-    formState: { errors: userIdErrors },
-    reset: resetUserId,
-  } = useForm<z.infer<typeof userIdFormSchema>>({
-    resolver: zodResolver(userIdFormSchema),
+    control,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    getValues,
+  } = useForm<AccountFormData>({
+    resolver: zodResolver(accountFormSchema),
     defaultValues: {
       userId: profile.userId,
-    },
-  });
-
-  const {
-    control: nameControl,
-    handleSubmit: handleNameSubmit,
-    formState: { errors: nameErrors },
-    reset: resetName,
-  } = useForm<z.infer<typeof nameFormSchema>>({
-    resolver: zodResolver(nameFormSchema),
-    defaultValues: {
       name: profile.name,
+      password: "_untouched_",
     },
   });
 
-  const {
-    control: passwordControl,
-    handleSubmit: handlePasswordSubmit,
-    formState: { errors: passwordErrors },
-    reset: resetPassword,
-  } = useForm<z.infer<typeof passwordFormSchema>>({
-    resolver: zodResolver(passwordFormSchema),
-    defaultValues: {
-      password: "",
-    },
-  });
-
-  const onSubmitUserId: SubmitHandler<z.infer<typeof userIdFormSchema>> = async (data) => {
+  const onSubmitUserId: SubmitHandler<AccountFormData> = async (data) => {
     await mutation.mutateAsync({
       body: {
-        ...data,
+        userId: data.userId,
         name: "",
         password: "",
       },
@@ -112,14 +87,14 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
       },
     });
     setIsUserIdEdit(false);
-    resetUserId({ userId: data.userId });
+    reset({ ...getValues(), userId: data.userId });
   };
 
-  const onSubmitName: SubmitHandler<z.infer<typeof nameFormSchema>> = async (data) => {
+  const onSubmitName: SubmitHandler<AccountFormData> = async (data) => {
     await mutation.mutateAsync({
       body: {
-        ...data,
         userId: "",
+        name: data.name,
         password: "",
       },
       path: {
@@ -127,32 +102,29 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
       },
     });
     setIsNameEdit(false);
-    resetName({ name: data.name });
+    reset({ ...getValues(), name: data.name });
   };
 
-  const onSubmitPassword: SubmitHandler<z.infer<typeof passwordFormSchema>> = async (data) => {
+  const onSubmitPassword: SubmitHandler<AccountFormData> = async (data) => {
     await mutation.mutateAsync({
       body: {
-        ...data,
         userId: "",
         name: "",
+        password: data.password,
       },
       path: {
         id: account.id,
       },
     });
     setIsPasswordEdit(false);
-    resetPassword({ password: data.password });
+    reset({ ...getValues(), password: "" });
   };
 
   return (
     <div className="h-screen flex p-6">
       <div className="w-full max-w-md h-fit mx-auto bg-white rounded-xl shadow-md p-8 flex flex-col gap-6">
         <h1 className="text-3xl font-bold text-center text-gray-900 mb-2">アカウント情報</h1>
-        <form
-          onSubmit={handleUserIdSubmit(onSubmitUserId)}
-          className="flex flex-col gap-2 border-b pb-4"
-        >
+        <form onSubmit={handleSubmit(onSubmitUserId)} className="flex flex-col gap-2 border-b pb-4">
           <span className="text-xs text-gray-400">ユーザーID</span>
           <div className="flex items-center justify-between">
             <span className="text-base font-mono text-gray-700 w-full">
@@ -160,7 +132,7 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
                 profile.userId
               ) : (
                 <Controller
-                  control={userIdControl}
+                  control={control}
                   name="userId"
                   render={({ field }) => (
                     <Input type="text" placeholder="ユーザーIDを入力してください" {...field} />
@@ -206,7 +178,7 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
                       onClick={(e) => {
                         e.stopPropagation();
                         setIsUserIdEdit(false);
-                        resetUserId();
+                        reset();
                       }}
                       className="text-gray-600 hover:text-gray-900 cursor-pointer"
                     />
@@ -218,12 +190,9 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
               </div>
             )}
           </div>
-          {userIdErrors.userId && <p className="text-red-500">{userIdErrors.userId.message}</p>}
+          {errors.userId && <p className="text-red-500">{errors.userId.message}</p>}
         </form>
-        <form
-          onSubmit={handleNameSubmit(onSubmitName)}
-          className="flex flex-col gap-2 border-b pb-4"
-        >
+        <form onSubmit={handleSubmit(onSubmitName)} className="flex flex-col gap-2 border-b pb-4">
           <span className="text-xs text-gray-400">名前</span>
           <div className="flex items-center justify-between">
             <span className="text-base text-gray-700 w-full">
@@ -231,7 +200,7 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
                 profile.name
               ) : (
                 <Controller
-                  control={nameControl}
+                  control={control}
                   name="name"
                   render={({ field }) => (
                     <Input type="text" placeholder="名前を入力してください" {...field} />
@@ -277,7 +246,7 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
                       onClick={(e) => {
                         e.stopPropagation();
                         setIsNameEdit(false);
-                        resetName();
+                        reset();
                       }}
                       className="text-gray-600 hover:text-gray-900 cursor-pointer"
                     />
@@ -289,10 +258,10 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
               </div>
             )}
           </div>
-          {nameErrors.name && <p className="text-red-500">{nameErrors.name.message}</p>}
+          {errors.name && <p className="text-red-500">{errors.name.message}</p>}
         </form>
         <form
-          onSubmit={handlePasswordSubmit(onSubmitPassword)}
+          onSubmit={handleSubmit(onSubmitPassword)}
           className="flex flex-col gap-2 border-b pb-4"
         >
           <span className="text-xs text-gray-400">パスワード</span>
@@ -302,13 +271,15 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
                 "●●●●●●●●"
               ) : (
                 <Controller
-                  control={passwordControl}
+                  control={control}
                   name="password"
                   render={({ field }) => (
                     <Input
                       type="password"
                       placeholder="新しいパスワードを入力してください"
                       {...field}
+                      value={field.value === "_untouched_" ? "" : field.value}
+                      onChange={(e) => field.onChange(e.target.value)}
                     />
                   )}
                 />
@@ -352,7 +323,7 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
                       onClick={(e) => {
                         e.stopPropagation();
                         setIsPasswordEdit(false);
-                        resetPassword();
+                        reset();
                       }}
                       className="text-gray-600 hover:text-gray-900 cursor-pointer"
                     />
@@ -364,9 +335,7 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
               </div>
             )}
           </div>
-          {passwordErrors.password && (
-            <p className="text-red-500">{passwordErrors.password.message}</p>
-          )}
+          {errors.password && <p className="text-red-500">{errors.password.message}</p>}
         </form>
         {profile.organization && (
           <div className="flex flex-col gap-2 border-b pb-4">
