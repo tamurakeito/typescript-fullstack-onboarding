@@ -3,17 +3,14 @@ import { Account } from "@/features/account";
 import { queryClient } from "@/lib/query-client";
 import { useAuthStore } from "@/store/auth-store";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, redirect, useLoaderData } from "@tanstack/react-router";
-import { toast } from "sonner";
+import { createFileRoute, useLoaderData } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_protected/account/")({
   loader: async () => {
     const { account, token } = useAuthStore.getState();
     if (!account || !token) {
-      toast.error("アカウント情報が見つかりませんでした。再度ログインしてください。", {
-        duration: 1000,
-      });
-      throw redirect({ to: "/sign-in" });
+      // 理論上ここには到達しない
+      throw new Error("Account not found");
     }
     await queryClient.ensureQueryData(
       userApiGetOptions({

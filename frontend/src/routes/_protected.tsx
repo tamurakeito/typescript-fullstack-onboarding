@@ -62,6 +62,9 @@ export const Route = createFileRoute("/_protected")({
   beforeLoad: () => {
     const { account, token } = useAuthStore.getState();
     if (!account || !token) {
+      toast.error("アカウント情報が見つかりませんでした。再度ログインしてください。", {
+        duration: 1000,
+      });
       throw redirect({
         to: "/sign-in",
         search: {
