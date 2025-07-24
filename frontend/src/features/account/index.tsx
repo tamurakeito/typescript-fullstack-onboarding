@@ -13,6 +13,8 @@ import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
+const untouchedPassword = "_untouched_";
+
 const accountFormSchema = z.object({
   userId: z.string().min(1, {
     message: "ユーザーIDを入力してください",
@@ -20,7 +22,7 @@ const accountFormSchema = z.object({
   name: z.string().min(1, {
     message: "名前を入力してください",
   }),
-  password: z.string().min(1, {
+  password: z.string().refine((val) => val !== untouchedPassword && val.length > 0, {
     message: "パスワードを入力してください",
   }),
 });
@@ -71,7 +73,7 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
     defaultValues: {
       userId: profile.userId,
       name: profile.name,
-      password: "_untouched_",
+      password: untouchedPassword,
     },
   });
 
@@ -117,7 +119,7 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
       },
     });
     setIsPasswordEdit(false);
-    reset({ ...getValues(), password: "" });
+    reset({ ...getValues(), password: untouchedPassword });
   };
 
   return (
