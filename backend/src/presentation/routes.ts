@@ -6,6 +6,7 @@ import type { Hono } from "hono";
 import { z } from "zod";
 import type { AuthHandler } from "./handlers/auth-handler.js";
 import type { OrganizationHandler } from "./handlers/organization-handler.js";
+import type { TodoHandler } from "./handlers/todo-handler.js";
 import type { UserHandler } from "./handlers/user-handler.js";
 import { jwtMiddleware } from "./middleware/jwt.js";
 import type { Env } from "./middleware/logger.js";
@@ -16,6 +17,7 @@ export function initRouting(
   authHandler: AuthHandler,
   organizationHandler: OrganizationHandler,
   userHandler: UserHandler,
+  todoHandler: TodoHandler,
   jwtService: JwtService
 ) {
   app.get("/", (c) => {
@@ -171,5 +173,19 @@ export function initRouting(
     jwtMiddleware(jwtService),
     permissionMiddleware("delete", "Account"),
     (c) => userHandler.deleteUser(c)
+  );
+
+  /* Todo */
+  app.get(
+    "/todo-list/:id",
+    zValidator("param", z.object({ id: z.string().uuid() }), (result, c) => {
+      if (!result.success) {
+        const error = new BadRequestError();
+        return c.json({ message: error.message }, error.statusCode);
+      }
+    }),
+    jwtMiddleware(jwtService),
+    permissionMiddleware("read", "Todo"),
+    (c) => todoHandler.getTodoList(c)
   );
 }

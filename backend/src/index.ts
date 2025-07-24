@@ -9,6 +9,7 @@ import { PermissionServiceImpl } from "./infrastructure/authorization/permission
 import { OrganizationRepositoryImpl } from "./infrastructure/organization/organization-repository-impl.js";
 import { AuthHandler } from "./presentation/handlers/auth-handler.js";
 import { OrganizationHandler } from "./presentation/handlers/organization-handler.js";
+import { TodoHandler } from "./presentation/handlers/todo-handler.js";
 import { UserHandler } from "./presentation/handlers/user-handler.js";
 import { LoggerMiddleware } from "./presentation/middleware/logger.js";
 import type { Env } from "./presentation/middleware/logger.js";
@@ -19,6 +20,7 @@ import { OrganizationDeleteCommandImpl } from "./usecase/organization/command/de
 import { OrganizationUpdateCommandImpl } from "./usecase/organization/command/update.js";
 import { OrganizationListQueryImpl } from "./usecase/organization/query/get-list.js";
 import { OrganizationProfileQueryImpl } from "./usecase/organization/query/get-profile.js";
+import { TodoListQueryImpl } from "./usecase/todo/query/get-list.js";
 import { UserCreateCommandImpl } from "./usecase/user/command/create.js";
 import { UserDeleteCommandImpl } from "./usecase/user/command/delete.js";
 import { UserUpdateRoleCommandImpl } from "./usecase/user/command/update-role.js";
@@ -60,6 +62,7 @@ const userCreateCommand = new UserCreateCommandImpl(
   organizationRepository,
   passwordHash
 );
+
 const userUpdateCommand = new UserUpdateCommandImpl(accountRepository, passwordHash);
 const userUpdateRoleCommand = new UserUpdateRoleCommandImpl(accountRepository);
 const userDeleteCommand = new UserDeleteCommandImpl(accountRepository);
@@ -71,7 +74,10 @@ const userHandler = new UserHandler(
   userDeleteCommand
 );
 
-initRouting(app, authHandler, organizationHandler, userHandler, jwtService);
+const todoListQuery = new TodoListQueryImpl();
+const todoHandler = new TodoHandler(todoListQuery);
+
+initRouting(app, authHandler, organizationHandler, userHandler, todoHandler, jwtService);
 
 serve(
   {
