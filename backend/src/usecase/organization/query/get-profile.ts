@@ -1,5 +1,5 @@
 import type { Role } from "@/domain/account/account.js";
-import { type AppError, ForbiddenError, UnExistUserError } from "@/errors/errors.js";
+import { type AppError, UnExistUserError } from "@/errors/errors.js";
 import type { schemas } from "@/generated/client/client.gen.js";
 import { PrismaClient } from "@/generated/prisma/index.js";
 import { type Result, err, ok } from "neverthrow";
@@ -25,7 +25,11 @@ export class OrganizationProfileQueryImpl implements OrganizationProfileQuery {
             id: true,
             userId: true,
             name: true,
-            role: true,
+            Role: {
+              select: {
+                name: true,
+              },
+            },
           },
         },
       },
@@ -39,7 +43,7 @@ export class OrganizationProfileQueryImpl implements OrganizationProfileQuery {
       id: user.id,
       userId: user.userId,
       name: user.name,
-      role: user.role,
+      role: user.Role.name as Role,
     }));
 
     const organizationProfile = {

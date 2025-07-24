@@ -1,4 +1,3 @@
-import type { AccountRepository } from "@/domain/account/account-repository.js";
 import { BadRequestError } from "@/errors/errors.js";
 import { schemas } from "@/generated/client/client.gen.js";
 import type { JwtService } from "@/infrastructure/account/jwt-service.js";
@@ -8,21 +7,16 @@ import { z } from "zod";
 import type { AuthHandler } from "./handlers/auth-handler.js";
 import type { OrganizationHandler } from "./handlers/organization-handler.js";
 import type { UserHandler } from "./handlers/user-handler.js";
-import { accountGetMiddleware } from "./middleware/account-get.js";
 import { jwtMiddleware } from "./middleware/jwt.js";
 import type { Env } from "./middleware/logger.js";
-import {
-  accountPermissionMiddleware,
-  organizationPermissionMiddleware,
-} from "./middleware/permission.js";
+import { permissionMiddleware } from "./middleware/permission.js";
 
 export function initRouting(
   app: Hono<Env>,
   authHandler: AuthHandler,
   organizationHandler: OrganizationHandler,
   userHandler: UserHandler,
-  jwtService: JwtService,
-  accountRepository: AccountRepository
+  jwtService: JwtService
 ) {
   app.get("/", (c) => {
     return c.text("This is Org-Todo-App🐋");
@@ -47,7 +41,7 @@ export function initRouting(
   app.get(
     "/organizations",
     jwtMiddleware(jwtService),
-    organizationPermissionMiddleware("readAll"),
+    permissionMiddleware("readAll", "Organization"),
     (c) => organizationHandler.getOrganizationList(c)
   );
   app.get(
@@ -59,7 +53,7 @@ export function initRouting(
       }
     }),
     jwtMiddleware(jwtService),
-    organizationPermissionMiddleware("read"),
+    permissionMiddleware("read", "Organization"),
     (c) => organizationHandler.getOrganizationProfile(c)
   );
   app.post(
@@ -71,7 +65,7 @@ export function initRouting(
       }
     }),
     jwtMiddleware(jwtService),
-    organizationPermissionMiddleware("create"),
+    permissionMiddleware("create", "Organization"),
     (c) => organizationHandler.createOrganization(c)
   );
   app.put(
@@ -89,7 +83,7 @@ export function initRouting(
       }
     }),
     jwtMiddleware(jwtService),
-    organizationPermissionMiddleware("update"),
+    permissionMiddleware("update", "Organization"),
     (c) => organizationHandler.updateOrganization(c)
   );
   app.delete(
@@ -101,7 +95,7 @@ export function initRouting(
       }
     }),
     jwtMiddleware(jwtService),
-    organizationPermissionMiddleware("delete"),
+    permissionMiddleware("delete", "Organization"),
     (c) => organizationHandler.deleteOrganization(c)
   );
 
@@ -115,7 +109,7 @@ export function initRouting(
       }
     }),
     jwtMiddleware(jwtService),
-    accountPermissionMiddleware("create"),
+    permissionMiddleware("create", "Account"),
     (c) => userHandler.createUser(c)
   );
   app.put(
@@ -133,8 +127,7 @@ export function initRouting(
       }
     }),
     jwtMiddleware(jwtService),
-    accountGetMiddleware(accountRepository),
-    accountPermissionMiddleware("update"),
+    permissionMiddleware("update", "Account"),
     (c) => userHandler.updateUser(c)
   );
   app.put(
@@ -152,8 +145,7 @@ export function initRouting(
       }
     }),
     jwtMiddleware(jwtService),
-    accountGetMiddleware(accountRepository),
-    accountPermissionMiddleware("update"),
+    permissionMiddleware("update", "Account"),
     (c) => userHandler.updateUserRole(c)
   );
   app.delete(

@@ -1,0 +1,34 @@
+enum RoleType {
+  SuperAdmin
+  Manager
+  Operator
+}
+
+model Role {
+  id   String   @id @default(uuid()) @db.Uuid
+  name RoleType @unique
+
+  accounts    Account[]
+  permissions RolePermission[]
+
+  @@map("roles")
+}
+
+model RolePermission {
+  roleId       String     @map("role_id") @db.Uuid
+  permissionId String     @map("permission_id") @db.Uuid
+  role         Role       @relation(fields: [roleId], references: [id])
+  permission   Permission @relation(fields: [permissionId], references: [id])
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model Permission {
+  id   String @id @default(uuid()) @db.Uuid
+  name String @unique @db.VarChar(255)
+
+  roles RolePermission[]
+
+  @@map("permissions")
+}

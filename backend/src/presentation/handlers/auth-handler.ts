@@ -1,12 +1,14 @@
 import { schemas } from "@/generated/client/client.gen.js";
 import type { JwtService } from "@/infrastructure/account/jwt-service.js";
+import type { PermissionService } from "@/infrastructure/authorization/permission-service.js";
 import type { AuthQuery } from "@/usecase/auth/query/auth.js";
 import type { Context } from "hono";
 
 export class AuthHandler {
   constructor(
     private readonly authQuery: AuthQuery,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
+    private readonly permissionService: PermissionService
   ) {}
 
   async signIn(c: Context) {
@@ -15,7 +17,6 @@ export class AuthHandler {
     const password = body.password;
 
     const user = await this.authQuery.execute(userId, password);
-
     if (user.isErr()) {
       c.get("logger").error("AuthQuery failed", {
         error: user.error.constructor.name,
@@ -25,8 +26,19 @@ export class AuthHandler {
       return c.json({ message: user.error.message }, user.error.statusCode);
     }
 
+    const permission = await this.permissionService.getPermission(user.value.role);
+    if (permission.isErr()) {
+      c.get("logger").error("PermissionService failed", {
+        error: permission.error.constructor.name,
+        message: permission.error.message,
+        statusCode: permission.error.statusCode,
+      });
+      return c.json({ message: permission.error.message }, permission.error.statusCode);
+    }
+
     const token = await this.jwtService.generate({
       account: user.value,
+      permissions: permission.value,
     });
 
     const response = {

@@ -1,4 +1,4 @@
-import { Account } from "@/domain/account/account.js";
+import { Account, type Role } from "@/domain/account/account.js";
 import type { PasswordHash } from "@/domain/account/password-hash.js";
 import {
   type AppError,
@@ -23,6 +23,9 @@ export class AuthQueryImpl implements AuthQuery {
       where: {
         userId,
       },
+      include: {
+        Role: true,
+      },
     });
 
     if (!data) {
@@ -39,7 +42,7 @@ export class AuthQueryImpl implements AuthQuery {
       data.name,
       data.password,
       data.organizationId ?? undefined,
-      data.role
+      data.Role.name as Role
     );
 
     if (account.isErr()) {

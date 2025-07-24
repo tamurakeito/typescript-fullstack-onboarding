@@ -1,4 +1,5 @@
 import { Account } from "@/domain/account/account.js";
+import type { Permission } from "@/infrastructure/authorization/permission-service.js";
 import { sign, verify } from "hono/jwt";
 import { type Result, err, ok } from "neverthrow";
 
@@ -14,18 +15,22 @@ const isAccount = (obj: any): obj is Account => {
 };
 
 export interface JwtService {
-  generate(payload: { account: Account }): Promise<string>;
-  verify(token: string): Promise<Result<Account, Error>>;
+  generate(payload: { account: Account; permissions: Array<Permission> }): Promise<string>;
+  verify(
+    token: string
+  ): Promise<Result<{ account: Account; permissions: Array<Permission> }, Error>>;
 }
 
 export class JwtServiceImpl implements JwtService {
   constructor(private readonly secret: string) {}
 
-  async generate(payload: { account: Account }): Promise<string> {
+  async generate(payload: { account: Account; permissions: Array<Permission> }): Promise<string> {
     return await sign(payload, this.secret);
   }
 
-  async verify(token: string): Promise<Result<Account, Error>> {
+  async verify(
+    token: string
+  ): Promise<Result<{ account: Account; permissions: Array<Permission> }, Error>> {
     try {
       const decoded = await verify(token, this.secret);
       if (!isAccount(decoded.account)) {
@@ -43,7 +48,10 @@ export class JwtServiceImpl implements JwtService {
       if (accountResult.isErr()) {
         return err(accountResult.error);
       }
-      return ok(accountResult.value);
+      return ok({
+        account: accountResult.value,
+        permissions: decoded.permissions as Array<Permission>,
+      });
     } catch (error) {
       return err(error as Error);
     }

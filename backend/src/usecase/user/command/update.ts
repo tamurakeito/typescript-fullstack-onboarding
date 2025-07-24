@@ -8,7 +8,7 @@ import type { Result } from "neverthrow";
 
 export interface UserUpdateCommand {
   execute(
-    account: Account,
+    id: string,
     userId: string | undefined,
     name: string | undefined,
     password: string | undefined
@@ -22,11 +22,16 @@ export class UserUpdateCommandImpl implements UserUpdateCommand {
   ) {}
 
   async execute(
-    account: Account,
+    id: string,
     userId: string | undefined,
     name: string | undefined,
     password: string | undefined
   ): Promise<Result<Account, AppError>> {
+    const account = await this.accountRepository.findById(id);
+    if (account.isErr()) {
+      return err(account.error);
+    }
+
     if (userId) {
       const userIdExist = await this.accountRepository.findByUserId(userId);
       if (userIdExist.isErr() && !(userIdExist.error instanceof UnExistAccountError)) {
@@ -39,7 +44,7 @@ export class UserUpdateCommandImpl implements UserUpdateCommand {
 
     const hashedPassword = password ? await this.passwordHash.hash(password) : undefined;
 
-    const updatedAccount = account.update(userId, name, hashedPassword, undefined, undefined);
+    const updatedAccount = account.value.update(userId, name, hashedPassword, undefined, undefined);
 
     if (updatedAccount.isErr()) {
       return err(new UnexpectedError(updatedAccount.error.message));
