@@ -8,7 +8,7 @@ export type Actor = Account & {
   permissions: Array<Permission>;
 };
 export type Action = "create" | "read" | "update" | "delete" | "readAll";
-export type Resource = "Account" | "Organization";
+export type Resource = "Account" | "Organization" | "Todo";
 
 export interface PermissionService {
   getPermission(role: Role): Promise<Result<Array<Permission>, AppError>>;
