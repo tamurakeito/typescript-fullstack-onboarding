@@ -1,5 +1,5 @@
 import type { AccountRepository } from "@/domain/account/account-repository.js";
-import { Account, type Role } from "@/domain/account/account.js";
+import { Account } from "@/domain/account/account.js";
 import { UnExistAccountError, UnexpectedError } from "@/errors/errors.js";
 import type { AppError } from "@/errors/errors.js";
 import { PrismaClient } from "@/generated/prisma/index.js";
@@ -28,7 +28,7 @@ export class AccountRepositoryImpl implements AccountRepository {
         result.name,
         result.password,
         result.organizationId ?? undefined,
-        result.Role.name as Role
+        result.Role.name
       );
 
       if (data.isErr()) {
@@ -60,7 +60,7 @@ export class AccountRepositoryImpl implements AccountRepository {
         result.name,
         result.password,
         result.organizationId ?? undefined,
-        result.Role.name as Role
+        result.Role.name
       );
 
       if (data.isErr()) {
@@ -111,7 +111,7 @@ export class AccountRepositoryImpl implements AccountRepository {
         result.name,
         result.password,
         result.organizationId ?? undefined,
-        result.Role.name as Role
+        result.Role.name
       );
       if (data.isErr()) {
         return err(new UnexpectedError());

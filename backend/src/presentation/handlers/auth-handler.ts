@@ -37,8 +37,11 @@ export class AuthHandler {
     }
 
     const token = await this.jwtService.generate({
-      account: user.value,
-      permissions: permission.value,
+      accountWithPermissions: {
+        ...user.value,
+        permissions: permission.value,
+        update: user.value.update,
+      },
     });
 
     const response = {

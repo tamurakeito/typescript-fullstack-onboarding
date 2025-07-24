@@ -1,7 +1,11 @@
-import { Account } from "@/domain/account/account.js";
-import type { Permission } from "@/infrastructure/authorization/permission-service.js";
+import type { Account } from "@/domain/account/account.js";
+import type { AccountWithPermissions } from "@/infrastructure/authorization/permission-service.js";
 import { sign, verify } from "hono/jwt";
 import { type Result, err, ok } from "neverthrow";
+
+export type JwtPayload = {
+  accountWithPermissions: AccountWithPermissions;
+};
 
 const isAccount = (obj: any): obj is Account => {
   return (
@@ -15,43 +19,25 @@ const isAccount = (obj: any): obj is Account => {
 };
 
 export interface JwtService {
-  generate(payload: { account: Account; permissions: Array<Permission> }): Promise<string>;
-  verify(
-    token: string
-  ): Promise<Result<{ account: Account; permissions: Array<Permission> }, Error>>;
+  generate(payload: JwtPayload): Promise<string>;
+  verify(token: string): Promise<Result<AccountWithPermissions, Error>>;
 }
 
 export class JwtServiceImpl implements JwtService {
   constructor(private readonly secret: string) {}
 
-  async generate(payload: { account: Account; permissions: Array<Permission> }): Promise<string> {
+  async generate(payload: JwtPayload): Promise<string> {
     return await sign(payload, this.secret);
   }
 
-  async verify(
-    token: string
-  ): Promise<Result<{ account: Account; permissions: Array<Permission> }, Error>> {
+  async verify(token: string): Promise<Result<AccountWithPermissions, Error>> {
     try {
-      const decoded = await verify(token, this.secret);
-      if (!isAccount(decoded.account)) {
+      const decoded = (await verify(token, this.secret)) as JwtPayload;
+      if (!isAccount(decoded.accountWithPermissions)) {
         return err(new Error("Invalid token payload"));
       }
-      const accountData = decoded.account as Account;
-      const accountResult = Account.create(
-        accountData.id,
-        accountData.userId,
-        accountData.name,
-        accountData.hashedPassword,
-        accountData.organizationId,
-        accountData.role
-      );
-      if (accountResult.isErr()) {
-        return err(accountResult.error);
-      }
-      return ok({
-        account: accountResult.value,
-        permissions: decoded.permissions as Array<Permission>,
-      });
+
+      return ok(decoded.accountWithPermissions);
     } catch (error) {
       return err(error as Error);
     }

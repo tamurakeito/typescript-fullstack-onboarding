@@ -1,4 +1,4 @@
-import type { Account, Role } from "@/domain/account/account.js";
+import type { Account } from "@/domain/account/account.js";
 import { type AppError, ForbiddenError, UnExistUserError } from "@/errors/errors.js";
 import type { schemas } from "@/generated/client/client.gen.js";
 import { PrismaClient } from "@/generated/prisma/index.js";
@@ -51,7 +51,7 @@ export class OrganizationProfileQueryImpl implements OrganizationProfileQuery {
       id: user.id,
       userId: user.userId,
       name: user.name,
-      role: user.Role.name as Role,
+      role: user.Role.name,
     }));
 
     const organizationProfile = {

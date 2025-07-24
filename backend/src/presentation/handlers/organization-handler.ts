@@ -1,3 +1,5 @@
+import { Account } from "@/domain/account/account.js";
+import { UnexpectedError } from "@/errors/errors.js";
 import { schemas } from "@/generated/client/client.gen.js";
 import type { OrganizationCreateCommand } from "@/usecase/organization/command/create.js";
 import type { OrganizationDeleteCommand } from "@/usecase/organization/command/delete.js";
@@ -39,7 +41,20 @@ export class OrganizationHandler {
 
   async getOrganizationProfile(c: Context) {
     const id = c.req.param("id");
-    const result = await this.organizationProfileQuery.execute(id, c.get("actor"));
+    const accountWithPermissions = c.get("accountWithPermissions");
+    const account = Account.create(
+      accountWithPermissions.id,
+      accountWithPermissions.userId,
+      accountWithPermissions.name,
+      accountWithPermissions.hashedPassword,
+      accountWithPermissions.organizationId,
+      accountWithPermissions.role
+    );
+    if (account.isErr()) {
+      const error = new UnexpectedError(account.error.message);
+      return c.json({ message: error.message }, error.statusCode);
+    }
+    const result = await this.organizationProfileQuery.execute(id, account.value);
 
     if (result.isErr()) {
       c.get("logger").error("OrganizationProfileQuery failed", {

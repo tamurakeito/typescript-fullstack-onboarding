@@ -1,4 +1,5 @@
-import type { Account } from "@/domain/account/account.js";
+import { Account } from "@/domain/account/account.js";
+import { UnexpectedError } from "@/errors/errors.js";
 import { schemas } from "@/generated/client/client.gen.js";
 import type { UserCreateCommand } from "@/usecase/user/command/create.js";
 import type { UserDeleteCommand } from "@/usecase/user/command/delete.js";
@@ -16,6 +17,19 @@ export class UserHandler {
 
   async createUser(c: Context) {
     const body = await c.req.json();
+    const accountWithPermissions = c.get("accountWithPermissions");
+    const account = Account.create(
+      accountWithPermissions.id,
+      accountWithPermissions.userId,
+      accountWithPermissions.name,
+      accountWithPermissions.hashedPassword,
+      accountWithPermissions.organizationId,
+      accountWithPermissions.role
+    );
+    if (account.isErr()) {
+      const error = new UnexpectedError(account.error.message);
+      return c.json({ message: error.message }, error.statusCode);
+    }
 
     const result = await this.userCreateCommand.execute(
       body.userId,
@@ -23,7 +37,7 @@ export class UserHandler {
       body.password,
       body.organizationId,
       body.role,
-      c.get("actor")
+      account.value
     );
 
     if (result.isErr()) {
@@ -46,13 +60,26 @@ export class UserHandler {
   async updateUser(c: Context) {
     const id = c.req.param("id");
     const body = await c.req.json();
+    const accountWithPermissions = c.get("accountWithPermissions");
+    const account = Account.create(
+      accountWithPermissions.id,
+      accountWithPermissions.userId,
+      accountWithPermissions.name,
+      accountWithPermissions.hashedPassword,
+      accountWithPermissions.organizationId,
+      accountWithPermissions.role
+    );
+    if (account.isErr()) {
+      const error = new UnexpectedError(account.error.message);
+      return c.json({ message: error.message }, error.statusCode);
+    }
 
     const result = await this.userUpdateCommand.execute(
       id,
       body.userId || undefined,
       body.name || undefined,
       body.password || undefined,
-      c.get("actor")
+      account.value
     );
 
     if (result.isErr()) {
@@ -75,9 +102,21 @@ export class UserHandler {
   async updateUserRole(c: Context) {
     const id = c.req.param("id");
     const body = await c.req.json();
+    const accountWithPermissions = c.get("accountWithPermissions");
+    const account = Account.create(
+      accountWithPermissions.id,
+      accountWithPermissions.userId,
+      accountWithPermissions.name,
+      accountWithPermissions.hashedPassword,
+      accountWithPermissions.organizationId,
+      accountWithPermissions.role
+    );
+    if (account.isErr()) {
+      const error = new UnexpectedError(account.error.message);
+      return c.json({ message: error.message }, error.statusCode);
+    }
 
-    const result = await this.userUpdateRoleCommand.execute(id, body.role, c.get("actor"));
-
+    const result = await this.userUpdateRoleCommand.execute(id, body.role, account.value);
     if (result.isErr()) {
       c.get("logger").error("UserUpdateRoleCommand failed", {
         error: result.error.constructor.name,
@@ -96,7 +135,20 @@ export class UserHandler {
 
   async deleteUser(c: Context) {
     const id = c.req.param("id");
-    const result = await this.userDeleteCommand.execute(id, c.get("actor"));
+    const accountWithPermissions = c.get("accountWithPermissions");
+    const account = Account.create(
+      accountWithPermissions.id,
+      accountWithPermissions.userId,
+      accountWithPermissions.name,
+      accountWithPermissions.hashedPassword,
+      accountWithPermissions.organizationId,
+      accountWithPermissions.role
+    );
+    if (account.isErr()) {
+      const error = new UnexpectedError(account.error.message);
+      return c.json({ message: error.message }, error.statusCode);
+    }
+    const result = await this.userDeleteCommand.execute(id, account.value);
 
     if (result.isErr()) {
       c.get("logger").error("UserDeleteCommand failed", {

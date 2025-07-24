@@ -4,8 +4,8 @@ import { createMiddleware } from "hono/factory";
 
 export const permissionMiddleware = (action: Action, resource: Resource) => {
   return createMiddleware(async (c, next) => {
-    const permissions = c.get("permissions");
-    const hasPermission = permissions.includes(`${action}:${resource}`);
+    const accountWithPermissions = c.get("accountWithPermissions");
+    const hasPermission = accountWithPermissions.permissions.includes(`${action}:${resource}`);
 
     if (!hasPermission) {
       const error = new ForbiddenError();

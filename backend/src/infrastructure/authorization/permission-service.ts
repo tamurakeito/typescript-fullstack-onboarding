@@ -5,12 +5,14 @@ import { type Result, err, ok } from "neverthrow";
 
 export type Permission = string;
 
+export type AccountWithPermissions = Account & {
+  permissions: Array<Permission>;
+};
 export type Action = "create" | "read" | "update" | "delete" | "readAll";
 export type Resource = "Account" | "Organization";
 
 export interface PermissionService {
   getPermission(role: Role): Promise<Result<Array<Permission>, AppError>>;
-  hasPermission(actor: Account, action: Action, resource: Resource): Promise<boolean>;
 }
 
 export class PermissionServiceImpl implements PermissionService {
@@ -29,28 +31,5 @@ export class PermissionServiceImpl implements PermissionService {
       },
     });
     return ok(rolePermissions.map((rp) => rp.permission.name as Permission));
-  }
-
-  async hasPermission(actor: Account, action: Action, resource: Resource): Promise<boolean> {
-    const role = await this.prisma.role.findUnique({
-      where: { name: actor.role },
-    });
-    if (!role) return false;
-
-    const permission = await this.prisma.permission.findUnique({
-      where: { name: `${action}:${resource}` },
-    });
-    if (!permission) return false;
-
-    const rolePermission = await this.prisma.rolePermission.findUnique({
-      where: {
-        roleId_permissionId: {
-          roleId: role.id,
-          permissionId: permission.id,
-        },
-      },
-    });
-
-    return !!rolePermission;
   }
 }
