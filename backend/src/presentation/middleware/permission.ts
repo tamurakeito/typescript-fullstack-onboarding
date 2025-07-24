@@ -1,4 +1,3 @@
-import type { AccountRepository } from "@/domain/account/account-repository.js";
 import type { Account, Role } from "@/domain/account/account.js";
 import { ForbiddenError } from "@/errors/errors.js";
 import { createMiddleware } from "hono/factory";
@@ -7,9 +6,9 @@ export type Action = "create" | "read" | "update" | "delete" | "readAll";
 
 export type AccountContent = {
   id: string;
-  userId: string;
+  userId: string | undefined;
   organizationId: string | undefined;
-  role: Role;
+  role: Role | undefined;
   roleGranted: Role | undefined;
 };
 export type AccountResource = {
@@ -60,6 +59,11 @@ const permissionPolicy = (actor: Account, action: Action, resource: Resource): b
           return true;
         }
         break;
+      case "delete":
+        if (actor.role === "Manager" && actor.organizationId === resource.content?.organizationId) {
+          return true;
+        }
+        break;
     }
   }
 
@@ -88,7 +92,11 @@ export const accountPermissionMiddleware = (action: Action) => {
   return createMiddleware<{ Variables: { actor: Account; account: Account } }>(async (c, next) => {
     const actor = c.get("actor");
     const account = c.get("account");
-    const body = await c.req.json();
+
+    let body: Record<string, unknown> | undefined;
+    if (action !== "delete") {
+      body = await c.req.json();
+    }
 
     if (account) {
       const allowed = permissionPolicy(actor, action, {
@@ -98,7 +106,7 @@ export const accountPermissionMiddleware = (action: Action) => {
           userId: account.userId,
           organizationId: account.organizationId,
           role: account.role,
-          roleGranted: body.role,
+          roleGranted: (body?.role as Role) ?? undefined,
         },
       });
 
@@ -111,9 +119,9 @@ export const accountPermissionMiddleware = (action: Action) => {
         type: "Account",
         content: {
           id: "",
-          userId: body.userId,
-          organizationId: body.organizationId,
-          role: body.role,
+          userId: (body?.userId as string) ?? undefined,
+          organizationId: (body?.organizationId as string) ?? undefined,
+          role: (body?.role as Role) ?? undefined,
           roleGranted: undefined,
         },
       });

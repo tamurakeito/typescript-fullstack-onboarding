@@ -19,6 +19,7 @@ import { OrganizationUpdateCommandImpl } from "./usecase/organization/command/up
 import { OrganizationListQueryImpl } from "./usecase/organization/query/get-list.js";
 import { OrganizationProfileQueryImpl } from "./usecase/organization/query/get-profile.js";
 import { UserCreateCommandImpl } from "./usecase/user/command/create.js";
+import { UserDeleteCommandImpl } from "./usecase/user/command/delete.js";
 import { UserUpdateRoleCommandImpl } from "./usecase/user/command/update-role.js";
 import { UserUpdateCommandImpl } from "./usecase/user/command/update.js";
 
@@ -57,7 +58,13 @@ const userCreateCommand = new UserCreateCommandImpl(
 );
 const userUpdateCommand = new UserUpdateCommandImpl(accountRepository, passwordHash);
 const userUpdateRoleCommand = new UserUpdateRoleCommandImpl(accountRepository);
-const userHandler = new UserHandler(userCreateCommand, userUpdateCommand, userUpdateRoleCommand);
+const userDeleteCommand = new UserDeleteCommandImpl(accountRepository);
+const userHandler = new UserHandler(
+  userCreateCommand,
+  userUpdateCommand,
+  userUpdateRoleCommand,
+  userDeleteCommand
+);
 
 initRouting(app, authHandler, organizationHandler, userHandler, jwtService, accountRepository);
 

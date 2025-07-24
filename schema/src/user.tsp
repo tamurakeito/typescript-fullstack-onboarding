@@ -66,4 +66,16 @@ interface UserAPI {
     | BadRequestError
     | ForbiddenError
     | InternalServerError;
+
+  @delete
+  @route("/user/{id}")
+  @summary("ユーザー削除")
+  delete(@path id: string):
+    | {
+        @statusCode
+        statusCode: 204;
+      }
+    | BadRequestError
+    | ForbiddenError
+    | InternalServerError;
 }
