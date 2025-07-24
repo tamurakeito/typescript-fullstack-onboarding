@@ -1,6 +1,5 @@
 import type { Account as UserType } from "@/client";
 import {
-  organizationApiGetListOptions,
   organizationApiGetOptions,
   userApiDeleteMutation,
 } from "@/client/@tanstack/react-query.gen";
