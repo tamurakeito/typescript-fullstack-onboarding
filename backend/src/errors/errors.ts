@@ -46,6 +46,13 @@ export class DuplicateUserIdError extends AppError {
   readonly message = "Conflict";
 }
 
+/* todo */
+
+export class NoTodoItemError extends AppError {
+  readonly statusCode = 404;
+  readonly message = "Not Found";
+}
+
 /* 共通 */
 
 export class BadRequestError extends AppError {

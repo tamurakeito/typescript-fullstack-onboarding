@@ -444,6 +444,65 @@ async function main() {
     },
   });
   console.log({ superAdmin, manager, operator });
+
+  // Todo
+  const todoId01 = uuidv4();
+  const todoId02 = uuidv4();
+  const todoId03 = uuidv4();
+  const todoId04 = uuidv4();
+  const todo01 = await prisma.todo.upsert({
+    where: { id: todoId01 },
+    update: {},
+    create: {
+      id: todoId01,
+      title: "テストタスク01",
+      description: "テストタスク01の説明",
+      organizationId: organization01.id,
+      status: "NotStarted",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+  const todo02 = await prisma.todo.upsert({
+    where: { id: todoId02 },
+    update: {},
+    create: {
+      id: todoId02,
+      title: "テストタスク02",
+      description: "テストタスク02の説明",
+      organizationId: organization01.id,
+      status: "InProgress",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+  const todo03 = await prisma.todo.upsert({
+    where: { id: todoId03 },
+    update: {},
+    create: {
+      id: todoId03,
+      title: "テストタスク03",
+      description: "テストタスク03の説明",
+      organizationId: organization01.id,
+      status: "Completed",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+  const todo04 = await prisma.todo.upsert({
+    where: { id: todoId04 },
+    update: {},
+    create: {
+      id: todoId04,
+      title: "テストタスク04",
+      description: "テストタスク04の説明",
+      organizationId: organization01.id,
+      status: "NotStarted",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+  console.log({ todo01, todo02, todo03, todo04 });
 }
 main()
   .then(async () => {

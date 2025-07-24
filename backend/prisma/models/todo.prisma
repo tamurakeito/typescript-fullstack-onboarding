@@ -1,0 +1,19 @@
+enum TodoStatus {
+  NotStarted
+  InProgress
+  Completed
+}
+
+model Todo {
+  id             String     @id @default(uuid()) @db.Uuid
+  title          String     @db.VarChar(255)
+  description    String     @db.Text
+  organizationId String     @map("organization_id") @db.Uuid
+  status         TodoStatus
+  createdAt      DateTime   @default(now()) @map("created_at")
+  updatedAt      DateTime   @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@map("todos")
+}

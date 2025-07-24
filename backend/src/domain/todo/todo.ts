@@ -6,37 +6,20 @@ export class TodoItem {
   public readonly id: string;
   public readonly title: string;
   public readonly description: string;
-  public readonly organizationId: string;
   public readonly status: TodoStatus;
-  public readonly createdAt: Date;
-  public readonly updatedAt: Date;
 
-  constructor(
-    id: string,
-    title: string,
-    description: string,
-    organizationId: string,
-    status: TodoStatus,
-    createdAt: Date,
-    updatedAt: Date
-  ) {
+  constructor(id: string, title: string, description: string, status: TodoStatus) {
     this.id = id;
     this.title = title;
     this.description = description;
-    this.organizationId = organizationId;
     this.status = status;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
   }
 
   static create(
     id: string,
     title: string,
     description: string,
-    organizationId: string,
-    status: TodoStatus,
-    createdAt: Date,
-    updatedAt: Date
+    status: TodoStatus
   ): Result<TodoItem, Error> {
     if (!id) {
       return err(new Error("ID is required"));
@@ -47,15 +30,26 @@ export class TodoItem {
     if (!description) {
       return err(new Error("Description is required"));
     }
+    return ok(new TodoItem(id, title, description, status));
+  }
+}
+
+export class TodoList {
+  public readonly organizationId: string;
+  public readonly items: Array<TodoItem>;
+
+  constructor(organizationId: string, items: Array<TodoItem>) {
+    this.organizationId = organizationId;
+    this.items = items;
+  }
+
+  static create(organizationId: string, items: Array<TodoItem>): Result<TodoList, Error> {
     if (!organizationId) {
       return err(new Error("Organization ID is required"));
     }
-    if (!createdAt) {
-      return err(new Error("Created at is required"));
+    if (!items) {
+      return err(new Error("Items are required"));
     }
-    if (!updatedAt) {
-      return err(new Error("Updated at is required"));
-    }
-    return ok(new TodoItem(id, title, description, organizationId, status, createdAt, updatedAt));
+    return ok(new TodoList(organizationId, items));
   }
 }
