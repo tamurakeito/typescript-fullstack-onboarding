@@ -1,17 +1,28 @@
-import { type AppError, UnExistUserError } from "@/errors/errors.js";
+import type { Account } from "@/domain/account/account.js";
+import { type AppError, ForbiddenError, UnExistUserError } from "@/errors/errors.js";
 import type { schemas } from "@/generated/client/client.gen.js";
 import { PrismaClient } from "@/generated/prisma/index.js";
 import { type Result, err, ok } from "neverthrow";
 import type { z } from "zod";
 
 export interface UserQuery {
-  execute(id: string): Promise<Result<z.infer<typeof schemas.UserProfile>, AppError>>;
+  execute(
+    id: string,
+    actor: Account
+  ): Promise<Result<z.infer<typeof schemas.UserProfile>, AppError>>;
 }
 
 export class UserQueryImpl implements UserQuery {
   private prisma = new PrismaClient();
 
-  async execute(id: string): Promise<Result<z.infer<typeof schemas.UserProfile>, AppError>> {
+  async execute(
+    id: string,
+    actor: Account
+  ): Promise<Result<z.infer<typeof schemas.UserProfile>, AppError>> {
+    if ((actor.role === "Manager" || actor.role === "Operator") && actor.id !== id) {
+      return err(new ForbiddenError());
+    }
+
     const userData = await this.prisma.account.findUnique({
       where: { id },
       include: {
@@ -21,6 +32,7 @@ export class UserQueryImpl implements UserQuery {
             name: true,
           },
         },
+        Role: true,
       },
     });
 
@@ -32,7 +44,7 @@ export class UserQueryImpl implements UserQuery {
       id: userData.id,
       userId: userData.userId,
       name: userData.name,
-      role: userData.role,
+      role: userData.Role.name,
       organization: userData.organization?.name ?? null,
     };
 

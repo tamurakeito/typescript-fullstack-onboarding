@@ -1,6 +1,6 @@
-import { UnExistUserError } from "@/errors/errors.js";
+import { Account } from "@/domain/account/account.js";
+import { ForbiddenError, UnExistUserError } from "@/errors/errors.js";
 import { PrismaClient } from "@/generated/prisma/index.js";
-import { ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
 import { UserQueryImpl } from "./get.js";
 
@@ -29,17 +29,30 @@ describe("UserQueryImpl", () => {
     const mockRole = "Manager";
     const mockOrganization = "テスト組織";
 
+    const mockActor = Account.create(
+      mockId,
+      "user-01",
+      mockName,
+      "password",
+      "org-uuid-123",
+      "SuperAdmin"
+    )._unsafeUnwrap();
+
     mockPrismaClient.account.findUnique.mockResolvedValue({
       id: mockId,
       userId: "user-01",
       name: mockName,
-      role: mockRole,
+      roleId: "role-uuid-123",
       organization: {
         name: mockOrganization,
       },
+      Role: {
+        id: "role-uuid-123",
+        name: mockRole,
+      },
     });
 
-    const result = await userQuery.execute(mockId);
+    const result = await userQuery.execute(mockId, mockActor);
 
     expect(result.isOk()).toBe(true);
     if (result.isOk()) {
@@ -60,8 +73,32 @@ describe("UserQueryImpl", () => {
               name: true,
             },
           },
+          Role: true,
         },
       });
+    }
+  });
+
+  it("Manager以下の権限で他のユーザーを取得しようとした場合エラー", async () => {
+    const userQuery = new UserQueryImpl();
+
+    const mockId = "mock-uuid-123";
+    const otherUserId = "mock-uuid-456";
+
+    const mockActor = Account.create(
+      otherUserId,
+      "user-02",
+      "テストユーザー02",
+      "password",
+      "org-uuid-123",
+      "Manager"
+    )._unsafeUnwrap();
+
+    const result = await userQuery.execute(mockId, mockActor);
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error).toBeInstanceOf(ForbiddenError);
     }
   });
 
@@ -70,9 +107,18 @@ describe("UserQueryImpl", () => {
 
     const mockId = "mock-uuid-123";
 
+    const mockActor = Account.create(
+      mockId,
+      "user-01",
+      "テストユーザー",
+      "password",
+      "org-uuid-123",
+      "SuperAdmin"
+    )._unsafeUnwrap();
+
     mockPrismaClient.account.findUnique.mockResolvedValue(null);
 
-    const result = await userQuery.execute(mockId);
+    const result = await userQuery.execute(mockId, mockActor);
 
     expect(result.isErr()).toBe(true);
     if (result.isErr()) {
@@ -87,6 +133,7 @@ describe("UserQueryImpl", () => {
               name: true,
             },
           },
+          Role: true,
         },
       });
     }

@@ -109,8 +109,7 @@ export function initRouting(
       }
     }),
     jwtMiddleware(jwtService),
-    accountGetMiddleware(accountRepository),
-    accountPermissionMiddleware("read"),
+    permissionMiddleware("read", "Account"),
     (c) => userHandler.getUser(c)
   );
   app.post(

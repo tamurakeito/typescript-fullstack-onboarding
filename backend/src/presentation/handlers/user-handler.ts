@@ -19,7 +19,7 @@ export class UserHandler {
 
   async getUser(c: Context) {
     const id = c.req.param("id");
-    const result = await this.userQuery.execute(id);
+    const result = await this.userQuery.execute(id, c.get("actor"));
 
     if (result.isErr()) {
       c.get("logger").error("UserQuery failed", {
