@@ -5,7 +5,7 @@ import { type Result, err, ok } from "neverthrow";
 
 export type Permission = string;
 
-export type AccountWithPermissions = Account & {
+export type ActorWithPermissions = Account & {
   permissions: Array<Permission>;
 };
 export type Action = "create" | "read" | "update" | "delete" | "readAll";

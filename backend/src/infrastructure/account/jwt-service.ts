@@ -1,10 +1,10 @@
 import type { Account } from "@/domain/account/account.js";
-import type { AccountWithPermissions } from "@/infrastructure/authorization/permission-service.js";
+import type { ActorWithPermissions } from "@/infrastructure/authorization/permission-service.js";
 import { sign, verify } from "hono/jwt";
 import { type Result, err, ok } from "neverthrow";
 
 export type JwtPayload = {
-  accountWithPermissions: AccountWithPermissions;
+  actorWithPermissions: ActorWithPermissions;
 };
 
 const isAccount = (obj: any): obj is Account => {
@@ -20,7 +20,7 @@ const isAccount = (obj: any): obj is Account => {
 
 export interface JwtService {
   generate(payload: JwtPayload): Promise<string>;
-  verify(token: string): Promise<Result<AccountWithPermissions, Error>>;
+  verify(token: string): Promise<Result<ActorWithPermissions, Error>>;
 }
 
 export class JwtServiceImpl implements JwtService {
@@ -30,14 +30,14 @@ export class JwtServiceImpl implements JwtService {
     return await sign(payload, this.secret);
   }
 
-  async verify(token: string): Promise<Result<AccountWithPermissions, Error>> {
+  async verify(token: string): Promise<Result<ActorWithPermissions, Error>> {
     try {
       const decoded = (await verify(token, this.secret)) as JwtPayload;
-      if (!isAccount(decoded.accountWithPermissions)) {
+      if (!isAccount(decoded.actorWithPermissions)) {
         return err(new Error("Invalid token payload"));
       }
 
-      return ok(decoded.accountWithPermissions);
+      return ok(decoded.actorWithPermissions);
     } catch (error) {
       return err(error as Error);
     }

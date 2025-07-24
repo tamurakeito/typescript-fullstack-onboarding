@@ -17,17 +17,17 @@ export class UserHandler {
 
   async createUser(c: Context) {
     const body = await c.req.json();
-    const accountWithPermissions = c.get("accountWithPermissions");
-    const account = Account.create(
-      accountWithPermissions.id,
-      accountWithPermissions.userId,
-      accountWithPermissions.name,
-      accountWithPermissions.hashedPassword,
-      accountWithPermissions.organizationId,
-      accountWithPermissions.role
+    const actorWithPermissions = c.get("actorWithPermissions");
+    const actor = Account.create(
+      actorWithPermissions.id,
+      actorWithPermissions.userId,
+      actorWithPermissions.name,
+      actorWithPermissions.hashedPassword,
+      actorWithPermissions.organizationId,
+      actorWithPermissions.role
     );
-    if (account.isErr()) {
-      const error = new UnexpectedError(account.error.message);
+    if (actor.isErr()) {
+      const error = new UnexpectedError(actor.error.message);
       return c.json({ message: error.message }, error.statusCode);
     }
 
@@ -37,7 +37,7 @@ export class UserHandler {
       body.password,
       body.organizationId,
       body.role,
-      account.value
+      actor.value
     );
 
     if (result.isErr()) {
@@ -60,17 +60,17 @@ export class UserHandler {
   async updateUser(c: Context) {
     const id = c.req.param("id");
     const body = await c.req.json();
-    const accountWithPermissions = c.get("accountWithPermissions");
-    const account = Account.create(
-      accountWithPermissions.id,
-      accountWithPermissions.userId,
-      accountWithPermissions.name,
-      accountWithPermissions.hashedPassword,
-      accountWithPermissions.organizationId,
-      accountWithPermissions.role
+    const actorWithPermissions = c.get("actorWithPermissions");
+    const actor = Account.create(
+      actorWithPermissions.id,
+      actorWithPermissions.userId,
+      actorWithPermissions.name,
+      actorWithPermissions.hashedPassword,
+      actorWithPermissions.organizationId,
+      actorWithPermissions.role
     );
-    if (account.isErr()) {
-      const error = new UnexpectedError(account.error.message);
+    if (actor.isErr()) {
+      const error = new UnexpectedError(actor.error.message);
       return c.json({ message: error.message }, error.statusCode);
     }
 
@@ -79,7 +79,7 @@ export class UserHandler {
       body.userId || undefined,
       body.name || undefined,
       body.password || undefined,
-      account.value
+      actor.value
     );
 
     if (result.isErr()) {
@@ -102,21 +102,21 @@ export class UserHandler {
   async updateUserRole(c: Context) {
     const id = c.req.param("id");
     const body = await c.req.json();
-    const accountWithPermissions = c.get("accountWithPermissions");
-    const account = Account.create(
-      accountWithPermissions.id,
-      accountWithPermissions.userId,
-      accountWithPermissions.name,
-      accountWithPermissions.hashedPassword,
-      accountWithPermissions.organizationId,
-      accountWithPermissions.role
+    const actorWithPermissions = c.get("actorWithPermissions");
+    const actor = Account.create(
+      actorWithPermissions.id,
+      actorWithPermissions.userId,
+      actorWithPermissions.name,
+      actorWithPermissions.hashedPassword,
+      actorWithPermissions.organizationId,
+      actorWithPermissions.role
     );
-    if (account.isErr()) {
-      const error = new UnexpectedError(account.error.message);
+    if (actor.isErr()) {
+      const error = new UnexpectedError(actor.error.message);
       return c.json({ message: error.message }, error.statusCode);
     }
 
-    const result = await this.userUpdateRoleCommand.execute(id, body.role, account.value);
+    const result = await this.userUpdateRoleCommand.execute(id, body.role, actor.value);
     if (result.isErr()) {
       c.get("logger").error("UserUpdateRoleCommand failed", {
         error: result.error.constructor.name,
@@ -135,20 +135,20 @@ export class UserHandler {
 
   async deleteUser(c: Context) {
     const id = c.req.param("id");
-    const accountWithPermissions = c.get("accountWithPermissions");
-    const account = Account.create(
-      accountWithPermissions.id,
-      accountWithPermissions.userId,
-      accountWithPermissions.name,
-      accountWithPermissions.hashedPassword,
-      accountWithPermissions.organizationId,
-      accountWithPermissions.role
+    const actorWithPermissions = c.get("actorWithPermissions");
+    const actor = Account.create(
+      actorWithPermissions.id,
+      actorWithPermissions.userId,
+      actorWithPermissions.name,
+      actorWithPermissions.hashedPassword,
+      actorWithPermissions.organizationId,
+      actorWithPermissions.role
     );
-    if (account.isErr()) {
-      const error = new UnexpectedError(account.error.message);
+    if (actor.isErr()) {
+      const error = new UnexpectedError(actor.error.message);
       return c.json({ message: error.message }, error.statusCode);
     }
-    const result = await this.userDeleteCommand.execute(id, account.value);
+    const result = await this.userDeleteCommand.execute(id, actor.value);
 
     if (result.isErr()) {
       c.get("logger").error("UserDeleteCommand failed", {

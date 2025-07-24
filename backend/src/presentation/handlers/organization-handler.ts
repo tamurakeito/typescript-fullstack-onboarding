@@ -41,20 +41,20 @@ export class OrganizationHandler {
 
   async getOrganizationProfile(c: Context) {
     const id = c.req.param("id");
-    const accountWithPermissions = c.get("accountWithPermissions");
-    const account = Account.create(
-      accountWithPermissions.id,
-      accountWithPermissions.userId,
-      accountWithPermissions.name,
-      accountWithPermissions.hashedPassword,
-      accountWithPermissions.organizationId,
-      accountWithPermissions.role
+    const actorWithPermissions = c.get("actorWithPermissions");
+    const actor = Account.create(
+      actorWithPermissions.id,
+      actorWithPermissions.userId,
+      actorWithPermissions.name,
+      actorWithPermissions.hashedPassword,
+      actorWithPermissions.organizationId,
+      actorWithPermissions.role
     );
-    if (account.isErr()) {
-      const error = new UnexpectedError(account.error.message);
+    if (actor.isErr()) {
+      const error = new UnexpectedError(actor.error.message);
       return c.json({ message: error.message }, error.statusCode);
     }
-    const result = await this.organizationProfileQuery.execute(id, account.value);
+    const result = await this.organizationProfileQuery.execute(id, actor.value);
 
     if (result.isErr()) {
       c.get("logger").error("OrganizationProfileQuery failed", {
