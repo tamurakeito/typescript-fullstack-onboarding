@@ -1,6 +1,7 @@
 import type { AccountRepository } from "@/domain/account/account-repository.js";
 import { Account, type Role } from "@/domain/account/account.js";
 import type { PasswordHash } from "@/domain/account/password-hash.js";
+import type { Actor } from "@/domain/authorization/permission-service.js";
 import type { OrganizationRepository } from "@/domain/organization/organization-repository.js";
 import {
   type AppError,
@@ -19,7 +20,7 @@ export interface UserCreateCommand {
     password: string,
     organizationId: string,
     role: Role,
-    actor: Account
+    actor: Actor
   ): Promise<Result<Account, AppError>>;
 }
 
@@ -36,7 +37,7 @@ export class UserCreateCommandImpl implements UserCreateCommand {
     password: string,
     organizationId: string,
     role: Role,
-    actor: Account
+    actor: Actor
   ): Promise<Result<Account, AppError>> {
     if (actor.role === "Manager" && actor.organizationId !== organizationId) {
       return err(new ForbiddenError());

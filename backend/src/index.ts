@@ -5,7 +5,7 @@ import { requestId } from "hono/request-id";
 import { AccountRepositoryImpl } from "./infrastructure/account/account-repository-impl.js";
 import { JwtServiceImpl } from "./infrastructure/account/jwt-service.js";
 import { PasswordHashImpl } from "./infrastructure/account/password-hash-impl.js";
-import { PermissionServiceImpl } from "./infrastructure/authorization/permission-service.js";
+import { PermissionServiceImpl } from "./infrastructure/authorization/permission-service-impl.js";
 import { OrganizationRepositoryImpl } from "./infrastructure/organization/organization-repository-impl.js";
 import { AuthHandler } from "./presentation/handlers/auth-handler.js";
 import { OrganizationHandler } from "./presentation/handlers/organization-handler.js";

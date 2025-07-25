@@ -34,7 +34,7 @@ export function initRouting(
     (c) => authHandler.signIn(c)
   );
   app.get("/auth-check", jwtMiddleware(jwtService), (c) => {
-    return c.text(`Auth Check Success: role=${c.get("actorWithPermissions").role}`);
+    return c.text(`Auth Check Success: role=${c.get("actor").role}`);
   });
 
   /* Organization */

@@ -1,6 +1,7 @@
 import type { AccountRepository } from "@/domain/account/account-repository.js";
 import type { Account } from "@/domain/account/account.js";
 import type { PasswordHash } from "@/domain/account/password-hash.js";
+import type { Actor } from "@/domain/authorization/permission-service.js";
 import {
   DuplicateUserIdError,
   ForbiddenError,
@@ -17,7 +18,7 @@ export interface UserUpdateCommand {
     userId: string | undefined,
     name: string | undefined,
     password: string | undefined,
-    actor: Account
+    actor: Actor
   ): Promise<Result<Account, AppError>>;
 }
 
@@ -32,7 +33,7 @@ export class UserUpdateCommandImpl implements UserUpdateCommand {
     userId: string | undefined,
     name: string | undefined,
     password: string | undefined,
-    actor: Account
+    actor: Actor
   ): Promise<Result<Account, AppError>> {
     if ((actor.role === "Manager" || actor.role === "Operator") && actor.id !== id) {
       return err(new ForbiddenError());

@@ -1,11 +1,11 @@
+import type { Action, Resource } from "@/domain/authorization/permission-service.js";
 import { ForbiddenError } from "@/errors/errors.js";
-import type { Action, Resource } from "@/infrastructure/authorization/permission-service.js";
 import { createMiddleware } from "hono/factory";
 
 export const permissionMiddleware = (action: Action, resource: Resource) => {
   return createMiddleware(async (c, next) => {
-    const actorWithPermissions = c.get("actorWithPermissions");
-    const hasPermission = actorWithPermissions.permissions.includes(`${action}:${resource}`);
+    const actor = c.get("actor");
+    const hasPermission = actor.permissions.includes(`${action}:${resource}`);
 
     if (!hasPermission) {
       const error = new ForbiddenError();
