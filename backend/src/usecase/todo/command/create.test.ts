@@ -10,6 +10,7 @@ vi.mock("uuid", () => ({
 }));
 
 const mockTodoRepository = {
+  findById: vi.fn(),
   save: vi.fn(),
   delete: vi.fn(),
 };

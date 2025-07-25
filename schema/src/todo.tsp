@@ -27,6 +27,12 @@ model CreateTodoItemRequest {
   organizationId: string;
 }
 
+model UpdateTodoItemRequest {
+  title: string;
+  description: string;
+  status: TodoStatus;
+}
+
 @tag("Todo")
 interface Todo {
   @get
@@ -46,6 +52,22 @@ interface Todo {
     | {
         @statusCode
         statusCode: 201;
+
+        @body
+        todoItem: TodoItem;
+      }
+    | BadRequestError
+    | ForbiddenError
+    | NotFoundError
+    | InternalServerError;
+
+  @put
+  @route("/todo")
+  @summary("Todoアイテム更新")
+  update(@body body: UpdateTodoItemRequest):
+    | {
+        @statusCode
+        statusCode: 200;
 
         @body
         todoItem: TodoItem;
