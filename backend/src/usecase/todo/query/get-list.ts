@@ -30,7 +30,11 @@ export class TodoListQueryImpl implements TodoListQuery {
         id: organizationId,
       },
       include: {
-        todos: true,
+        todos: {
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
       },
     });
     if (!organizationWithTodos) {
