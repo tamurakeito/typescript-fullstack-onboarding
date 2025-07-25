@@ -1,4 +1,5 @@
 import { Account } from "@/domain/account/account.js";
+import type { Actor } from "@/domain/authorization/permission.js";
 import type { TodoItem } from "@/domain/todo/todo.js";
 import {
   ForbiddenError,
@@ -7,7 +8,6 @@ import {
   UnexpectedError,
 } from "@/errors/errors.js";
 import { PrismaClient } from "@/generated/prisma/index.js";
-import { err } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
 import { TodoListQueryImpl } from "./get-list.js";
 
@@ -43,7 +43,7 @@ describe("TodoListQueryImpl", () => {
       },
     ];
 
-    const mockActor = Account.create(
+    const mockAccount = Account.create(
       "mock-uuid-user-01",
       "user-01",
       "テストユーザー01",
@@ -51,6 +51,12 @@ describe("TodoListQueryImpl", () => {
       organizationId,
       "Manager"
     )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["read:Todo"],
+      update: mockAccount.update,
+    };
 
     mockPrismaClient.organization.findUnique.mockResolvedValue({
       id: organizationId,
@@ -62,7 +68,7 @@ describe("TodoListQueryImpl", () => {
     if (result.isOk()) {
       const todoList = result.value;
       expect(todoList.organizationId).toBe(organizationId);
-      expect(todoList.items).toEqual(mockTodos);
+      expect(todoList.list).toEqual(mockTodos);
       expect(mockFindUnique).toHaveBeenCalledWith({
         where: { id: organizationId },
         include: { todos: true },
@@ -73,7 +79,7 @@ describe("TodoListQueryImpl", () => {
   it("Manager以下のユーザーが組織に所属していない場合", async () => {
     const todoListQuery = new TodoListQueryImpl();
     const organizationId = "mock-uuid-123";
-    const mockActor = Account.create(
+    const mockAccount = Account.create(
       "mock-uuid-user-01",
       "user-01",
       "テストユーザー01",
@@ -81,6 +87,12 @@ describe("TodoListQueryImpl", () => {
       "mock-uuid-456",
       "Manager"
     )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["read:Todo"],
+      update: mockAccount.update,
+    };
 
     const result = await todoListQuery.execute(organizationId, mockActor);
     expect(result.isErr()).toBe(true);
@@ -92,7 +104,7 @@ describe("TodoListQueryImpl", () => {
   it("組織が存在しない場合", async () => {
     const todoListQuery = new TodoListQueryImpl();
     const organizationId = "mock-uuid-123";
-    const mockActor = Account.create(
+    const mockAccount = Account.create(
       "mock-uuid-user-01",
       "user-01",
       "テストユーザー01",
@@ -100,6 +112,12 @@ describe("TodoListQueryImpl", () => {
       organizationId,
       "Manager"
     )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["read:Todo"],
+      update: mockAccount.update,
+    };
 
     mockPrismaClient.organization.findUnique.mockResolvedValue(null);
 
@@ -119,7 +137,7 @@ describe("TodoListQueryImpl", () => {
     const organizationId = "mock-uuid-123";
     const mockTodos: Array<TodoItem> = [];
 
-    const mockActor = Account.create(
+    const mockAccount = Account.create(
       "mock-uuid-user-01",
       "user-01",
       "テストユーザー01",
@@ -127,6 +145,12 @@ describe("TodoListQueryImpl", () => {
       organizationId,
       "Manager"
     )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["read:Todo"],
+      update: mockAccount.update,
+    };
 
     mockPrismaClient.organization.findUnique.mockResolvedValue({
       id: organizationId,
