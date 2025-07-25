@@ -6,9 +6,8 @@ export class TodoHandler {
 
   async getTodoList(c: Context) {
     const organizationId = c.req.param("id");
-    const actor = c.get("actor");
 
-    const result = await this.todoListQuery.execute(organizationId, actor);
+    const result = await this.todoListQuery.execute(organizationId, c.get("actor"));
 
     if (result.isErr()) {
       c.get("logger").error("TodoListQuery failed", {
