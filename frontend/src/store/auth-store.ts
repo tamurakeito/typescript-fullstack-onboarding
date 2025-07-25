@@ -5,6 +5,7 @@ import { create } from "zustand";
 interface AuthState {
   account: Account | undefined;
   token: string | undefined;
+  setAccount: (account: Account, token: string) => void;
   signIn: (account: Account, token: string) => void;
   signOut: () => void;
   initialize: () => void;
@@ -13,6 +14,11 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set) => ({
   account: undefined,
   token: undefined,
+  setAccount: (account: Account, token: string) => {
+    set({ account, token });
+    localStorage.setItem("account", JSON.stringify(account));
+    localStorage.setItem("token", token);
+  },
   signIn: (account: Account, token: string) => {
     set({ account, token });
     localStorage.setItem("account", JSON.stringify(account));

@@ -100,6 +100,18 @@ export function initRouting(
   );
 
   /* User */
+  app.get(
+    "/user/:id",
+    zValidator("param", z.object({ id: z.string().uuid() }), (result, c) => {
+      if (!result.success) {
+        const error = new BadRequestError();
+        return c.json({ message: error.message }, error.statusCode);
+      }
+    }),
+    jwtMiddleware(jwtService),
+    permissionMiddleware("read", "Account"),
+    (c) => userHandler.getUser(c)
+  );
   app.post(
     "/user",
     zValidator("json", schemas.CreateUserRequest, (result, c) => {

@@ -20,8 +20,21 @@ model UpdateUserRoleRequest {
   role: Role;
 }
 
+model UserProfile extends User {
+  organization: string | null;
+}
+
 @tag("User")
 interface UserAPI {
+  @get
+  @route("/user/{id}")
+  @summary("ユーザープロファイルの取得")
+  get(@path id: string):
+    | UserProfile
+    | BadRequestError
+    | ForbiddenError
+    | InternalServerError;
+
   @post
   @route("/user")
   @summary("ユーザー作成")
