@@ -17,7 +17,6 @@ export class UserHandler {
 
   async createUser(c: Context) {
     const body = await c.req.json();
-    const actor = c.get("actor");
 
     const result = await this.userCreateCommand.execute(
       body.userId,
@@ -25,7 +24,7 @@ export class UserHandler {
       body.password,
       body.organizationId,
       body.role,
-      actor
+      c.get("actor")
     );
 
     if (result.isErr()) {
@@ -48,14 +47,13 @@ export class UserHandler {
   async updateUser(c: Context) {
     const id = c.req.param("id");
     const body = await c.req.json();
-    const actor = c.get("actor");
 
     const result = await this.userUpdateCommand.execute(
       id,
       body.userId || undefined,
       body.name || undefined,
       body.password || undefined,
-      actor
+      c.get("actor")
     );
 
     if (result.isErr()) {
@@ -78,9 +76,8 @@ export class UserHandler {
   async updateUserRole(c: Context) {
     const id = c.req.param("id");
     const body = await c.req.json();
-    const actor = c.get("actor");
 
-    const result = await this.userUpdateRoleCommand.execute(id, body.role, actor);
+    const result = await this.userUpdateRoleCommand.execute(id, body.role, c.get("actor"));
     if (result.isErr()) {
       c.get("logger").error("UserUpdateRoleCommand failed", {
         error: result.error.constructor.name,
@@ -99,9 +96,8 @@ export class UserHandler {
 
   async deleteUser(c: Context) {
     const id = c.req.param("id");
-    const actor = c.get("actor");
 
-    const result = await this.userDeleteCommand.execute(id, actor);
+    const result = await this.userDeleteCommand.execute(id, c.get("actor"));
 
     if (result.isErr()) {
       c.get("logger").error("UserDeleteCommand failed", {

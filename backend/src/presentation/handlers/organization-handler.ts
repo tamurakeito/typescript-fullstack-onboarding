@@ -41,8 +41,7 @@ export class OrganizationHandler {
 
   async getOrganizationProfile(c: Context) {
     const id = c.req.param("id");
-    const actor = c.get("actor");
-    const result = await this.organizationProfileQuery.execute(id, actor);
+    const result = await this.organizationProfileQuery.execute(id, c.get("actor"));
 
     if (result.isErr()) {
       c.get("logger").error("OrganizationProfileQuery failed", {
