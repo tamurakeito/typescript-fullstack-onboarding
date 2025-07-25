@@ -17,6 +17,7 @@ model TodoItem {
 
 model TodoList {
   organizationId: string;
+  organizationName: string;
   list: Array<TodoItem>;
 }
 

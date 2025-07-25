@@ -54,7 +54,7 @@ export class TodoListQueryImpl implements TodoListQuery {
       validItems.push(item.value);
     }
 
-    const list = TodoList.create(organizationId, validItems);
+    const list = TodoList.create(organizationId, organizationWithTodos.name, validItems);
     if (list.isErr()) {
       return err(new UnexpectedError());
     }
