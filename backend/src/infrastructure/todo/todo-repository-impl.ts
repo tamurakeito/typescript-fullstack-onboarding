@@ -9,8 +9,14 @@ export class TodoRepositoryImpl implements TodoRepository {
 
   async save(todo: TodoItem, organizationId: string): Promise<Result<TodoItem, Error>> {
     try {
-      const result = await this.prisma.todo.create({
-        data: {
+      const result = await this.prisma.todo.upsert({
+        where: { id: todo.id },
+        update: {
+          title: todo.title,
+          description: todo.description,
+          status: todo.status,
+        },
+        create: {
           id: todo.id,
           title: todo.title,
           description: todo.description,

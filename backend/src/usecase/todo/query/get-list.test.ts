@@ -1,14 +1,7 @@
 import { Account } from "@/domain/account/account.js";
 import type { Actor } from "@/domain/authorization/permission.js";
-import type { TodoItem } from "@/domain/todo/todo.js";
-import {
-  ForbiddenError,
-  NoOrganizationError,
-  NoTodoItemError,
-  UnexpectedError,
-} from "@/errors/errors.js";
-import { PrismaClient } from "@/generated/prisma/index.js";
-import { describe, expect, it, vi } from "vitest";
+import { ForbiddenError, NoOrganizationError } from "@/errors/errors.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { TodoListQueryImpl } from "./get-list.js";
 
 const mockPrismaClient = {
@@ -22,11 +15,16 @@ vi.mock("@/generated/prisma/index.js", () => ({
 }));
 
 describe("TodoListQueryImpl", () => {
-  const prisma = new PrismaClient();
-  const mockFindUnique = prisma.organization.findUnique;
+  let todoListQuery: TodoListQueryImpl;
+  let mockFindUnique: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    todoListQuery = new TodoListQueryImpl();
+    mockFindUnique = mockPrismaClient.organization.findUnique;
+    vi.clearAllMocks();
+  });
 
   it("正常にタスク一覧を取得", async () => {
-    const todoListQuery = new TodoListQueryImpl();
     const organizationId = "mock-uuid-123";
     const organizationName = "テスト組織01";
     const mockTodos = [
@@ -59,7 +57,7 @@ describe("TodoListQueryImpl", () => {
       update: mockAccount.update,
     };
 
-    mockPrismaClient.organization.findUnique.mockResolvedValue({
+    mockFindUnique.mockResolvedValue({
       id: organizationId,
       name: organizationName,
       todos: mockTodos,
@@ -74,7 +72,13 @@ describe("TodoListQueryImpl", () => {
       expect(todoList.list).toEqual(mockTodos);
       expect(mockFindUnique).toHaveBeenCalledWith({
         where: { id: organizationId },
-        include: { todos: true },
+        include: {
+          todos: {
+            orderBy: {
+              createdAt: "desc",
+            },
+          },
+        },
       });
     }
   });
@@ -105,7 +109,6 @@ describe("TodoListQueryImpl", () => {
   });
 
   it("組織が存在しない場合", async () => {
-    const todoListQuery = new TodoListQueryImpl();
     const organizationId = "mock-uuid-123";
     const mockAccount = Account.create(
       "mock-uuid-user-01",
@@ -122,7 +125,7 @@ describe("TodoListQueryImpl", () => {
       update: mockAccount.update,
     };
 
-    mockPrismaClient.organization.findUnique.mockResolvedValue(null);
+    mockFindUnique.mockResolvedValue(null);
 
     const result = await todoListQuery.execute(organizationId, mockActor);
     expect(result.isErr()).toBe(true);
@@ -130,7 +133,13 @@ describe("TodoListQueryImpl", () => {
       expect(result.error).toBeInstanceOf(NoOrganizationError);
       expect(mockFindUnique).toHaveBeenCalledWith({
         where: { id: organizationId },
-        include: { todos: true },
+        include: {
+          todos: {
+            orderBy: {
+              createdAt: "desc",
+            },
+          },
+        },
       });
     }
   });
