@@ -1,4 +1,4 @@
-import type { Action, Resource } from "@/domain/authorization/permission-service.js";
+import type { Action, Resource } from "@/domain/authorization/permission.js";
 import { ForbiddenError } from "@/errors/errors.js";
 import { createMiddleware } from "hono/factory";
 

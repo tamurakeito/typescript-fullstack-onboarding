@@ -1,6 +1,6 @@
 import type { AccountRepository } from "@/domain/account/account-repository.js";
 import type { Account } from "@/domain/account/account.js";
-import type { Actor } from "@/domain/authorization/permission-service.js";
+import type { Actor } from "@/domain/authorization/permission.js";
 import { type AppError, ForbiddenError } from "@/errors/errors.js";
 import { type Result, err, ok } from "neverthrow";
 

@@ -1,5 +1,5 @@
 import type { Account } from "@/domain/account/account.js";
-import type { Actor } from "@/domain/authorization/permission-service.js";
+import type { Actor } from "@/domain/authorization/permission.js";
 import { sign, verify } from "hono/jwt";
 import { type Result, err, ok } from "neverthrow";
 

@@ -1,6 +1,6 @@
 import type { Role } from "@/domain/account/account.js";
-import type { Permission } from "@/domain/authorization/permission-service.js";
-import type { PermissionService } from "@/domain/authorization/permission-service.js";
+import type { Permission } from "@/domain/authorization/permission.js";
+import type { PermissionService } from "@/domain/authorization/permission.js";
 import { type AppError, UnexpectedError } from "@/errors/errors.js";
 import { PrismaClient } from "@/generated/prisma/index.js";
 import { type Result, err, ok } from "neverthrow";

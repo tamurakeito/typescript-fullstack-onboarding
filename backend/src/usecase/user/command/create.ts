@@ -1,7 +1,7 @@
 import type { AccountRepository } from "@/domain/account/account-repository.js";
 import { Account, type Role } from "@/domain/account/account.js";
 import type { PasswordHash } from "@/domain/account/password-hash.js";
-import type { Actor } from "@/domain/authorization/permission-service.js";
+import type { Actor } from "@/domain/authorization/permission.js";
 import type { OrganizationRepository } from "@/domain/organization/organization-repository.js";
 import {
   type AppError,

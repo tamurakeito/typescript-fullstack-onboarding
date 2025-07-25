@@ -1,4 +1,4 @@
-import type { PermissionService } from "@/domain/authorization/permission-service.js";
+import type { PermissionService } from "@/domain/authorization/permission.js";
 import { schemas } from "@/generated/client/client.gen.js";
 import type { JwtService } from "@/infrastructure/account/jwt-service.js";
 import type { AuthQuery } from "@/usecase/auth/query/auth.js";

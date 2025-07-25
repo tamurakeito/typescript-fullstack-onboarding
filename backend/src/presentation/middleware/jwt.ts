@@ -1,4 +1,4 @@
-import type { Actor } from "@/domain/authorization/permission-service.js";
+import type { Actor } from "@/domain/authorization/permission.js";
 import type { JwtService } from "@/infrastructure/account/jwt-service.js";
 import { createMiddleware } from "hono/factory";
 
