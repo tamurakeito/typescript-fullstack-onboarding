@@ -48,7 +48,7 @@ export class DuplicateUserIdError extends AppError {
 
 /* todo */
 
-export class NoTodoItemError extends AppError {
+export class UnExistTodoError extends AppError {
   readonly statusCode = 404;
   readonly message = "Not Found";
 }
