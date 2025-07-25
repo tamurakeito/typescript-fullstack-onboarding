@@ -1,4 +1,4 @@
-import type { Account } from "@/domain/account/account.js";
+import type { Actor } from "@/domain/authorization/permission.js";
 import { TodoItem, TodoList } from "@/domain/todo/todo.js";
 import {
   type AppError,
@@ -11,13 +11,13 @@ import { PrismaClient } from "@/generated/prisma/index.js";
 import { type Result, err, ok } from "neverthrow";
 
 export interface TodoListQuery {
-  execute(organizationId: string, actor: Account): Promise<Result<TodoList, AppError>>;
+  execute(organizationId: string, actor: Actor): Promise<Result<TodoList, AppError>>;
 }
 
 export class TodoListQueryImpl implements TodoListQuery {
   private prisma = new PrismaClient();
 
-  async execute(organizationId: string, actor: Account): Promise<Result<TodoList, AppError>> {
+  async execute(organizationId: string, actor: Actor): Promise<Result<TodoList, AppError>> {
     if (
       (actor.role === "Manager" || actor.role === "Operator") &&
       actor.organizationId !== organizationId
