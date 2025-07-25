@@ -36,20 +36,20 @@ export class TodoItem {
 
 export class TodoList {
   public readonly organizationId: string;
-  public readonly items: Array<TodoItem>;
+  public readonly list: Array<TodoItem>;
 
-  constructor(organizationId: string, items: Array<TodoItem>) {
+  constructor(organizationId: string, list: Array<TodoItem>) {
     this.organizationId = organizationId;
-    this.items = items;
+    this.list = list;
   }
 
-  static create(organizationId: string, items: Array<TodoItem>): Result<TodoList, Error> {
+  static create(organizationId: string, list: Array<TodoItem>): Result<TodoList, Error> {
     if (!organizationId) {
       return err(new Error("Organization ID is required"));
     }
-    if (!items) {
+    if (!list) {
       return err(new Error("Items are required"));
     }
-    return ok(new TodoList(organizationId, items));
+    return ok(new TodoList(organizationId, list));
   }
 }

@@ -501,6 +501,7 @@ async function main() {
   console.log({ superAdmin, manager, operator });
 
   // Todo
+  await prisma.todo.deleteMany({});
   const todoId01 = uuidv4();
   const todoId02 = uuidv4();
   const todoId03 = uuidv4();
