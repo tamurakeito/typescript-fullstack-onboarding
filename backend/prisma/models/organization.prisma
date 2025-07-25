@@ -5,6 +5,7 @@ model Organization {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   accounts Account[]
+  todos    Todo[]
 
   @@map("organizations")
 }
