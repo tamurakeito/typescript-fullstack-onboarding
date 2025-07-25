@@ -1,4 +1,5 @@
 import { Account } from "@/domain/account/account.js";
+import type { Actor } from "@/domain/authorization/permission.js";
 import { ForbiddenError, UnexpectedError } from "@/errors/errors.js";
 import { err, ok } from "neverthrow";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -23,7 +24,7 @@ describe("UserDeleteCommandImpl", () => {
   it("正常にユーザーを削除", async () => {
     const userDeleteCommand = new UserDeleteCommandImpl(mockAccountRepository);
 
-    const mockActor = Account.create(
+    const mockAccount = Account.create(
       "mock-uuid-user-01",
       "user-01",
       "テストユーザー01",
@@ -31,6 +32,12 @@ describe("UserDeleteCommandImpl", () => {
       "mock-uuid-123",
       "Manager"
     )._unsafeUnwrap();
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["delete:User"],
+      update: mockAccount.update,
+    };
+
     const mockId = "mock-uuid-user-02";
 
     mockAccountRepository.findById.mockResolvedValue(
@@ -59,7 +66,7 @@ describe("UserDeleteCommandImpl", () => {
   it("ロールがManager以下で自分の組織ではない場合", async () => {
     const userDeleteCommand = new UserDeleteCommandImpl(mockAccountRepository);
 
-    const mockActor = Account.create(
+    const mockAccount = Account.create(
       "mock-uuid-user-01",
       "user-01",
       "テストユーザー01",
@@ -67,6 +74,13 @@ describe("UserDeleteCommandImpl", () => {
       "mock-uuid-123",
       "Manager"
     )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["delete:User"],
+      update: mockAccount.update,
+    };
+
     const mockId = "mock-uuid-user-02";
 
     mockAccountRepository.findById.mockResolvedValue(
@@ -95,7 +109,7 @@ describe("UserDeleteCommandImpl", () => {
   it("データベースエラー", async () => {
     const userDeleteCommand = new UserDeleteCommandImpl(mockAccountRepository);
 
-    const mockActor = Account.create(
+    const mockAccount = Account.create(
       "mock-uuid-user-01",
       "user-01",
       "テストユーザー01",
@@ -103,6 +117,13 @@ describe("UserDeleteCommandImpl", () => {
       "mock-uuid-123",
       "Manager"
     )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["delete:User"],
+      update: mockAccount.update,
+    };
+
     const mockId = "mock-uuid-user-02";
 
     mockAccountRepository.findById.mockResolvedValue(

@@ -1,7 +1,8 @@
 import { Account } from "@/domain/account/account.js";
+import type { Actor } from "@/domain/authorization/permission.js";
 import { ForbiddenError, UnExistUserError } from "@/errors/errors.js";
 import { PrismaClient } from "@/generated/prisma/index.js";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { OrganizationProfileQueryImpl } from "./get-profile.js";
 
 const mockPrismaClient = {
@@ -45,7 +46,7 @@ describe("OrganizationProfileQueryImpl", () => {
       },
     ];
 
-    const mockActor = Account.create(
+    const mockAccount = Account.create(
       "mock-uuid-user-01",
       "user-01",
       "テストユーザー01",
@@ -53,6 +54,12 @@ describe("OrganizationProfileQueryImpl", () => {
       mockId,
       "Manager"
     )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["read:Organization"],
+      update: mockAccount.update,
+    };
 
     mockPrismaClient.organization.findUnique.mockResolvedValue({
       id: mockId,
@@ -126,7 +133,7 @@ describe("OrganizationProfileQueryImpl", () => {
       },
     ];
 
-    const mockActor = Account.create(
+    const mockAccount = Account.create(
       "mock-uuid-user-01",
       "user-01",
       "テストユーザー01",
@@ -134,6 +141,12 @@ describe("OrganizationProfileQueryImpl", () => {
       "mock-uuid-456",
       "Manager"
     )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["read:Organization"],
+      update: mockAccount.update,
+    };
 
     mockPrismaClient.organization.findUnique.mockResolvedValue({
       id: mockId,
@@ -153,7 +166,7 @@ describe("OrganizationProfileQueryImpl", () => {
 
     const mockId = "un-exist-uuid";
 
-    const mockActor = Account.create(
+    const mockAccount = Account.create(
       "mock-uuid-user-01",
       "user-01",
       "テストユーザー01",
@@ -161,6 +174,12 @@ describe("OrganizationProfileQueryImpl", () => {
       mockId,
       "Manager"
     )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["read:Organization"],
+      update: mockAccount.update,
+    };
 
     mockPrismaClient.organization.findUnique.mockResolvedValue(null);
 

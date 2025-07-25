@@ -1,4 +1,5 @@
 import { Account } from "@/domain/account/account.js";
+import type { Actor } from "@/domain/authorization/permission.js";
 import {
   DuplicateUserIdError,
   ForbiddenError,
@@ -60,6 +61,12 @@ describe("UserUpdateCommandImpl", () => {
       mockRole
     )._unsafeUnwrap();
 
+    const mockActor: Actor = {
+      ...mockData,
+      permissions: ["update:User"],
+      update: mockData.update,
+    };
+
     mockAccountRepository.findById.mockResolvedValue(ok(mockData));
     mockAccountRepository.findByUserId.mockResolvedValue(err(new UnExistAccountError()));
     mockPasswordHash.hash.mockResolvedValue(mockHashedPassword);
@@ -70,7 +77,7 @@ describe("UserUpdateCommandImpl", () => {
       mockUserId,
       mockName,
       mockPassword,
-      mockData
+      mockActor
     );
 
     expect(result.isOk()).toBe(true);
@@ -85,7 +92,7 @@ describe("UserUpdateCommandImpl", () => {
   it("ロールがManager以下で操作対象が自分ではない場合", async () => {
     const userUpdateCommand = new UserUpdateCommandImpl(mockAccountRepository, mockPasswordHash);
 
-    const mockActor = Account.create(
+    const mockAccount = Account.create(
       "mock-uuid-user-01",
       "mock-user-id",
       "テストユーザー",
@@ -93,6 +100,12 @@ describe("UserUpdateCommandImpl", () => {
       "mock-organization-id",
       "Manager"
     )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["update:User"],
+      update: mockAccount.update,
+    };
 
     const result = await userUpdateCommand.execute(
       "mock-uuid-user-02",
@@ -123,6 +136,12 @@ describe("UserUpdateCommandImpl", () => {
       "Operator"
     )._unsafeUnwrap();
 
+    const mockActor: Actor = {
+      ...mockData,
+      permissions: ["update:User"],
+      update: mockData.update,
+    };
+
     mockAccountRepository.findById.mockResolvedValue(ok(mockData));
     mockAccountRepository.findByUserId.mockResolvedValue(
       ok(
@@ -142,7 +161,7 @@ describe("UserUpdateCommandImpl", () => {
       mockUserId,
       "new-mock-name",
       "new-password",
-      mockData
+      mockActor
     );
 
     expect(result.isErr()).toBe(true);
@@ -182,6 +201,12 @@ describe("UserUpdateCommandImpl", () => {
       mockRole
     )._unsafeUnwrap();
 
+    const mockActor: Actor = {
+      ...mockData,
+      permissions: ["update:User"],
+      update: mockData.update,
+    };
+
     mockAccountRepository.findById.mockResolvedValue(ok(mockData));
     mockAccountRepository.findByUserId.mockResolvedValue(err(new UnExistAccountError()));
     mockPasswordHash.hash.mockResolvedValue(mockHashedPassword);
@@ -192,7 +217,7 @@ describe("UserUpdateCommandImpl", () => {
       mockUserId,
       mockName,
       mockPassword,
-      mockData
+      mockActor
     );
 
     expect(result.isErr()).toBe(true);

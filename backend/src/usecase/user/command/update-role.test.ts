@@ -1,4 +1,5 @@
 import { Account } from "@/domain/account/account.js";
+import type { Actor } from "@/domain/authorization/permission.js";
 import { ForbiddenError, UnExistUserError, UnexpectedError } from "@/errors/errors.js";
 import { err, ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
@@ -43,7 +44,7 @@ describe("UserUpdateRoleCommandImpl", () => {
       mockRole
     )._unsafeUnwrap();
 
-    const mockActor = Account.create(
+    const mockAccount = Account.create(
       "mock-uuid-user-01",
       "user-01",
       "テストユーザー01",
@@ -51,6 +52,12 @@ describe("UserUpdateRoleCommandImpl", () => {
       "mock-uuid-123",
       "Manager"
     )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["update:User"],
+      update: mockAccount.update,
+    };
 
     mockAccountRepository.findById.mockResolvedValue(ok(mockData));
     mockAccountRepository.save.mockResolvedValue(ok(mockNewData));
@@ -83,7 +90,7 @@ describe("UserUpdateRoleCommandImpl", () => {
       "Operator"
     )._unsafeUnwrap();
 
-    const mockActor = Account.create(
+    const mockAccount = Account.create(
       "mock-uuid-user-01",
       "user-01",
       "テストユーザー01",
@@ -91,6 +98,12 @@ describe("UserUpdateRoleCommandImpl", () => {
       "mock-uuid-456",
       "Manager"
     )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["update:User"],
+      update: mockAccount.update,
+    };
 
     mockAccountRepository.findById.mockResolvedValue(ok(mockData));
 
@@ -120,7 +133,7 @@ describe("UserUpdateRoleCommandImpl", () => {
       "SuperAdmin"
     )._unsafeUnwrap();
 
-    const mockActor = Account.create(
+    const mockAccount = Account.create(
       "mock-uuid-user-01",
       "user-01",
       "テストユーザー01",
@@ -128,6 +141,12 @@ describe("UserUpdateRoleCommandImpl", () => {
       mockOrganizationId,
       "Manager"
     )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["update:User"],
+      update: mockAccount.update,
+    };
 
     mockAccountRepository.findById.mockResolvedValue(ok(mockData));
 
@@ -157,7 +176,7 @@ describe("UserUpdateRoleCommandImpl", () => {
       "Manager"
     )._unsafeUnwrap();
 
-    const mockActor = Account.create(
+    const mockAccount = Account.create(
       "mock-uuid-user-01",
       "user-01",
       "テストユーザー01",
@@ -165,6 +184,12 @@ describe("UserUpdateRoleCommandImpl", () => {
       mockOrganizationId,
       "Manager"
     )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["update:User"],
+      update: mockAccount.update,
+    };
 
     mockAccountRepository.findById.mockResolvedValue(ok(mockData));
 
@@ -190,7 +215,7 @@ describe("UserUpdateRoleCommandImpl", () => {
       mockRole
     )._unsafeUnwrap();
 
-    const mockActor = Account.create(
+    const mockAccount = Account.create(
       "mock-uuid-user-01",
       "user-01",
       "テストユーザー01",
@@ -198,6 +223,12 @@ describe("UserUpdateRoleCommandImpl", () => {
       "mock-uuid-123",
       "Manager"
     )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["update:User"],
+      update: mockAccount.update,
+    };
 
     mockAccountRepository.findById.mockResolvedValue(ok(mockData));
     mockAccountRepository.save.mockResolvedValue(err(new UnexpectedError()));

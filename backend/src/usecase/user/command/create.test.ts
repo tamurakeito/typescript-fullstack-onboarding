@@ -1,9 +1,9 @@
 import { Account } from "@/domain/account/account.js";
+import type { Actor } from "@/domain/authorization/permission.js";
 import {
   DuplicateUserIdError,
   UnExistAccountError,
   UnExistOrganizationError,
-  UnExistUserError,
   UnexpectedError,
 } from "@/errors/errors.js";
 import { err, ok } from "neverthrow";
@@ -67,7 +67,7 @@ describe("UserCreateCommandImpl", () => {
     mockPasswordHash.hash.mockResolvedValue(mockHashedPassword);
     mockAccountRepository.save.mockResolvedValue(ok(mockData));
 
-    const mockActor = Account.create(
+    const mockAccount = Account.create(
       "actor-id",
       "actor-user-id",
       "Actor",
@@ -75,6 +75,12 @@ describe("UserCreateCommandImpl", () => {
       mockOrganizationId,
       "SuperAdmin"
     )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["create:User"],
+      update: mockAccount.update,
+    };
 
     const result = await userCreateCommand.execute(
       mockUserId,
@@ -104,7 +110,7 @@ describe("UserCreateCommandImpl", () => {
 
     mockAccountRepository.findByUserId.mockResolvedValue(ok({ id: "existing-user" }));
 
-    const mockActor = Account.create(
+    const mockAccount = Account.create(
       "actor-id",
       "actor-user-id",
       "Actor",
@@ -112,6 +118,12 @@ describe("UserCreateCommandImpl", () => {
       "mock-uuid-123",
       "SuperAdmin"
     )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["create:User"],
+      update: mockAccount.update,
+    };
 
     const result = await userCreateCommand.execute(
       "mock-user-id",
@@ -140,7 +152,7 @@ describe("UserCreateCommandImpl", () => {
     mockOrganizationRepository.findById.mockResolvedValue(err(new UnExistOrganizationError()));
     mockAccountRepository.findByUserId.mockResolvedValue(err(new UnExistAccountError()));
 
-    const mockActor = Account.create(
+    const mockAccount = Account.create(
       "actor-id",
       "actor-user-id",
       "Actor",
@@ -148,6 +160,12 @@ describe("UserCreateCommandImpl", () => {
       "mock-uuid-123",
       "SuperAdmin"
     )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["create:User"],
+      update: mockAccount.update,
+    };
 
     const result = await userCreateCommand.execute(
       "mock-user-id",
@@ -184,7 +202,7 @@ describe("UserCreateCommandImpl", () => {
     mockPasswordHash.hash.mockResolvedValue("hashed-password");
     mockAccountRepository.save.mockResolvedValue(err(new UnexpectedError("データベースエラー")));
 
-    const mockActor = Account.create(
+    const mockAccount = Account.create(
       "actor-id",
       "actor-user-id",
       "Actor",
@@ -192,6 +210,12 @@ describe("UserCreateCommandImpl", () => {
       mockOrganizationId,
       "SuperAdmin"
     )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["create:User"],
+      update: mockAccount.update,
+    };
 
     const result = await userCreateCommand.execute(
       mockUserId,
