@@ -32,7 +32,7 @@ export const Route = createFileRoute("/_protected")({
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
-                  <NavigationMenuLink href="/">HOME</NavigationMenuLink>
+                  <NavigationMenuLink href="/todo">Todoリスト</NavigationMenuLink>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
                   <NavigationMenuLink href="/organization">
