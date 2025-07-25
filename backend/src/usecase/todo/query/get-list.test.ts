@@ -134,40 +134,4 @@ describe("TodoListQueryImpl", () => {
       });
     }
   });
-
-  it("Todoアイテムが存在しない場合", async () => {
-    const todoListQuery = new TodoListQueryImpl();
-    const organizationId = "mock-uuid-123";
-    const mockTodos: Array<TodoItem> = [];
-
-    const mockAccount = Account.create(
-      "mock-uuid-user-01",
-      "user-01",
-      "テストユーザー01",
-      "password",
-      organizationId,
-      "Manager"
-    )._unsafeUnwrap();
-
-    const mockActor: Actor = {
-      ...mockAccount,
-      permissions: ["read:Todo"],
-      update: mockAccount.update,
-    };
-
-    mockPrismaClient.organization.findUnique.mockResolvedValue({
-      id: organizationId,
-      todos: mockTodos,
-    });
-
-    const result = await todoListQuery.execute(organizationId, mockActor);
-    expect(result.isErr()).toBe(true);
-    if (result.isErr()) {
-      expect(result.error).toBeInstanceOf(NoTodoItemError);
-      expect(mockFindUnique).toHaveBeenCalledWith({
-        where: { id: organizationId },
-        include: { todos: true },
-      });
-    }
-  });
 });

@@ -39,9 +39,6 @@ export class TodoListQueryImpl implements TodoListQuery {
 
     const datas = organizationWithTodos.todos;
 
-    if (datas.length === 0) {
-      return err(new NoTodoItemError());
-    }
     const items = datas.map((data) =>
       TodoItem.create(data.id, data.title, data.description, data.status)
     );
