@@ -1,4 +1,5 @@
 import { Account } from "@/domain/account/account.js";
+import type { Actor } from "@/domain/authorization/permission.js";
 import { ForbiddenError, UnExistUserError } from "@/errors/errors.js";
 import { PrismaClient } from "@/generated/prisma/index.js";
 import { describe, expect, it, vi } from "vitest";
@@ -29,7 +30,7 @@ describe("UserQueryImpl", () => {
     const mockRole = "Manager";
     const mockOrganization = "テスト組織";
 
-    const mockActor = Account.create(
+    const mockAccount = Account.create(
       mockId,
       "user-01",
       mockName,
@@ -37,6 +38,12 @@ describe("UserQueryImpl", () => {
       "org-uuid-123",
       "SuperAdmin"
     )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["read:User"],
+      update: mockAccount.update,
+    };
 
     mockPrismaClient.account.findUnique.mockResolvedValue({
       id: mockId,
@@ -85,7 +92,7 @@ describe("UserQueryImpl", () => {
     const mockId = "mock-uuid-123";
     const otherUserId = "mock-uuid-456";
 
-    const mockActor = Account.create(
+    const mockAccount = Account.create(
       otherUserId,
       "user-02",
       "テストユーザー02",
@@ -93,6 +100,12 @@ describe("UserQueryImpl", () => {
       "org-uuid-123",
       "Manager"
     )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["read:User"],
+      update: mockAccount.update,
+    };
 
     const result = await userQuery.execute(mockId, mockActor);
 
@@ -107,7 +120,7 @@ describe("UserQueryImpl", () => {
 
     const mockId = "mock-uuid-123";
 
-    const mockActor = Account.create(
+    const mockAccount = Account.create(
       mockId,
       "user-01",
       "テストユーザー",
@@ -115,6 +128,12 @@ describe("UserQueryImpl", () => {
       "org-uuid-123",
       "SuperAdmin"
     )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["read:User"],
+      update: mockAccount.update,
+    };
 
     mockPrismaClient.account.findUnique.mockResolvedValue(null);
 

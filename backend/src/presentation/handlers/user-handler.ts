@@ -1,5 +1,3 @@
-import { Account } from "@/domain/account/account.js";
-import { UnexpectedError } from "@/errors/errors.js";
 import { schemas } from "@/generated/client/client.gen.js";
 import type { UserCreateCommand } from "@/usecase/user/command/create.js";
 import type { UserDeleteCommand } from "@/usecase/user/command/delete.js";

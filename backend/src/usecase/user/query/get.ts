@@ -1,4 +1,4 @@
-import type { Account } from "@/domain/account/account.js";
+import type { Actor } from "@/domain/authorization/permission.js";
 import { type AppError, ForbiddenError, UnExistUserError } from "@/errors/errors.js";
 import type { schemas } from "@/generated/client/client.gen.js";
 import { PrismaClient } from "@/generated/prisma/index.js";
@@ -6,10 +6,7 @@ import { type Result, err, ok } from "neverthrow";
 import type { z } from "zod";
 
 export interface UserQuery {
-  execute(
-    id: string,
-    actor: Account
-  ): Promise<Result<z.infer<typeof schemas.UserProfile>, AppError>>;
+  execute(id: string, actor: Actor): Promise<Result<z.infer<typeof schemas.UserProfile>, AppError>>;
 }
 
 export class UserQueryImpl implements UserQuery {
@@ -17,7 +14,7 @@ export class UserQueryImpl implements UserQuery {
 
   async execute(
     id: string,
-    actor: Account
+    actor: Actor
   ): Promise<Result<z.infer<typeof schemas.UserProfile>, AppError>> {
     if ((actor.role === "Manager" || actor.role === "Operator") && actor.id !== id) {
       return err(new ForbiddenError());
