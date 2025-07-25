@@ -1,8 +1,9 @@
+import { Account } from "@/domain/account/account.js";
+import type { Actor } from "@/domain/authorization/permission.js";
 import {
   DuplicateUserIdError,
   UnExistAccountError,
   UnExistOrganizationError,
-  UnExistUserError,
   UnexpectedError,
 } from "@/errors/errors.js";
 import { err, ok } from "neverthrow";
@@ -10,6 +11,7 @@ import { describe, expect, it, vi } from "vitest";
 import { UserCreateCommandImpl } from "./create.js";
 
 const mockAccountRepository = {
+  findById: vi.fn(),
   findByUserId: vi.fn(),
   save: vi.fn(),
   delete: vi.fn(),
@@ -55,7 +57,7 @@ describe("UserCreateCommandImpl", () => {
       id: "mock-uuid-123",
       userId: mockUserId,
       name: mockName,
-      password: mockHashedPassword,
+      hashedPassword: mockHashedPassword,
       organizationId: mockOrganizationId,
       role: mockRole,
     };
@@ -65,12 +67,28 @@ describe("UserCreateCommandImpl", () => {
     mockPasswordHash.hash.mockResolvedValue(mockHashedPassword);
     mockAccountRepository.save.mockResolvedValue(ok(mockData));
 
+    const mockAccount = Account.create(
+      "actor-id",
+      "actor-user-id",
+      "Actor",
+      "actor-hashed-password",
+      mockOrganizationId,
+      "SuperAdmin"
+    )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["create:User"],
+      update: mockAccount.update,
+    };
+
     const result = await userCreateCommand.execute(
       mockUserId,
       mockName,
       "password",
       mockOrganizationId,
-      mockRole
+      mockRole,
+      mockActor
     );
     expect(result.isOk()).toBe(true);
     if (result.isOk()) {
@@ -92,12 +110,28 @@ describe("UserCreateCommandImpl", () => {
 
     mockAccountRepository.findByUserId.mockResolvedValue(ok({ id: "existing-user" }));
 
+    const mockAccount = Account.create(
+      "actor-id",
+      "actor-user-id",
+      "Actor",
+      "actor-hashed-password",
+      "mock-uuid-123",
+      "SuperAdmin"
+    )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["create:User"],
+      update: mockAccount.update,
+    };
+
     const result = await userCreateCommand.execute(
       "mock-user-id",
       "テストユーザー",
       "password",
       "mock-uuid-123",
-      "Manager"
+      "Manager",
+      mockActor
     );
 
     expect(result.isErr()).toBe(true);
@@ -118,12 +152,28 @@ describe("UserCreateCommandImpl", () => {
     mockOrganizationRepository.findById.mockResolvedValue(err(new UnExistOrganizationError()));
     mockAccountRepository.findByUserId.mockResolvedValue(err(new UnExistAccountError()));
 
+    const mockAccount = Account.create(
+      "actor-id",
+      "actor-user-id",
+      "Actor",
+      "actor-hashed-password",
+      "mock-uuid-123",
+      "SuperAdmin"
+    )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["create:User"],
+      update: mockAccount.update,
+    };
+
     const result = await userCreateCommand.execute(
       "mock-user-id",
       "テストユーザー",
       "password",
       "mock-uuid-123",
-      "Manager"
+      "Manager",
+      mockActor
     );
 
     expect(result.isErr()).toBe(true);
@@ -152,12 +202,28 @@ describe("UserCreateCommandImpl", () => {
     mockPasswordHash.hash.mockResolvedValue("hashed-password");
     mockAccountRepository.save.mockResolvedValue(err(new UnexpectedError("データベースエラー")));
 
+    const mockAccount = Account.create(
+      "actor-id",
+      "actor-user-id",
+      "Actor",
+      "actor-hashed-password",
+      mockOrganizationId,
+      "SuperAdmin"
+    )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["create:User"],
+      update: mockAccount.update,
+    };
+
     const result = await userCreateCommand.execute(
       mockUserId,
       mockName,
       "password",
       mockOrganizationId,
-      mockRole
+      mockRole,
+      mockActor
     );
     expect(result.isErr()).toBe(true);
     if (result.isErr()) {

@@ -23,6 +23,9 @@ export class AuthQueryImpl implements AuthQuery {
       where: {
         userId,
       },
+      include: {
+        Role: true,
+      },
     });
 
     if (!data) {
@@ -39,7 +42,7 @@ export class AuthQueryImpl implements AuthQuery {
       data.name,
       data.password,
       data.organizationId ?? undefined,
-      data.role
+      data.Role.name
     );
 
     if (account.isErr()) {

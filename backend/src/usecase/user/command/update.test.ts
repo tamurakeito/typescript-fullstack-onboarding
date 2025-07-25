@@ -1,5 +1,11 @@
 import { Account } from "@/domain/account/account.js";
-import { DuplicateUserIdError, UnExistAccountError, UnexpectedError } from "@/errors/errors.js";
+import type { Actor } from "@/domain/authorization/permission.js";
+import {
+  DuplicateUserIdError,
+  ForbiddenError,
+  UnExistAccountError,
+  UnexpectedError,
+} from "@/errors/errors.js";
 import { err, ok } from "neverthrow";
 import { describe, expect, it, vi } from "vitest";
 import { UserUpdateCommandImpl } from "./update.js";
@@ -55,11 +61,24 @@ describe("UserUpdateCommandImpl", () => {
       mockRole
     )._unsafeUnwrap();
 
+    const mockActor: Actor = {
+      ...mockData,
+      permissions: ["update:User"],
+      update: mockData.update,
+    };
+
+    mockAccountRepository.findById.mockResolvedValue(ok(mockData));
     mockAccountRepository.findByUserId.mockResolvedValue(err(new UnExistAccountError()));
     mockPasswordHash.hash.mockResolvedValue(mockHashedPassword);
     mockAccountRepository.save.mockResolvedValue(ok(mockNewData));
 
-    const result = await userUpdateCommand.execute(mockData, mockUserId, mockName, mockPassword);
+    const result = await userUpdateCommand.execute(
+      mockId,
+      mockUserId,
+      mockName,
+      mockPassword,
+      mockActor
+    );
 
     expect(result.isOk()).toBe(true);
     if (result.isOk()) {
@@ -70,12 +89,60 @@ describe("UserUpdateCommandImpl", () => {
     }
   });
 
+  it("ロールがManager以下で操作対象が自分ではない場合", async () => {
+    const userUpdateCommand = new UserUpdateCommandImpl(mockAccountRepository, mockPasswordHash);
+
+    const mockAccount = Account.create(
+      "mock-uuid-user-01",
+      "mock-user-id",
+      "テストユーザー",
+      "hashed-password",
+      "mock-organization-id",
+      "Manager"
+    )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["update:User"],
+      update: mockAccount.update,
+    };
+
+    const result = await userUpdateCommand.execute(
+      "mock-uuid-user-02",
+      "mock-user-id",
+      "テストユーザー",
+      "hashed-password",
+      mockActor
+    );
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error).toBeInstanceOf(ForbiddenError);
+    }
+  });
+
   it("ユーザーIDが重複している場合", async () => {
     const userUpdateCommand = new UserUpdateCommandImpl(mockAccountRepository, mockPasswordHash);
 
     const mockId = "mock-uuid-123";
     const mockUserId = "mock-user-id";
 
+    const mockData = Account.create(
+      mockId,
+      mockUserId,
+      "テストユーザー",
+      "hashed-password",
+      "mock-organization-id",
+      "Operator"
+    )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockData,
+      permissions: ["update:User"],
+      update: mockData.update,
+    };
+
+    mockAccountRepository.findById.mockResolvedValue(ok(mockData));
     mockAccountRepository.findByUserId.mockResolvedValue(
       ok(
         Account.create(
@@ -90,17 +157,11 @@ describe("UserUpdateCommandImpl", () => {
     );
 
     const result = await userUpdateCommand.execute(
-      Account.create(
-        mockId,
-        mockUserId,
-        "テストユーザー",
-        "hashed-password",
-        "mock-organization-id",
-        "Operator"
-      )._unsafeUnwrap(),
+      mockId,
       mockUserId,
       "new-mock-name",
-      "new-password"
+      "new-password",
+      mockActor
     );
 
     expect(result.isErr()).toBe(true);
@@ -140,11 +201,24 @@ describe("UserUpdateCommandImpl", () => {
       mockRole
     )._unsafeUnwrap();
 
+    const mockActor: Actor = {
+      ...mockData,
+      permissions: ["update:User"],
+      update: mockData.update,
+    };
+
+    mockAccountRepository.findById.mockResolvedValue(ok(mockData));
     mockAccountRepository.findByUserId.mockResolvedValue(err(new UnExistAccountError()));
     mockPasswordHash.hash.mockResolvedValue(mockHashedPassword);
     mockAccountRepository.save.mockResolvedValue(err(new UnexpectedError()));
 
-    const result = await userUpdateCommand.execute(mockData, mockUserId, mockName, mockPassword);
+    const result = await userUpdateCommand.execute(
+      mockId,
+      mockUserId,
+      mockName,
+      mockPassword,
+      mockActor
+    );
 
     expect(result.isErr()).toBe(true);
     if (result.isErr()) {

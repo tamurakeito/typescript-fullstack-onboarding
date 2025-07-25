@@ -5,6 +5,7 @@ import { requestId } from "hono/request-id";
 import { AccountRepositoryImpl } from "./infrastructure/account/account-repository-impl.js";
 import { JwtServiceImpl } from "./infrastructure/account/jwt-service.js";
 import { PasswordHashImpl } from "./infrastructure/account/password-hash-impl.js";
+import { PermissionServiceImpl } from "./infrastructure/authorization/permission-service-impl.js";
 import { OrganizationRepositoryImpl } from "./infrastructure/organization/organization-repository-impl.js";
 import { AuthHandler } from "./presentation/handlers/auth-handler.js";
 import { OrganizationHandler } from "./presentation/handlers/organization-handler.js";
@@ -32,9 +33,10 @@ app.use("*", cors());
 // DI
 const jwtService = new JwtServiceImpl(process.env.JWT_SECRET ?? "default_secret");
 const passwordHash = new PasswordHashImpl();
+const permissionService = new PermissionServiceImpl();
 
 const authQuery = new AuthQueryImpl(passwordHash);
-const authHandler = new AuthHandler(authQuery, jwtService);
+const authHandler = new AuthHandler(authQuery, jwtService, permissionService);
 
 const organizationRepository = new OrganizationRepositoryImpl();
 const organizationListQuery = new OrganizationListQueryImpl();
@@ -66,7 +68,7 @@ const userHandler = new UserHandler(
   userDeleteCommand
 );
 
-initRouting(app, authHandler, organizationHandler, userHandler, jwtService, accountRepository);
+initRouting(app, authHandler, organizationHandler, userHandler, jwtService);
 
 serve(
   {
