@@ -50,6 +50,7 @@ async function main() {
   const updateAccountPermissionId = uuidv4();
   const deleteAccountPermissionId = uuidv4();
   const readTodoPermissionId = uuidv4();
+  const createTodoPermissionId = uuidv4();
   const readOrganizationPermission = await prisma.permission.upsert({
     where: { name: "read:Organization" },
     update: {},
@@ -130,6 +131,14 @@ async function main() {
       name: "read:Todo",
     },
   });
+  const createTodoPermission = await prisma.permission.upsert({
+    where: { name: "create:Todo" },
+    update: {},
+    create: {
+      id: createTodoPermissionId,
+      name: "create:Todo",
+    },
+  });
   console.log({
     readOrganizationPermission,
     readAllOrganizationPermission,
@@ -141,6 +150,7 @@ async function main() {
     updateAccountPermission,
     deleteAccountPermission,
     readTodoPermission,
+    createTodoPermission,
   });
 
   const superAdminRoleReadOrganizationPermission = await prisma.rolePermission.upsert({
@@ -273,6 +283,19 @@ async function main() {
       permissionId: readTodoPermission.id,
     },
   });
+  const superAdminRoleCreateTodoPermission = await prisma.rolePermission.upsert({
+    where: {
+      roleId_permissionId: {
+        roleId: superAdminRole.id,
+        permissionId: createTodoPermission.id,
+      },
+    },
+    update: {},
+    create: {
+      roleId: superAdminRole.id,
+      permissionId: createTodoPermission.id,
+    },
+  });
   console.log({
     superAdminRoleReadOrganizationPermission,
     superAdminRoleReadAllOrganizationPermission,
@@ -284,6 +307,7 @@ async function main() {
     superAdminRoleUpdateAccountPermission,
     superAdminRoleDeleteAccountPermission,
     superAdminRoleReadTodoPermission,
+    superAdminRoleCreateTodoPermission,
   });
   const managerRoleReadOrganizationPermission = await prisma.rolePermission.upsert({
     where: {
@@ -363,6 +387,19 @@ async function main() {
       permissionId: readTodoPermission.id,
     },
   });
+  const managerRoleCreateTodoPermission = await prisma.rolePermission.upsert({
+    where: {
+      roleId_permissionId: {
+        roleId: managerRole.id,
+        permissionId: createTodoPermission.id,
+      },
+    },
+    update: {},
+    create: {
+      roleId: managerRole.id,
+      permissionId: createTodoPermission.id,
+    },
+  });
   console.log({
     managerRoleReadOrganizationPermission,
     managerRoleReadAccountPermission,
@@ -370,6 +407,7 @@ async function main() {
     managerRoleUpdateAccountPermission,
     managerRoleDeleteAccountPermission,
     managerRoleReadTodoPermission,
+    managerRoleCreateTodoPermission,
   });
   const operatorRoleReadOrganizationPermission = await prisma.rolePermission.upsert({
     where: {
@@ -423,11 +461,25 @@ async function main() {
       permissionId: readTodoPermission.id,
     },
   });
+  const operatorRoleCreateTodoPermission = await prisma.rolePermission.upsert({
+    where: {
+      roleId_permissionId: {
+        roleId: operatorRole.id,
+        permissionId: createTodoPermission.id,
+      },
+    },
+    update: {},
+    create: {
+      roleId: operatorRole.id,
+      permissionId: createTodoPermission.id,
+    },
+  });
   console.log({
     operatorRoleReadOrganizationPermission,
     operatorRoleReadAccountPermission,
     operatorRoleUpdateAccountPermission,
     operatorRoleReadTodoPermission,
+    operatorRoleCreateTodoPermission,
   });
 
   // Organization
