@@ -28,6 +28,7 @@ describe("TodoListQueryImpl", () => {
   it("正常にタスク一覧を取得", async () => {
     const todoListQuery = new TodoListQueryImpl();
     const organizationId = "mock-uuid-123";
+    const organizationName = "テスト組織01";
     const mockTodos = [
       {
         id: "mock-uuid-todo-01",
@@ -60,6 +61,7 @@ describe("TodoListQueryImpl", () => {
 
     mockPrismaClient.organization.findUnique.mockResolvedValue({
       id: organizationId,
+      name: organizationName,
       todos: mockTodos,
     });
 
@@ -68,6 +70,7 @@ describe("TodoListQueryImpl", () => {
     if (result.isOk()) {
       const todoList = result.value;
       expect(todoList.organizationId).toBe(organizationId);
+      expect(todoList.organizationName).toBe(organizationName);
       expect(todoList.list).toEqual(mockTodos);
       expect(mockFindUnique).toHaveBeenCalledWith({
         where: { id: organizationId },

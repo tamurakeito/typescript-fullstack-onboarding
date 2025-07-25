@@ -506,6 +506,20 @@ async function main() {
   const todoId02 = uuidv4();
   const todoId03 = uuidv4();
   const todoId04 = uuidv4();
+  const todoId05 = uuidv4();
+  const todoId06 = uuidv4();
+  const todoId07 = uuidv4();
+  const todoId08 = uuidv4();
+  const todoId09 = uuidv4();
+  const todoId10 = uuidv4();
+  const todoId11 = uuidv4();
+  const todoId12 = uuidv4();
+  const todoId13 = uuidv4();
+  const todoId14 = uuidv4();
+  const todoId15 = uuidv4();
+  const todoId16 = uuidv4();
+  const todoId17 = uuidv4();
+
   const todo01 = await prisma.todo.upsert({
     where: { id: todoId01 },
     update: {},
@@ -527,7 +541,7 @@ async function main() {
       title: "テストタスク02",
       description: "テストタスク02の説明",
       organizationId: organization01.id,
-      status: "InProgress",
+      status: "NotStarted",
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -540,7 +554,7 @@ async function main() {
       title: "テストタスク03",
       description: "テストタスク03の説明",
       organizationId: organization01.id,
-      status: "Completed",
+      status: "NotStarted",
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -553,12 +567,199 @@ async function main() {
       title: "テストタスク04",
       description: "テストタスク04の説明",
       organizationId: organization01.id,
+      status: "InProgress",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+  const todo05 = await prisma.todo.upsert({
+    where: { id: todoId05 },
+    update: {},
+    create: {
+      id: todoId05,
+      title: "テストタスク05",
+      description: "テストタスク05の説明",
+      organizationId: organization01.id,
       status: "NotStarted",
       createdAt: new Date(),
       updatedAt: new Date(),
     },
   });
-  console.log({ todo01, todo02, todo03, todo04 });
+  const todo06 = await prisma.todo.upsert({
+    where: { id: todoId06 },
+    update: {},
+    create: {
+      id: todoId06,
+      title: "テストタスク06",
+      description: "テストタスク06の説明",
+      organizationId: organization01.id,
+      status: "NotStarted",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+  const todo07 = await prisma.todo.upsert({
+    where: { id: todoId07 },
+    update: {},
+    create: {
+      id: todoId07,
+      title: "テストタスク07",
+      description: "テストタスク07の説明",
+      organizationId: organization01.id,
+      status: "InProgress",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+  const todo08 = await prisma.todo.upsert({
+    where: { id: todoId08 },
+    update: {},
+    create: {
+      id: todoId08,
+      title: "テストタスク08",
+      description: "テストタスク08の説明",
+      organizationId: organization01.id,
+      status: "Completed",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+  const todo09 = await prisma.todo.upsert({
+    where: { id: todoId09 },
+    update: {},
+    create: {
+      id: todoId09,
+      title: "テストタスク09",
+      description: "テストタスク09の説明",
+      organizationId: organization01.id,
+      status: "Completed",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+  const todo10 = await prisma.todo.upsert({
+    where: { id: todoId10 },
+    update: {},
+    create: {
+      id: todoId10,
+      title: "テストタスク10",
+      description: "テストタスク10の説明",
+      organizationId: organization01.id,
+      status: "NotStarted",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+  const todo11 = await prisma.todo.upsert({
+    where: { id: todoId11 },
+    update: {},
+    create: {
+      id: todoId11,
+      title: "テストタスク11",
+      description: "テストタスク11の説明",
+      organizationId: organization01.id,
+      status: "InProgress",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+  const todo12 = await prisma.todo.upsert({
+    where: { id: todoId12 },
+    update: {},
+    create: {
+      id: todoId12,
+      title: "テストタスク12",
+      description: "テストタスク12の説明",
+      organizationId: organization01.id,
+      status: "NotStarted",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+  const todo13 = await prisma.todo.upsert({
+    where: { id: todoId13 },
+    update: {},
+    create: {
+      id: todoId13,
+      title: "テストタスク13",
+      description: "テストタスク13の説明",
+      organizationId: organization01.id,
+      status: "InProgress",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+  const todo14 = await prisma.todo.upsert({
+    where: { id: todoId14 },
+    update: {},
+    create: {
+      id: todoId14,
+      title: "テストタスク14",
+      description: "テストタスク14の説明",
+      organizationId: organization01.id,
+      status: "Completed",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+  const todo15 = await prisma.todo.upsert({
+    where: { id: todoId15 },
+    update: {},
+    create: {
+      id: todoId15,
+      title: "テストタスク15",
+      description: "テストタスク15の説明",
+      organizationId: organization01.id,
+      status: "Completed",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+  const todo16 = await prisma.todo.upsert({
+    where: { id: todoId16 },
+    update: {},
+    create: {
+      id: todoId16,
+      title: "テストタスク16",
+      description: "テストタスク16の説明",
+      organizationId: organization01.id,
+      status: "NotStarted",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+  const todo17 = await prisma.todo.upsert({
+    where: { id: todoId17 },
+    update: {},
+    create: {
+      id: todoId17,
+      title: "テストタスク17",
+      description: "テストタスク17の説明",
+      organizationId: organization01.id,
+      status: "Completed",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+  console.log({
+    todo01,
+    todo02,
+    todo03,
+    todo04,
+    todo05,
+    todo06,
+    todo07,
+    todo08,
+    todo09,
+    todo10,
+    todo11,
+    todo12,
+    todo13,
+    todo14,
+    todo15,
+    todo16,
+    todo17,
+  });
 }
 main()
   .then(async () => {
