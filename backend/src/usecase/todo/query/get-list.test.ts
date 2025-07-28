@@ -1,12 +1,6 @@
 import { Account } from "@/domain/account/account.js";
 import type { Actor } from "@/domain/authorization/permission.js";
-import type { TodoItem } from "@/domain/todo/todo.js";
-import {
-  ForbiddenError,
-  NoOrganizationError,
-  NoTodoItemError,
-  UnexpectedError,
-} from "@/errors/errors.js";
+import { ForbiddenError, NoOrganizationError } from "@/errors/errors.js";
 import { PrismaClient } from "@/generated/prisma/index.js";
 import { describe, expect, it, vi } from "vitest";
 import { TodoListQueryImpl } from "./get-list.js";
@@ -74,7 +68,13 @@ describe("TodoListQueryImpl", () => {
       expect(todoList.list).toEqual(mockTodos);
       expect(mockFindUnique).toHaveBeenCalledWith({
         where: { id: organizationId },
-        include: { todos: true },
+        include: {
+          todos: {
+            orderBy: {
+              createdAt: "desc",
+            },
+          },
+        },
       });
     }
   });
@@ -130,7 +130,13 @@ describe("TodoListQueryImpl", () => {
       expect(result.error).toBeInstanceOf(NoOrganizationError);
       expect(mockFindUnique).toHaveBeenCalledWith({
         where: { id: organizationId },
-        include: { todos: true },
+        include: {
+          todos: {
+            orderBy: {
+              createdAt: "desc",
+            },
+          },
+        },
       });
     }
   });
