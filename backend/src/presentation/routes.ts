@@ -188,16 +188,4 @@ export function initRouting(
     permissionMiddleware("read", "Todo"),
     (c) => todoHandler.getTodoList(c)
   );
-  app.post(
-    "/todo",
-    zValidator("json", schemas.CreateTodoItemRequest, (result, c) => {
-      if (!result.success) {
-        const error = new BadRequestError();
-        return c.json({ message: error.message }, error.statusCode);
-      }
-    }),
-    jwtMiddleware(jwtService),
-    permissionMiddleware("create", "Todo"),
-    (c) => todoHandler.createTodo(c)
-  );
 }

@@ -7,7 +7,6 @@ import { JwtServiceImpl } from "./infrastructure/account/jwt-service.js";
 import { PasswordHashImpl } from "./infrastructure/account/password-hash-impl.js";
 import { PermissionServiceImpl } from "./infrastructure/authorization/permission-service-impl.js";
 import { OrganizationRepositoryImpl } from "./infrastructure/organization/organization-repository-impl.js";
-import { TodoRepositoryImpl } from "./infrastructure/todo/todo-repository-impl.js";
 import { AuthHandler } from "./presentation/handlers/auth-handler.js";
 import { OrganizationHandler } from "./presentation/handlers/organization-handler.js";
 import { TodoHandler } from "./presentation/handlers/todo-handler.js";
@@ -21,7 +20,6 @@ import { OrganizationDeleteCommandImpl } from "./usecase/organization/command/de
 import { OrganizationUpdateCommandImpl } from "./usecase/organization/command/update.js";
 import { OrganizationListQueryImpl } from "./usecase/organization/query/get-list.js";
 import { OrganizationProfileQueryImpl } from "./usecase/organization/query/get-profile.js";
-import { TodoCreateCommandImpl } from "./usecase/todo/command/create.js";
 import { TodoListQueryImpl } from "./usecase/todo/query/get-list.js";
 import { UserCreateCommandImpl } from "./usecase/user/command/create.js";
 import { UserDeleteCommandImpl } from "./usecase/user/command/delete.js";
@@ -76,10 +74,8 @@ const userHandler = new UserHandler(
   userDeleteCommand
 );
 
-const todoRepository = new TodoRepositoryImpl();
 const todoListQuery = new TodoListQueryImpl();
-const todoCreateCommand = new TodoCreateCommandImpl(todoRepository, organizationRepository);
-const todoHandler = new TodoHandler(todoListQuery, todoCreateCommand);
+const todoHandler = new TodoHandler(todoListQuery);
 
 initRouting(app, authHandler, organizationHandler, userHandler, todoHandler, jwtService);
 
