@@ -4,7 +4,7 @@ import { queryClient } from "@/lib/query-client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useParams } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/_protected/todo/$organizationId")({
+export const Route = createFileRoute("/_protected/$organizationId/todo-list/")({
   loader: async ({ params }) => {
     const { organizationId } = params;
     await queryClient.ensureQueryData(
@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_protected/todo/$organizationId")({
     );
   },
   component: () => {
-    const { organizationId } = useParams({ from: "/_protected/todo/$organizationId" });
+    const { organizationId } = useParams({ from: "/_protected/$organizationId/todo-list/" });
     const { data: todoList } = useSuspenseQuery(
       todoGetListOptions({
         path: {

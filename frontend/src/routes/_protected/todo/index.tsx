@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_protected/todo/")({
     if (!allowedRoles.includes(account?.role as Role)) {
       if (account?.organizationId) {
         throw redirect({
-          to: "/todo/$organizationId",
+          to: "/$organizationId/todo-list",
           params: { organizationId: account.organizationId },
         });
       }

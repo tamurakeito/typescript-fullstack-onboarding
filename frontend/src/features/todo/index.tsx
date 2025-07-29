@@ -36,7 +36,7 @@ export const TodoOrganizationList = ({
                 <TableRow
                   key={org.id}
                   className="cursor-pointer"
-                  onClick={() => navigate({ to: `/todo/${org.id}` })}
+                  onClick={() => navigate({ to: `/${org.id}/todo-list` })}
                 >
                   <TableCell className="font-medium">{org.name}</TableCell>
                 </TableRow>
