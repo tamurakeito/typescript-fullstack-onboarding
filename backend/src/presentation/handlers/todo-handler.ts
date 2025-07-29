@@ -49,9 +49,10 @@ export class TodoHandler {
   }
 
   async updateTodo(c: Context) {
+    const id = c.req.param("id");
     const body = await c.req.json();
     const result = await this.todoUpdateCommand.execute(
-      body.id,
+      id,
       body.title,
       body.description,
       body.status,

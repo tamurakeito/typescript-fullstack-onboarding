@@ -62,9 +62,9 @@ interface Todo {
     | InternalServerError;
 
   @put
-  @route("/todo")
+  @route("/todo/{id}")
   @summary("Todoアイテム更新")
-  update(@body body: UpdateTodoItemRequest):
+  update(@path id: string, @body body: UpdateTodoItemRequest):
     | {
         @statusCode
         statusCode: 200;
