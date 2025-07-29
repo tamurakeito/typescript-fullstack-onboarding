@@ -188,4 +188,34 @@ export function initRouting(
     permissionMiddleware("read", "Todo"),
     (c) => todoHandler.getTodoList(c)
   );
+  app.post(
+    "/todo",
+    zValidator("json", schemas.CreateTodoItemRequest, (result, c) => {
+      if (!result.success) {
+        const error = new BadRequestError();
+        return c.json({ message: error.message }, error.statusCode);
+      }
+    }),
+    jwtMiddleware(jwtService),
+    permissionMiddleware("create", "Todo"),
+    (c) => todoHandler.createTodo(c)
+  );
+  app.put(
+    "/todo/:id",
+    zValidator("param", z.object({ id: z.string().uuid() }), (result, c) => {
+      if (!result.success) {
+        const error = new BadRequestError();
+        return c.json({ message: error.message }, error.statusCode);
+      }
+    }),
+    zValidator("json", schemas.UpdateTodoItemRequest, (result, c) => {
+      if (!result.success) {
+        const error = new BadRequestError();
+        return c.json({ message: error.message }, error.statusCode);
+      }
+    }),
+    jwtMiddleware(jwtService),
+    permissionMiddleware("update", "Todo"),
+    (c) => todoHandler.updateTodo(c)
+  );
 }
