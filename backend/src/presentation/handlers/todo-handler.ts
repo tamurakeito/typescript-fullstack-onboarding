@@ -5,7 +5,7 @@ export class TodoHandler {
   constructor(private readonly todoListQuery: TodoListQuery) {}
 
   async getTodoList(c: Context) {
-    const organizationId = c.req.param("id");
+    const organizationId = c.req.param("organizationId");
 
     const result = await this.todoListQuery.execute(organizationId, c.get("actor"));
 

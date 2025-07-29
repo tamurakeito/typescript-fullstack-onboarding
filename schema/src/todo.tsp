@@ -24,9 +24,9 @@ model TodoList {
 @tag("Todo")
 interface Todo {
   @get
-  @route("/todo-list/{id}")
+  @route("{organizationId}/todo-list")
   @summary("Todoリスト取得")
-  getList(@path id: string):
+  getList(@path organizationId: string):
     | TodoList
     | BadRequestError
     | ForbiddenError
