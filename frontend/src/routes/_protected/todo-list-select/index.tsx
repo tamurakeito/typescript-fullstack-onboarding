@@ -7,7 +7,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_protected/todo/")({
+export const Route = createFileRoute("/_protected/todo-list-select/")({
   loader: async () => {
     await queryClient.ensureQueryData(organizationApiGetListOptions());
   },

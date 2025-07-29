@@ -36,7 +36,7 @@ export const Route = createFileRoute("/_protected")({
                   <NavigationMenuLink
                     href={
                       supperAdminRoles.includes(account?.role as Role)
-                        ? "/todo"
+                        ? "/todo-list-select"
                         : `/${account?.organizationId}/todo-list`
                     }
                   >
