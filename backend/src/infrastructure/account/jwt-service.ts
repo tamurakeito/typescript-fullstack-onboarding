@@ -1,6 +1,11 @@
-import { Account } from "@/domain/account/account.js";
+import type { Account } from "@/domain/account/account.js";
+import type { Actor } from "@/domain/authorization/permission.js";
 import { sign, verify } from "hono/jwt";
 import { type Result, err, ok } from "neverthrow";
+
+export type JwtPayload = {
+  actor: Actor;
+};
 
 const isAccount = (obj: any): obj is Account => {
   return (
@@ -14,36 +19,25 @@ const isAccount = (obj: any): obj is Account => {
 };
 
 export interface JwtService {
-  generate(payload: { account: Account }): Promise<string>;
-  verify(token: string): Promise<Result<Account, Error>>;
+  generate(payload: JwtPayload): Promise<string>;
+  verify(token: string): Promise<Result<Actor, Error>>;
 }
 
 export class JwtServiceImpl implements JwtService {
   constructor(private readonly secret: string) {}
 
-  async generate(payload: { account: Account }): Promise<string> {
+  async generate(payload: JwtPayload): Promise<string> {
     return await sign(payload, this.secret);
   }
 
-  async verify(token: string): Promise<Result<Account, Error>> {
+  async verify(token: string): Promise<Result<Actor, Error>> {
     try {
-      const decoded = await verify(token, this.secret);
-      if (!isAccount(decoded.account)) {
+      const decoded = (await verify(token, this.secret)) as JwtPayload;
+      if (!isAccount(decoded.actor)) {
         return err(new Error("Invalid token payload"));
       }
-      const accountData = decoded.account as Account;
-      const accountResult = Account.create(
-        accountData.id,
-        accountData.userId,
-        accountData.name,
-        accountData.hashedPassword,
-        accountData.organizationId,
-        accountData.role
-      );
-      if (accountResult.isErr()) {
-        return err(accountResult.error);
-      }
-      return ok(accountResult.value);
+
+      return ok(decoded.actor);
     } catch (error) {
       return err(error as Error);
     }

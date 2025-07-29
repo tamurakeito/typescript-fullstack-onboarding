@@ -1,10 +1,10 @@
-import type { Account } from "@/domain/account/account.js";
+import type { Actor } from "@/domain/authorization/permission.js";
 import type { JwtService } from "@/infrastructure/account/jwt-service.js";
 import { createMiddleware } from "hono/factory";
 
 export const jwtMiddleware = (jwtService: JwtService) => {
   return createMiddleware<{
-    Variables: { actor: Account };
+    Variables: { actor: Actor };
   }>(async (c, next) => {
     const token = c.req.header("Authorization")?.split(" ")[1];
     if (!token) {

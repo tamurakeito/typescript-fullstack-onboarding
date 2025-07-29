@@ -11,7 +11,12 @@ export class AccountRepositoryImpl implements AccountRepository {
 
   async findById(id: string): Promise<Result<Account, AppError>> {
     try {
-      const result = await this.prisma.account.findUnique({ where: { id: id } });
+      const result = await this.prisma.account.findUnique({
+        where: { id: id },
+        include: {
+          Role: true,
+        },
+      });
 
       if (!result) {
         return err(new UnExistAccountError());
@@ -23,7 +28,7 @@ export class AccountRepositoryImpl implements AccountRepository {
         result.name,
         result.password,
         result.organizationId ?? undefined,
-        result.role
+        result.Role.name
       );
 
       if (data.isErr()) {
@@ -38,7 +43,12 @@ export class AccountRepositoryImpl implements AccountRepository {
 
   async findByUserId(userId: string): Promise<Result<Account, AppError>> {
     try {
-      const result = await this.prisma.account.findUnique({ where: { userId: userId } });
+      const result = await this.prisma.account.findUnique({
+        where: { userId: userId },
+        include: {
+          Role: true,
+        },
+      });
 
       if (!result) {
         return err(new UnExistAccountError());
@@ -50,7 +60,7 @@ export class AccountRepositoryImpl implements AccountRepository {
         result.name,
         result.password,
         result.organizationId ?? undefined,
-        result.role
+        result.Role.name
       );
 
       if (data.isErr()) {
@@ -65,6 +75,14 @@ export class AccountRepositoryImpl implements AccountRepository {
 
   async save(account: Account): Promise<Result<Account, AppError>> {
     try {
+      const role = await this.prisma.role.findUnique({
+        where: { name: account.role },
+      });
+
+      if (!role) {
+        return err(new UnexpectedError("Role not found"));
+      }
+
       const result = await this.prisma.account.upsert({
         where: { id: account.id },
         update: {
@@ -72,7 +90,7 @@ export class AccountRepositoryImpl implements AccountRepository {
           name: account.name,
           password: account.hashedPassword,
           organizationId: account.organizationId,
-          role: account.role,
+          roleId: role.id,
         },
         create: {
           id: account.id,
@@ -80,7 +98,10 @@ export class AccountRepositoryImpl implements AccountRepository {
           name: account.name,
           password: account.hashedPassword,
           organizationId: account.organizationId,
-          role: account.role,
+          roleId: role.id,
+        },
+        include: {
+          Role: true,
         },
       });
 
@@ -90,7 +111,7 @@ export class AccountRepositoryImpl implements AccountRepository {
         result.name,
         result.password,
         result.organizationId ?? undefined,
-        result.role
+        result.Role.name
       );
       if (data.isErr()) {
         return err(new UnexpectedError());

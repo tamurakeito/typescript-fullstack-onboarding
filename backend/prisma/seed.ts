@@ -10,6 +10,372 @@ async function hashPassword(password: string) {
 }
 
 async function main() {
+  // Authorization
+  const superAdminRoleId = uuidv4();
+  const managerRoleId = uuidv4();
+  const operatorRoleId = uuidv4();
+  const superAdminRole = await prisma.role.upsert({
+    where: { name: "SuperAdmin" },
+    update: {},
+    create: {
+      id: superAdminRoleId,
+      name: "SuperAdmin",
+    },
+  });
+  const managerRole = await prisma.role.upsert({
+    where: { name: "Manager" },
+    update: {},
+    create: {
+      id: managerRoleId,
+      name: "Manager",
+    },
+  });
+  const operatorRole = await prisma.role.upsert({
+    where: { name: "Operator" },
+    update: {},
+    create: {
+      id: operatorRoleId,
+      name: "Operator",
+    },
+  });
+  console.log({ superAdminRole, managerRole, operatorRole });
+
+  const readOrganizationPermissionId = uuidv4();
+  const readAllOrganizationPermissionId = uuidv4();
+  const createOrganizationPermissionId = uuidv4();
+  const updateOrganizationPermissionId = uuidv4();
+  const deleteOrganizationPermissionId = uuidv4();
+  const readAccountPermissionId = uuidv4();
+  const createAccountPermissionId = uuidv4();
+  const updateAccountPermissionId = uuidv4();
+  const deleteAccountPermissionId = uuidv4();
+
+  const readOrganizationPermission = await prisma.permission.upsert({
+    where: { name: "read:Organization" },
+    update: {},
+    create: {
+      id: readOrganizationPermissionId,
+      name: "read:Organization",
+    },
+  });
+  const readAllOrganizationPermission = await prisma.permission.upsert({
+    where: { name: "readAll:Organization" },
+    update: {},
+    create: {
+      id: readAllOrganizationPermissionId,
+      name: "readAll:Organization",
+    },
+  });
+  const createOrganizationPermission = await prisma.permission.upsert({
+    where: { name: "create:Organization" },
+    update: {},
+    create: {
+      id: createOrganizationPermissionId,
+      name: "create:Organization",
+    },
+  });
+  const updateOrganizationPermission = await prisma.permission.upsert({
+    where: { name: "update:Organization" },
+    update: {},
+    create: {
+      id: updateOrganizationPermissionId,
+      name: "update:Organization",
+    },
+  });
+  const deleteOrganizationPermission = await prisma.permission.upsert({
+    where: { name: "delete:Organization" },
+    update: {},
+    create: {
+      id: deleteOrganizationPermissionId,
+      name: "delete:Organization",
+    },
+  });
+  const readAccountPermission = await prisma.permission.upsert({
+    where: { name: "read:Account" },
+    update: {},
+    create: {
+      id: readAccountPermissionId,
+      name: "read:Account",
+    },
+  });
+  const createAccountPermission = await prisma.permission.upsert({
+    where: { name: "create:Account" },
+    update: {},
+    create: {
+      id: createAccountPermissionId,
+      name: "create:Account",
+    },
+  });
+  const updateAccountPermission = await prisma.permission.upsert({
+    where: { name: "update:Account" },
+    update: {},
+    create: {
+      id: updateAccountPermissionId,
+      name: "update:Account",
+    },
+  });
+  const deleteAccountPermission = await prisma.permission.upsert({
+    where: { name: "delete:Account" },
+    update: {},
+    create: {
+      id: deleteAccountPermissionId,
+      name: "delete:Account",
+    },
+  });
+  console.log({
+    readOrganizationPermission,
+    readAllOrganizationPermission,
+    createOrganizationPermission,
+    updateOrganizationPermission,
+    deleteOrganizationPermission,
+    readAccountPermission,
+    createAccountPermission,
+    updateAccountPermission,
+    deleteAccountPermission,
+  });
+
+  const superAdminRoleReadOrganizationPermission = await prisma.rolePermission.upsert({
+    where: {
+      roleId_permissionId: {
+        roleId: superAdminRole.id,
+        permissionId: readOrganizationPermission.id,
+      },
+    },
+    update: {},
+    create: {
+      roleId: superAdminRole.id,
+      permissionId: readOrganizationPermission.id,
+    },
+  });
+  const superAdminRoleReadAllOrganizationPermission = await prisma.rolePermission.upsert({
+    where: {
+      roleId_permissionId: {
+        roleId: superAdminRole.id,
+        permissionId: readAllOrganizationPermission.id,
+      },
+    },
+    update: {},
+    create: {
+      roleId: superAdminRole.id,
+      permissionId: readAllOrganizationPermission.id,
+    },
+  });
+  const superAdminRoleCreateOrganizationPermission = await prisma.rolePermission.upsert({
+    where: {
+      roleId_permissionId: {
+        roleId: superAdminRole.id,
+        permissionId: createOrganizationPermission.id,
+      },
+    },
+    update: {},
+    create: {
+      roleId: superAdminRole.id,
+      permissionId: createOrganizationPermission.id,
+    },
+  });
+  const superAdminRoleUpdateOrganizationPermission = await prisma.rolePermission.upsert({
+    where: {
+      roleId_permissionId: {
+        roleId: superAdminRole.id,
+        permissionId: updateOrganizationPermission.id,
+      },
+    },
+    update: {},
+    create: {
+      roleId: superAdminRole.id,
+      permissionId: updateOrganizationPermission.id,
+    },
+  });
+  const superAdminRoleDeleteOrganizationPermission = await prisma.rolePermission.upsert({
+    where: {
+      roleId_permissionId: {
+        roleId: superAdminRole.id,
+        permissionId: deleteOrganizationPermission.id,
+      },
+    },
+    update: {},
+    create: {
+      roleId: superAdminRole.id,
+      permissionId: deleteOrganizationPermission.id,
+    },
+  });
+  const superAdminRoleReadAccountPermission = await prisma.rolePermission.upsert({
+    where: {
+      roleId_permissionId: {
+        roleId: superAdminRole.id,
+        permissionId: readAccountPermission.id,
+      },
+    },
+    update: {},
+    create: {
+      roleId: superAdminRole.id,
+      permissionId: readAccountPermission.id,
+    },
+  });
+  const superAdminRoleCreateAccountPermission = await prisma.rolePermission.upsert({
+    where: {
+      roleId_permissionId: {
+        roleId: superAdminRole.id,
+        permissionId: createAccountPermission.id,
+      },
+    },
+    update: {},
+    create: {
+      roleId: superAdminRole.id,
+      permissionId: createAccountPermission.id,
+    },
+  });
+  const superAdminRoleUpdateAccountPermission = await prisma.rolePermission.upsert({
+    where: {
+      roleId_permissionId: {
+        roleId: superAdminRole.id,
+        permissionId: updateAccountPermission.id,
+      },
+    },
+    update: {},
+    create: {
+      roleId: superAdminRole.id,
+      permissionId: updateAccountPermission.id,
+    },
+  });
+  const superAdminRoleDeleteAccountPermission = await prisma.rolePermission.upsert({
+    where: {
+      roleId_permissionId: {
+        roleId: superAdminRole.id,
+        permissionId: deleteAccountPermission.id,
+      },
+    },
+    update: {},
+    create: {
+      roleId: superAdminRole.id,
+      permissionId: deleteAccountPermission.id,
+    },
+  });
+  const managerRoleReadOrganizationPermission = await prisma.rolePermission.upsert({
+    where: {
+      roleId_permissionId: {
+        roleId: managerRole.id,
+        permissionId: readOrganizationPermission.id,
+      },
+    },
+    update: {},
+    create: {
+      roleId: managerRole.id,
+      permissionId: readOrganizationPermission.id,
+    },
+  });
+  const managerRoleReadAccountPermission = await prisma.rolePermission.upsert({
+    where: {
+      roleId_permissionId: {
+        roleId: managerRole.id,
+        permissionId: readAccountPermission.id,
+      },
+    },
+    update: {},
+    create: {
+      roleId: managerRole.id,
+      permissionId: readAccountPermission.id,
+    },
+  });
+  const managerRoleCreateAccountPermission = await prisma.rolePermission.upsert({
+    where: {
+      roleId_permissionId: {
+        roleId: managerRole.id,
+        permissionId: createAccountPermission.id,
+      },
+    },
+    update: {},
+    create: {
+      roleId: managerRole.id,
+      permissionId: createAccountPermission.id,
+    },
+  });
+  const managerRoleUpdateAccountPermission = await prisma.rolePermission.upsert({
+    where: {
+      roleId_permissionId: {
+        roleId: managerRole.id,
+        permissionId: updateAccountPermission.id,
+      },
+    },
+    update: {},
+    create: {
+      roleId: managerRole.id,
+      permissionId: updateAccountPermission.id,
+    },
+  });
+  const managerRoleDeleteAccountPermission = await prisma.rolePermission.upsert({
+    where: {
+      roleId_permissionId: {
+        roleId: managerRole.id,
+        permissionId: deleteAccountPermission.id,
+      },
+    },
+    update: {},
+    create: {
+      roleId: managerRole.id,
+      permissionId: deleteAccountPermission.id,
+    },
+  });
+  const operatorRoleReadOrganizationPermission = await prisma.rolePermission.upsert({
+    where: {
+      roleId_permissionId: {
+        roleId: operatorRole.id,
+        permissionId: readOrganizationPermission.id,
+      },
+    },
+    update: {},
+    create: {
+      roleId: operatorRole.id,
+      permissionId: readOrganizationPermission.id,
+    },
+  });
+  const operatorRoleReadAccountPermission = await prisma.rolePermission.upsert({
+    where: {
+      roleId_permissionId: {
+        roleId: operatorRole.id,
+        permissionId: readAccountPermission.id,
+      },
+    },
+    update: {},
+    create: {
+      roleId: operatorRole.id,
+      permissionId: readAccountPermission.id,
+    },
+  });
+  const operatorRoleUpdateAccountPermission = await prisma.rolePermission.upsert({
+    where: {
+      roleId_permissionId: {
+        roleId: operatorRole.id,
+        permissionId: updateAccountPermission.id,
+      },
+    },
+    update: {},
+    create: {
+      roleId: operatorRole.id,
+      permissionId: updateAccountPermission.id,
+    },
+  });
+  console.log({
+    superAdminRoleReadOrganizationPermission,
+    superAdminRoleReadAllOrganizationPermission,
+    superAdminRoleCreateOrganizationPermission,
+    superAdminRoleUpdateOrganizationPermission,
+    superAdminRoleDeleteOrganizationPermission,
+    superAdminRoleReadAccountPermission,
+    superAdminRoleCreateAccountPermission,
+    superAdminRoleUpdateAccountPermission,
+    superAdminRoleDeleteAccountPermission,
+    managerRoleReadOrganizationPermission,
+    managerRoleReadAccountPermission,
+    managerRoleCreateAccountPermission,
+    managerRoleUpdateAccountPermission,
+    managerRoleDeleteAccountPermission,
+    operatorRoleReadOrganizationPermission,
+    operatorRoleReadAccountPermission,
+    operatorRoleUpdateAccountPermission,
+  });
+
+  // Organization
   const organizationId01 = uuidv4();
   const organizationId02 = uuidv4();
   const organization01 = await prisma.organization.upsert({
@@ -33,6 +399,8 @@ async function main() {
     },
   });
   console.log({ organization01, organization02 });
+
+  // Account
   const superAdmin = await prisma.account.upsert({
     where: { userId: "super-admin" },
     update: {},
@@ -42,7 +410,7 @@ async function main() {
       name: "管理　太郎",
       password: await hashPassword("password"),
       organizationId: undefined,
-      role: "SuperAdmin",
+      roleId: superAdminRole.id,
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -56,7 +424,7 @@ async function main() {
       name: "監督　花子",
       password: await hashPassword("password"),
       organizationId: organization01.id,
-      role: "Manager",
+      roleId: managerRole.id,
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -70,7 +438,7 @@ async function main() {
       name: "実働　次郎",
       password: await hashPassword("password"),
       organizationId: organization01.id,
-      role: "Operator",
+      roleId: operatorRole.id,
       createdAt: new Date(),
       updatedAt: new Date(),
     },

@@ -1,3 +1,5 @@
+import { Account } from "@/domain/account/account.js";
+import { UnexpectedError } from "@/errors/errors.js";
 import { schemas } from "@/generated/client/client.gen.js";
 import type { OrganizationCreateCommand } from "@/usecase/organization/command/create.js";
 import type { OrganizationDeleteCommand } from "@/usecase/organization/command/delete.js";
@@ -39,7 +41,7 @@ export class OrganizationHandler {
 
   async getOrganizationProfile(c: Context) {
     const id = c.req.param("id");
-    const result = await this.organizationProfileQuery.execute(id);
+    const result = await this.organizationProfileQuery.execute(id, c.get("actor"));
 
     if (result.isErr()) {
       c.get("logger").error("OrganizationProfileQuery failed", {

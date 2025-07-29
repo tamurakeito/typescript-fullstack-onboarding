@@ -1,10 +1,12 @@
 import type { AccountRepository } from "@/domain/account/account-repository.js";
 import { Account, type Role } from "@/domain/account/account.js";
 import type { PasswordHash } from "@/domain/account/password-hash.js";
+import type { Actor } from "@/domain/authorization/permission.js";
 import type { OrganizationRepository } from "@/domain/organization/organization-repository.js";
 import {
   type AppError,
   DuplicateUserIdError,
+  ForbiddenError,
   UnExistAccountError,
   UnexpectedError,
 } from "@/errors/errors.js";
@@ -17,7 +19,8 @@ export interface UserCreateCommand {
     name: string,
     password: string,
     organizationId: string,
-    role: Role
+    role: Role,
+    actor: Actor
   ): Promise<Result<Account, AppError>>;
 }
 
@@ -33,8 +36,13 @@ export class UserCreateCommandImpl implements UserCreateCommand {
     name: string,
     password: string,
     organizationId: string,
-    role: Role
+    role: Role,
+    actor: Actor
   ): Promise<Result<Account, AppError>> {
+    if (actor.role === "Manager" && actor.organizationId !== organizationId) {
+      return err(new ForbiddenError());
+    }
+
     const [accountExist, organizationExist] = await Promise.all([
       this.accountRepository.findByUserId(userId),
       this.organizationRepository.findById(organizationId),
