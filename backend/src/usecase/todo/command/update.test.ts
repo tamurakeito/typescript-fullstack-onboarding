@@ -216,4 +216,149 @@ describe("TodoUpdateCommandImpl", () => {
       expect(mockTodoRepository.save).toHaveBeenCalledWith(mockNewTodoItem);
     }
   });
+
+  it("存在しないTodoアイテムを更新しようとした場合", async () => {
+    const todoUpdateCommand = new TodoUpdateCommandImpl(mockTodoRepository);
+
+    const mockOrganizationId = "mock-uuid-123";
+
+    const mockAccount = Account.create(
+      "mock-uuid-user-01",
+      "user-01",
+      "テストユーザー01",
+      "password",
+      mockOrganizationId,
+      "Manager"
+    )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["update:Todo"],
+      update: mockAccount.update,
+    };
+
+    const mockTodoItem = TodoItem.create(
+      "mock-uuid-todo-01",
+      "テストタスク01",
+      "テストタスク01の説明",
+      "NotStarted"
+    )._unsafeUnwrap();
+
+    mockTodoRepository.findById.mockResolvedValue(err(new UnExistTodoError()));
+
+    const result = await todoUpdateCommand.execute(
+      mockTodoItem.id,
+      "テストタスク01の更新",
+      "テストタスク01の更新の説明",
+      "InProgress",
+      mockActor
+    );
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error).toBeInstanceOf(UnExistTodoError);
+      expect(mockTodoRepository.findById).toHaveBeenCalledWith(mockTodoItem.id);
+    }
+  });
+
+  it("Manager以下の権限でTodoアイテムを操作しようとした場合", async () => {
+    const todoUpdateCommand = new TodoUpdateCommandImpl(mockTodoRepository);
+
+    const mockOrganizationId = "mock-uuid-123";
+
+    const mockAccount = Account.create(
+      "mock-uuid-user-01",
+      "user-01",
+      "テストユーザー01",
+      "password",
+      "mock-uuid-456",
+      "Manager"
+    )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["update:Todo"],
+      update: mockAccount.update,
+    };
+
+    const mockTodoItem = TodoItem.create(
+      "mock-uuid-todo-01",
+      "テストタスク01",
+      "テストタスク01の説明",
+      "NotStarted"
+    )._unsafeUnwrap();
+
+    mockTodoRepository.findById.mockResolvedValue(
+      ok({ todo: mockTodoItem, organizationId: mockOrganizationId })
+    );
+
+    const result = await todoUpdateCommand.execute(
+      mockTodoItem.id,
+      "テストタスク01の更新",
+      "テストタスク01の更新の説明",
+      "InProgress",
+      mockActor
+    );
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error).toBeInstanceOf(ForbiddenError);
+      expect(mockTodoRepository.findById).toHaveBeenCalledWith(mockTodoItem.id);
+    }
+  });
+
+  it("データベースエラー", async () => {
+    const todoUpdateCommand = new TodoUpdateCommandImpl(mockTodoRepository);
+
+    const mockOrganizationId = "mock-uuid-123";
+
+    const mockAccount = Account.create(
+      "mock-uuid-user-01",
+      "user-01",
+      "テストユーザー01",
+      "password",
+      mockOrganizationId,
+      "Manager"
+    )._unsafeUnwrap();
+
+    const mockActor: Actor = {
+      ...mockAccount,
+      permissions: ["update:Todo"],
+      update: mockAccount.update,
+    };
+
+    const mockTodoItem = TodoItem.create(
+      "mock-uuid-todo-01",
+      "テストタスク01",
+      "テストタスク01の説明",
+      "NotStarted"
+    )._unsafeUnwrap();
+
+    const mockNewTodoItem = TodoItem.create(
+      "mock-uuid-todo-01",
+      "テストタスク01の更新",
+      "テストタスク01の更新の説明",
+      "InProgress"
+    )._unsafeUnwrap();
+
+    mockTodoRepository.findById.mockResolvedValue(
+      ok({ todo: mockTodoItem, organizationId: mockOrganizationId })
+    );
+    mockTodoRepository.save.mockResolvedValue(err(new UnexpectedError()));
+
+    const result = await todoUpdateCommand.execute(
+      mockTodoItem.id,
+      "テストタスク01の更新",
+      "テストタスク01の更新の説明",
+      "InProgress",
+      mockActor
+    );
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error).toBeInstanceOf(UnexpectedError);
+      expect(mockTodoRepository.findById).toHaveBeenCalledWith(mockTodoItem.id);
+      expect(mockTodoRepository.save).toHaveBeenCalledWith(mockNewTodoItem, mockOrganizationId);
+    }
+  });
 });
