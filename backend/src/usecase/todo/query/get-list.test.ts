@@ -68,7 +68,13 @@ describe("TodoListQueryImpl", () => {
       expect(todoList.list).toEqual(mockTodos);
       expect(mockFindUnique).toHaveBeenCalledWith({
         where: { id: organizationId },
-        include: { todos: true },
+        include: {
+          todos: {
+            orderBy: {
+              createdAt: "desc",
+            },
+          },
+        },
       });
     }
   });
@@ -124,7 +130,13 @@ describe("TodoListQueryImpl", () => {
       expect(result.error).toBeInstanceOf(NoOrganizationError);
       expect(mockFindUnique).toHaveBeenCalledWith({
         where: { id: organizationId },
-        include: { todos: true },
+        include: {
+          todos: {
+            orderBy: {
+              createdAt: "desc",
+            },
+          },
+        },
       });
     }
   });
