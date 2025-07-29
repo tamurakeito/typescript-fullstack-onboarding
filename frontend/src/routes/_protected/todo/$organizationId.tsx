@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_protected/todo/$organizationId")({
     await queryClient.ensureQueryData(
       todoGetListOptions({
         path: {
-          id: organizationId,
+          organizationId,
         },
       })
     );
@@ -20,7 +20,7 @@ export const Route = createFileRoute("/_protected/todo/$organizationId")({
     const { data: todoList } = useSuspenseQuery(
       todoGetListOptions({
         path: {
-          id: organizationId,
+          organizationId,
         },
       })
     );
