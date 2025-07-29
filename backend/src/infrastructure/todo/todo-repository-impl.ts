@@ -27,7 +27,7 @@ export class TodoRepositoryImpl implements TodoRepository {
     }
   }
 
-  async save(todo: TodoItem, organizationId: string | undefined): Promise<Result<TodoItem, Error>> {
+  async save(todo: TodoItem, organizationId: string): Promise<Result<TodoItem, Error>> {
     try {
       const result = await this.prisma.todo.upsert({
         where: { id: todo.id },
@@ -41,7 +41,7 @@ export class TodoRepositoryImpl implements TodoRepository {
           title: todo.title,
           description: todo.description,
           status: todo.status,
-          organizationId: organizationId ?? "",
+          organizationId: organizationId,
         },
       });
 
