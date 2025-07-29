@@ -13,7 +13,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/_protected")({
   component: () => {
-    const { account, signOut } = useAuthStore.getState();
+    const { account, signOut } = useAuthStore();
     const navigate = useNavigate();
 
     const allowedRoles: Array<Role> = ["SuperAdmin", "Manager"];
@@ -39,6 +39,9 @@ export const Route = createFileRoute("/_protected")({
                     {allowedRoles.includes(account?.role as Role) ? "組織管理" : "組織"}
                   </NavigationMenuLink>
                 </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuLink href="/account">アカウント</NavigationMenuLink>
+                </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
           </div>
@@ -59,6 +62,9 @@ export const Route = createFileRoute("/_protected")({
   beforeLoad: () => {
     const { account, token } = useAuthStore.getState();
     if (!account || !token) {
+      toast.error("アカウント情報が見つかりませんでした。再度ログインしてください。", {
+        duration: 1000,
+      });
       throw redirect({
         to: "/sign-in",
         search: {

@@ -23,6 +23,7 @@ import { UserCreateCommandImpl } from "./usecase/user/command/create.js";
 import { UserDeleteCommandImpl } from "./usecase/user/command/delete.js";
 import { UserUpdateRoleCommandImpl } from "./usecase/user/command/update-role.js";
 import { UserUpdateCommandImpl } from "./usecase/user/command/update.js";
+import { UserQueryImpl } from "./usecase/user/query/get.js";
 
 const app = new Hono<Env>();
 
@@ -53,6 +54,7 @@ const organizationHandler = new OrganizationHandler(
 );
 
 const accountRepository = new AccountRepositoryImpl();
+const userQuery = new UserQueryImpl();
 const userCreateCommand = new UserCreateCommandImpl(
   accountRepository,
   organizationRepository,
@@ -62,6 +64,7 @@ const userUpdateCommand = new UserUpdateCommandImpl(accountRepository, passwordH
 const userUpdateRoleCommand = new UserUpdateRoleCommandImpl(accountRepository);
 const userDeleteCommand = new UserDeleteCommandImpl(accountRepository);
 const userHandler = new UserHandler(
+  userQuery,
   userCreateCommand,
   userUpdateCommand,
   userUpdateRoleCommand,
