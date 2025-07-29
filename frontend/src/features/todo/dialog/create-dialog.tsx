@@ -47,6 +47,7 @@ export const TodoCreateDialog = ({
           },
         }).queryKey,
       });
+      reset();
     },
     onError: (error) => {
       toast.error(error.message || "エラーが発生しました", { duration: 500 });
@@ -72,7 +73,6 @@ export const TodoCreateDialog = ({
       body: data,
     });
     setIsOpenCreateDialog(false);
-    reset();
   };
 
   return (
