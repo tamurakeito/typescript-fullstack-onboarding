@@ -9,25 +9,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLoaderData } from "@tanstack/react-router";
 import { Check, Pencil, X } from "lucide-react";
 import { useState } from "react";
-import { Controller, type SubmitHandler, useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-
-const untouchedPassword = "_untouched_";
-
-const accountFormSchema = z.object({
-  userId: z.string().min(1, {
-    message: "ユーザーIDを入力してください",
-  }),
-  name: z.string().min(1, {
-    message: "名前を入力してください",
-  }),
-  password: z.string().refine((val) => val !== untouchedPassword && val.length > 0, {
-    message: "パスワードを入力してください",
-  }),
-});
-
-type AccountFormData = z.infer<typeof accountFormSchema>;
 
 export const Account = ({ profile }: { profile: UserProfile }) => {
   const { account, token } = useLoaderData({ from: "/_protected/account/" });
@@ -35,6 +19,43 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
   const [isUserIdEdit, setIsUserIdEdit] = useState<boolean>(false);
   const [isNameEdit, setIsNameEdit] = useState<boolean>(false);
   const [isPasswordEdit, setIsPasswordEdit] = useState<boolean>(false);
+
+  const accountFormSchema = z.object({
+    userId: z.string().refine(
+      (val) => {
+        if (isUserIdEdit) {
+          return val.length > 0;
+        }
+        return true;
+      },
+      {
+        message: "ユーザーIDを入力してください",
+      }
+    ),
+    name: z.string().refine(
+      (val) => {
+        if (isNameEdit) {
+          return val.length > 0;
+        }
+        return true;
+      },
+      {
+        message: "名前を入力してください",
+      }
+    ),
+    password: z.string().refine(
+      (val) => {
+        if (isPasswordEdit) {
+          return val.length > 0;
+        }
+        return true;
+      },
+      {
+        message: "パスワードを入力してください",
+      }
+    ),
+  });
+  type AccountFormData = z.infer<typeof accountFormSchema>;
 
   const queryClient = useQueryClient();
   const mutation = useMutation({
@@ -67,66 +88,41 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
     handleSubmit,
     formState: { errors },
     reset,
-    getValues,
+    setValue,
   } = useForm<AccountFormData>({
     resolver: zodResolver(accountFormSchema),
     defaultValues: {
-      userId: profile.userId,
-      name: profile.name,
-      password: untouchedPassword,
+      userId: "",
+      name: "",
+      password: "",
     },
   });
 
-  const onSubmitUserId: SubmitHandler<AccountFormData> = async (data) => {
+  const onSubmit = async (data: AccountFormData) => {
     await mutation.mutateAsync({
       body: {
         userId: data.userId,
-        name: "",
-        password: "",
-      },
-      path: {
-        id: account.id,
-      },
-    });
-    setIsUserIdEdit(false);
-    reset({ ...getValues(), userId: data.userId });
-  };
-
-  const onSubmitName: SubmitHandler<AccountFormData> = async (data) => {
-    await mutation.mutateAsync({
-      body: {
-        userId: "",
         name: data.name,
-        password: "",
-      },
-      path: {
-        id: account.id,
-      },
-    });
-    setIsNameEdit(false);
-    reset({ ...getValues(), name: data.name });
-  };
-
-  const onSubmitPassword: SubmitHandler<AccountFormData> = async (data) => {
-    await mutation.mutateAsync({
-      body: {
-        userId: "",
-        name: "",
         password: data.password,
       },
       path: {
         id: account.id,
       },
     });
+    setIsUserIdEdit(false);
+    setIsNameEdit(false);
     setIsPasswordEdit(false);
-    reset({ ...getValues(), password: untouchedPassword });
+    reset();
   };
 
   return (
     <div className="h-screen flex p-6">
-      <div className="w-full max-w-md h-fit mx-auto bg-white rounded-xl shadow-md p-8 flex flex-col gap-6">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="w-full max-w-md h-fit mx-auto bg-white rounded-xl shadow-md p-8 flex flex-col gap-6"
+      >
         <h1 className="text-3xl font-bold text-center text-gray-900 mb-2">アカウント情報</h1>
-        <form onSubmit={handleSubmit(onSubmitUserId)} className="flex flex-col gap-2 border-b pb-4">
+        <div className="flex flex-col gap-2 border-b pb-4">
           <span className="text-xs text-gray-400">ユーザーID</span>
           <div className="flex items-center justify-between">
             <span className="text-base font-mono text-gray-700 w-full">
@@ -150,6 +146,7 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
                     onClick={(e) => {
                       e.stopPropagation();
                       setIsUserIdEdit(true);
+                      setValue("userId", profile.userId);
                     }}
                     className="text-gray-600 hover:text-gray-900 mr-6 cursor-pointer"
                   />
@@ -193,8 +190,8 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
             )}
           </div>
           {errors.userId && <p className="text-red-500">{errors.userId.message}</p>}
-        </form>
-        <form onSubmit={handleSubmit(onSubmitName)} className="flex flex-col gap-2 border-b pb-4">
+        </div>
+        <div className="flex flex-col gap-2 border-b pb-4">
           <span className="text-xs text-gray-400">名前</span>
           <div className="flex items-center justify-between">
             <span className="text-base text-gray-700 w-full">
@@ -218,6 +215,7 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
                     onClick={(e) => {
                       e.stopPropagation();
                       setIsNameEdit(true);
+                      setValue("name", profile.name);
                     }}
                     className="text-gray-600 hover:text-gray-900 mr-6 cursor-pointer"
                   />
@@ -261,11 +259,8 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
             )}
           </div>
           {errors.name && <p className="text-red-500">{errors.name.message}</p>}
-        </form>
-        <form
-          onSubmit={handleSubmit(onSubmitPassword)}
-          className="flex flex-col gap-2 border-b pb-4"
-        >
+        </div>
+        <div className="flex flex-col gap-2 border-b pb-4">
           <span className="text-xs text-gray-400">パスワード</span>
           <div className="flex items-center justify-between">
             <span className="text-base text-gray-400 tracking-widest select-none w-full">
@@ -280,8 +275,6 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
                       type="password"
                       placeholder="新しいパスワードを入力してください"
                       {...field}
-                      value={field.value === "_untouched_" ? "" : field.value}
-                      onChange={(e) => field.onChange(e.target.value)}
                     />
                   )}
                 />
@@ -338,7 +331,7 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
             )}
           </div>
           {errors.password && <p className="text-red-500">{errors.password.message}</p>}
-        </form>
+        </div>
         {profile.organization && (
           <div className="flex flex-col gap-2 border-b pb-4">
             <span className="text-xs text-gray-400">所属</span>
@@ -349,7 +342,7 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
           <span className="text-xs text-gray-400">ロール</span>
           <Badge className="bg-gray-100 text-gray-700 text-md font-mono">{profile.role}</Badge>
         </div>
-      </div>
+      </form>
     </div>
   );
 };

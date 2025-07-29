@@ -4,7 +4,6 @@ import {
   type AppError,
   ForbiddenError,
   NoOrganizationError,
-  NoTodoItemError,
   UnexpectedError,
 } from "@/errors/errors.js";
 import { PrismaClient } from "@/generated/prisma/index.js";
