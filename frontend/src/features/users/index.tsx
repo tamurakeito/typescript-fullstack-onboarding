@@ -13,13 +13,11 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { useAuthStore } from "@/store/auth-store";
 import { Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { UserCreateDialog } from "./dialog/create-user-dialog";
-import { UserDeleteDialog } from "./dialog/delete-user-dialog";
-import { UserUpdateDialog } from "./dialog/update-user-dialog";
+import { UserCreateDialog } from "./dialog/create-dialog";
+import { UserDeleteDialog } from "./dialog/delete-dialog";
+import { UserUpdateDialog } from "./dialog/update-dialog";
 
-export const OrganizationProfile = ({
-  organization,
-}: { organization: OrganizationProfileType }) => {
+export const UserList = ({ organization }: { organization: OrganizationProfileType }) => {
   const [isOpenCreateUserDialog, setIsOpenCreateUserDialog] = useState<boolean>(false);
   const [isOpenUpdateUserDialog, setIsOpenUpdateUserDialog] = useState<boolean>(false);
   const [isOpenDeleteUserDialog, setIsOpenDeleteUserDialog] = useState<boolean>(false);

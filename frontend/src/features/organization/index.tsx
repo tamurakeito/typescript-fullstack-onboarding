@@ -21,14 +21,13 @@ export const Organization = ({
 }: {
   organizationList: Array<OrganizationType>;
 }) => {
-  const navigate = useNavigate();
   const [isOpenCreateDialog, setIsOpenCreateDialog] = useState<boolean>(false);
   const [isOpenEditDialog, setIsOpenEditDialog] = useState<boolean>(false);
   const [isOpenDeleteDialog, setIsOpenDeleteDialog] = useState<boolean>(false);
   const [selectedOrganization, setSelectedOrganization] = useState<OrganizationType | undefined>(
     undefined
   );
-
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6">
       <div className="max-w-6xl mx-auto">
@@ -54,49 +53,65 @@ export const Organization = ({
               <TableRow>
                 <TableHead>組織名</TableHead>
                 <TableHead className="w-[120px]"> </TableHead>
+                <TableHead className="w-[120px]"> </TableHead>
+                <TableHead className="w-[120px]"> </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {organizationList.map((org) => (
-                <TableRow
-                  key={org.id}
-                  className="cursor-pointer"
-                  onClick={() => navigate({ to: `/organization/${org.id}` })}
-                >
+                <TableRow key={org.id}>
                   <TableCell className="font-medium">{org.name}</TableCell>
-                  <TableCell className="flex justify-center items-center">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Pencil
-                          size={20}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setIsOpenEditDialog(true);
-                            setSelectedOrganization(org);
-                          }}
-                          className="text-gray-600 hover:text-gray-900 mr-6 cursor-pointer"
-                        />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>編集</p>
-                      </TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Trash2
-                          size={20}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setIsOpenDeleteDialog(true);
-                            setSelectedOrganization(org);
-                          }}
-                          className="text-gray-600 hover:text-gray-900 cursor-pointer"
-                        />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>削除</p>
-                      </TooltipContent>
-                    </Tooltip>
+                  <TableCell>
+                    <Button
+                      variant="link"
+                      onClick={() => navigate({ to: `/organizations/${org.id}/todos` })}
+                    >
+                      Todoリスト
+                    </Button>
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="link"
+                      onClick={() => navigate({ to: `/organizations/${org.id}/users` })}
+                    >
+                      ユーザー管理
+                    </Button>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center justify-center">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Pencil
+                            size={20}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setIsOpenEditDialog(true);
+                              setSelectedOrganization(org);
+                            }}
+                            className="text-gray-600 hover:text-gray-900 mr-6 cursor-pointer"
+                          />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>編集</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Trash2
+                            size={20}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setIsOpenDeleteDialog(true);
+                              setSelectedOrganization(org);
+                            }}
+                            className="text-gray-600 hover:text-gray-900 cursor-pointer"
+                          />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>削除</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
