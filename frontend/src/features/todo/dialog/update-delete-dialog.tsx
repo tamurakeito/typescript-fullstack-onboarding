@@ -109,6 +109,7 @@ export const TodoUpdateDeleteDialog = ({
           },
         }).queryKey,
       });
+      resetDialogState();
     },
     onError: (error) => {
       toast.error(error.message || "エラーが発生しました", { duration: 500 });
