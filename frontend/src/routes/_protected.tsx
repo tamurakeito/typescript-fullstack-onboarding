@@ -17,6 +17,7 @@ export const Route = createFileRoute("/_protected")({
     const navigate = useNavigate();
 
     const allowedRoles: Array<Role> = ["SuperAdmin", "Manager"];
+    const supperAdminRoles: Array<Role> = ["SuperAdmin"];
 
     const handleSignOut = () => {
       toast.success("サインアウトしました", { duration: 500 });
@@ -32,7 +33,15 @@ export const Route = createFileRoute("/_protected")({
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
-                  <NavigationMenuLink href="/">HOME</NavigationMenuLink>
+                  <NavigationMenuLink
+                    href={
+                      supperAdminRoles.includes(account?.role as Role)
+                        ? "/todo-list-select"
+                        : `/${account?.organizationId}/todo-list`
+                    }
+                  >
+                    Todoリスト
+                  </NavigationMenuLink>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
                   <NavigationMenuLink href="/organization">
