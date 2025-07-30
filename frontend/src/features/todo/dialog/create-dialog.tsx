@@ -64,13 +64,17 @@ export const TodoCreateDialog = ({
     defaultValues: {
       title: "",
       description: "",
-      organizationId: organizationId,
+      organizationId: "",
     },
   });
 
   const onSubmit: SubmitHandler<z.infer<typeof zCreateTodoItemRequest>> = async (data) => {
     await mutation.mutateAsync({
-      body: data,
+      body: {
+        title: data.title,
+        description: data.description,
+        organizationId,
+      },
     });
     setIsOpenCreateDialog(false);
   };
