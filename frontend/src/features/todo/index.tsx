@@ -1,7 +1,8 @@
-import type { TodoGetListResponse } from "@/client/types.gen";
+import type { TodoGetListResponse, TodoItem as TodoItemType } from "@/client/types.gen";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { TodoCreateDialog } from "./dialog/create-dialog";
+import { TodoUpdateDialog } from "./dialog/update-dialog";
 
 const statusColor = (status?: string) => {
   switch (status) {
@@ -34,14 +35,17 @@ export const TodoList = ({ todoList }: { todoList: TodoGetListResponse }) => {
         </div>
         <div className="flex flex-row gap-4">
           <TodoCulumn
+            organizationId={todoList.organizationId}
             list={todoList?.list.filter((todo) => todo.status === "NotStarted") ?? []}
             status="未着手"
           />
           <TodoCulumn
+            organizationId={todoList.organizationId}
             list={todoList?.list.filter((todo) => todo.status === "InProgress") ?? []}
             status="進行中"
           />
           <TodoCulumn
+            organizationId={todoList.organizationId}
             list={todoList?.list.filter((todo) => todo.status === "Completed") ?? []}
             status="完了"
           />
@@ -56,40 +60,69 @@ export const TodoList = ({ todoList }: { todoList: TodoGetListResponse }) => {
   );
 };
 
-const TodoCulumn = ({ list, status }: { list: TodoGetListResponse["list"]; status: string }) => {
+const TodoCulumn = ({
+  organizationId,
+  list,
+  status,
+}: { organizationId: string; list: TodoGetListResponse["list"]; status: string }) => {
   return (
     <div className="w-full">
       <h2 className="text-gray-500 text-l font-bold pl-2 mb-2">{status}</h2>
       <div className="space-y-2 overflow-y-auto pb-2 w-full h-[calc(100vh-180px)]">
         {list.length ? (
           list.map((todo) => (
-            <div
-              key={todo.id}
-              className="flex flex-col md:flex-row md:items-center justify-between bg-white rounded-lg cursor-pointer shadow p-4 border hover:bg-gray-100 transition"
-            >
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-semibold text-gray-800">{todo.title}</span>
-                </div>
-                <div className="mt-1 text-gray-600 text-sm break-words">
-                  {todo.description ?? <span className="text-gray-400">説明なし</span>}
-                </div>
-              </div>
-              <div className="mt-3 md:mt-0 md:ml-6 flex-shrink-0">
-                <span
-                  className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${statusColor(
-                    todo.status
-                  )}`}
-                >
-                  {status}
-                </span>
-              </div>
-            </div>
+            <TodoItem key={todo.id} todo={todo} status={status} organizationId={organizationId} />
           ))
         ) : (
           <div className="text-gray-500 text-center py-10">タスクはありません</div>
         )}
       </div>
     </div>
+  );
+};
+
+const TodoItem = ({
+  todo,
+  status,
+  organizationId,
+}: { todo: TodoItemType; status: string; organizationId: string }) => {
+  const [isOpenUpdateDialog, setIsOpenUpdateDialog] = useState<boolean>(false);
+  return (
+    <>
+      <button
+        key={todo.id}
+        type="button"
+        className="flex flex-col md:flex-row md:items-center justify-between bg-white rounded-lg cursor-pointer shadow p-4 border hover:bg-gray-100 transition w-full text-left"
+        onClick={() => {
+          setIsOpenUpdateDialog(true);
+        }}
+      >
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-lg font-semibold text-gray-800">{todo.title}</span>
+          </div>
+          <div className="mt-1 text-gray-600 text-sm break-words">
+            {todo.description ?? <span className="text-gray-400">説明なし</span>}
+          </div>
+        </div>
+        <div className="mt-3 md:mt-0 md:ml-6 flex-shrink-0">
+          <span
+            className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${statusColor(
+              todo.status
+            )}`}
+          >
+            {status}
+          </span>
+        </div>
+      </button>
+      {isOpenUpdateDialog && (
+        <TodoUpdateDialog
+          isOpenUpdateDialog={isOpenUpdateDialog}
+          setIsOpenUpdateDialog={setIsOpenUpdateDialog}
+          todo={todo}
+          organizationId={organizationId}
+        />
+      )}
+    </>
   );
 };
