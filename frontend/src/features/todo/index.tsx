@@ -1,7 +1,8 @@
-import type { TodoGetListResponse } from "@/client/types.gen";
+import type { TodoGetListResponse, TodoItem as TodoItemType } from "@/client/types.gen";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { TodoCreateDialog } from "./dialog/create-dialog";
+import { TodoUpdateDialog } from "./dialog/update-dialog";
 
 const statusColor = (status?: string) => {
   switch (status) {
@@ -62,34 +63,53 @@ const TodoCulumn = ({ list, status }: { list: TodoGetListResponse["list"]; statu
       <h2 className="text-gray-500 text-l font-bold pl-2 mb-2">{status}</h2>
       <div className="space-y-2 overflow-y-auto pb-2 w-full h-[calc(100vh-180px)]">
         {list.length ? (
-          list.map((todo) => (
-            <div
-              key={todo.id}
-              className="flex flex-col md:flex-row md:items-center justify-between bg-white rounded-lg cursor-pointer shadow p-4 border hover:bg-gray-100 transition"
-            >
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-semibold text-gray-800">{todo.title}</span>
-                </div>
-                <div className="mt-1 text-gray-600 text-sm break-words">
-                  {todo.description ?? <span className="text-gray-400">説明なし</span>}
-                </div>
-              </div>
-              <div className="mt-3 md:mt-0 md:ml-6 flex-shrink-0">
-                <span
-                  className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${statusColor(
-                    todo.status
-                  )}`}
-                >
-                  {status}
-                </span>
-              </div>
-            </div>
-          ))
+          list.map((todo) => <TodoItem key={todo.id} todo={todo} status={status} />)
         ) : (
           <div className="text-gray-500 text-center py-10">タスクはありません</div>
         )}
       </div>
     </div>
+  );
+};
+
+const TodoItem = ({ todo, status }: { todo: TodoItemType; status: string }) => {
+  const [isOpenUpdateDialog, setIsOpenUpdateDialog] = useState<boolean>(false);
+  return (
+    <>
+      <button
+        key={todo.id}
+        type="button"
+        className="flex flex-col md:flex-row md:items-center justify-between bg-white rounded-lg cursor-pointer shadow p-4 border hover:bg-gray-100 transition w-full text-left"
+        onClick={() => {
+          setIsOpenUpdateDialog(true);
+        }}
+      >
+        <span className="flex-1 min-w-0">
+          <span className="flex items-center gap-2">
+            <span className="text-lg font-semibold text-gray-800">{todo.title}</span>
+          </span>
+          <span className="mt-1 text-gray-600 text-sm break-words block">
+            {todo.description ?? <span className="text-gray-400">説明なし</span>}
+          </span>
+        </span>
+        <span className="mt-3 md:mt-0 md:ml-6 flex-shrink-0">
+          <span
+            className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${statusColor(
+              todo.status
+            )}`}
+          >
+            {status}
+          </span>
+        </span>
+      </button>
+      {isOpenUpdateDialog && (
+        <TodoUpdateDialog
+          isOpenUpdateDialog={isOpenUpdateDialog}
+          setIsOpenUpdateDialog={setIsOpenUpdateDialog}
+          todo={todo}
+          organizationId={todo.organizationId}
+        />
+      )}
+    </>
   );
 };
