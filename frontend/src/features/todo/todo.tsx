@@ -1,4 +1,7 @@
 import type { TodoGetListResponse } from "@/client/types.gen";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { TodoCreateDialog } from "./dialog/create-dialog";
 
 const statusColor = (status?: string) => {
   switch (status) {
@@ -14,10 +17,21 @@ const statusColor = (status?: string) => {
 };
 
 export const TodoList = ({ todoList }: { todoList: TodoGetListResponse }) => {
+  const [isOpenCreateDialog, setIsOpenCreateDialog] = useState<boolean>(false);
   return (
     <div className="min-h-screen p-6">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-2xl font-bold mb-4 text-gray-900">{todoList?.organizationName}</h1>
+        <div className="w-full flex justify-between mb-2">
+          <h1 className="text-2xl font-bold mb-4 text-gray-900">{todoList?.organizationName}</h1>
+          <Button
+            onClick={() => {
+              setIsOpenCreateDialog(true);
+            }}
+            className="mt-4"
+          >
+            新規作成
+          </Button>
+        </div>
         <div className="flex flex-row gap-4">
           <TodoCulumn
             list={todoList?.list.filter((todo) => todo.status === "NotStarted") ?? []}
@@ -33,6 +47,11 @@ export const TodoList = ({ todoList }: { todoList: TodoGetListResponse }) => {
           />
         </div>
       </div>
+      <TodoCreateDialog
+        isOpenCreateDialog={isOpenCreateDialog}
+        setIsOpenCreateDialog={setIsOpenCreateDialog}
+        organizationId={todoList.organizationId}
+      />
     </div>
   );
 };
