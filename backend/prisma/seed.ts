@@ -10,6 +10,13 @@ async function hashPassword(password: string) {
 }
 
 async function main() {
+  await prisma.todo.deleteMany({});
+  await prisma.account.deleteMany({});
+  await prisma.rolePermission.deleteMany({});
+  await prisma.role.deleteMany({});
+  await prisma.permission.deleteMany({});
+  await prisma.organization.deleteMany({});
+
   // Authorization
   const superAdminRoleId = uuidv4();
   const managerRoleId = uuidv4();
@@ -52,6 +59,7 @@ async function main() {
   const readTodoPermissionId = uuidv4();
   const createTodoPermissionId = uuidv4();
   const updateTodoPermissionId = uuidv4();
+  const deleteTodoPermissionId = uuidv4();
   const readOrganizationPermission = await prisma.permission.upsert({
     where: { name: "read:Organization" },
     update: {},
@@ -148,6 +156,14 @@ async function main() {
       name: "update:Todo",
     },
   });
+  const deleteTodoPermission = await prisma.permission.upsert({
+    where: { name: "delete:Todo" },
+    update: {},
+    create: {
+      id: deleteTodoPermissionId,
+      name: "delete:Todo",
+    },
+  });
   console.log({
     readOrganizationPermission,
     readAllOrganizationPermission,
@@ -161,6 +177,7 @@ async function main() {
     readTodoPermission,
     createTodoPermission,
     updateTodoPermission,
+    deleteTodoPermission,
   });
 
   const superAdminRoleReadOrganizationPermission = await prisma.rolePermission.upsert({
@@ -319,6 +336,19 @@ async function main() {
       permissionId: updateTodoPermission.id,
     },
   });
+  const superAdminRoleDeleteTodoPermission = await prisma.rolePermission.upsert({
+    where: {
+      roleId_permissionId: {
+        roleId: superAdminRole.id,
+        permissionId: deleteTodoPermission.id,
+      },
+    },
+    update: {},
+    create: {
+      roleId: superAdminRole.id,
+      permissionId: deleteTodoPermission.id,
+    },
+  });
   console.log({
     superAdminRoleReadOrganizationPermission,
     superAdminRoleReadAllOrganizationPermission,
@@ -332,6 +362,7 @@ async function main() {
     superAdminRoleReadTodoPermission,
     superAdminRoleCreateTodoPermission,
     superAdminRoleUpdateTodoPermission,
+    superAdminRoleDeleteTodoPermission,
   });
   const managerRoleReadOrganizationPermission = await prisma.rolePermission.upsert({
     where: {
@@ -437,6 +468,19 @@ async function main() {
       permissionId: updateTodoPermission.id,
     },
   });
+  const managerRoleDeleteTodoPermission = await prisma.rolePermission.upsert({
+    where: {
+      roleId_permissionId: {
+        roleId: managerRole.id,
+        permissionId: deleteTodoPermission.id,
+      },
+    },
+    update: {},
+    create: {
+      roleId: managerRole.id,
+      permissionId: deleteTodoPermission.id,
+    },
+  });
   console.log({
     managerRoleReadOrganizationPermission,
     managerRoleReadAccountPermission,
@@ -446,6 +490,7 @@ async function main() {
     managerRoleReadTodoPermission,
     managerRoleCreateTodoPermission,
     managerRoleUpdateTodoPermission,
+    managerRoleDeleteTodoPermission,
   });
   const operatorRoleReadOrganizationPermission = await prisma.rolePermission.upsert({
     where: {
@@ -525,6 +570,19 @@ async function main() {
       permissionId: updateTodoPermission.id,
     },
   });
+  const operatorRoleDeleteTodoPermission = await prisma.rolePermission.upsert({
+    where: {
+      roleId_permissionId: {
+        roleId: operatorRole.id,
+        permissionId: deleteTodoPermission.id,
+      },
+    },
+    update: {},
+    create: {
+      roleId: operatorRole.id,
+      permissionId: deleteTodoPermission.id,
+    },
+  });
   console.log({
     operatorRoleReadOrganizationPermission,
     operatorRoleReadAccountPermission,
@@ -532,6 +590,7 @@ async function main() {
     operatorRoleReadTodoPermission,
     operatorRoleCreateTodoPermission,
     operatorRoleUpdateTodoPermission,
+    operatorRoleDeleteTodoPermission,
   });
 
   // Organization
@@ -605,7 +664,6 @@ async function main() {
   console.log({ superAdmin, manager, operator });
 
   // Todo
-  await prisma.todo.deleteMany({});
   const todoId01 = uuidv4();
   const todoId02 = uuidv4();
   const todoId03 = uuidv4();

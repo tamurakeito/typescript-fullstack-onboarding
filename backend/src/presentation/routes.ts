@@ -218,4 +218,16 @@ export function initRouting(
     permissionMiddleware("update", "Todo"),
     (c) => todoHandler.updateTodo(c)
   );
+  app.delete(
+    "/todo/:id",
+    zValidator("param", z.object({ id: z.string().uuid() }), (result, c) => {
+      if (!result.success) {
+        const error = new BadRequestError();
+        return c.json({ message: error.message }, error.statusCode);
+      }
+    }),
+    jwtMiddleware(jwtService),
+    permissionMiddleware("delete", "Todo"),
+    (c) => todoHandler.deleteTodo(c)
+  );
 }
