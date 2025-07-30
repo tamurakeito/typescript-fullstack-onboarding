@@ -43,7 +43,7 @@ export const TodoCreateDialog = ({
       queryClient.refetchQueries({
         queryKey: todoGetListOptions({
           path: {
-            id: organizationId,
+            organizationId,
           },
         }).queryKey,
       });
