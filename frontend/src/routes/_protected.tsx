@@ -32,22 +32,24 @@ export const Route = createFileRoute("/_protected")({
             <h1 className="text-xl font-bold">組織用Todo管理システム</h1>
             <NavigationMenu>
               <NavigationMenuList>
-                <NavigationMenuItem>
-                  <NavigationMenuLink
-                    href={
-                      supperAdminRoles.includes(account?.role as Role)
-                        ? "/todo-list-select"
-                        : `/${account?.organizationId}/todo-list`
-                    }
-                  >
-                    Todoリスト
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavigationMenuLink href="/organization">
-                    {allowedRoles.includes(account?.role as Role) ? "組織管理" : "組織"}
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
+                {supperAdminRoles.includes(account?.role as Role) ? (
+                  <NavigationMenuItem>
+                    <NavigationMenuLink href="/admin/organizations">組織管理</NavigationMenuLink>
+                  </NavigationMenuItem>
+                ) : (
+                  <>
+                    <NavigationMenuItem>
+                      <NavigationMenuLink href={`/organizations/${account?.organizationId}/todos`}>
+                        Todoリスト
+                      </NavigationMenuLink>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                      <NavigationMenuLink href={`/organizations/${account?.organizationId}/users`}>
+                        {allowedRoles.includes(account?.role as Role) ? "ユーザー管理" : "ユーザー"}
+                      </NavigationMenuLink>
+                    </NavigationMenuItem>
+                  </>
+                )}
                 <NavigationMenuItem>
                   <NavigationMenuLink href="/account">アカウント</NavigationMenuLink>
                 </NavigationMenuItem>
