@@ -1,5 +1,9 @@
 import type { TodoItem as TodoType } from "@/client";
-import { todoGetListOptions, todoUpdateMutation } from "@/client/@tanstack/react-query.gen";
+import {
+  todoDeleteMutation,
+  todoGetListOptions,
+  todoUpdateMutation,
+} from "@/client/@tanstack/react-query.gen";
 import type { zUpdateTodoItemRequest } from "@/client/zod.gen";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,7 +39,7 @@ const formSchema = z.object({
   status: z.enum(["NotStarted", "InProgress", "Completed"]),
 });
 
-export const TodoUpdateDialog = ({
+export const TodoUpdateDeleteDialog = ({
   isOpenUpdateDialog,
   setIsOpenUpdateDialog,
   todo,
@@ -94,6 +98,23 @@ export const TodoUpdateDialog = ({
     reset();
   };
 
+  const deleteMutation = useMutation({
+    ...todoDeleteMutation(),
+    onSuccess: () => {
+      toast.success(`「${todo.title}」を削除しました`, { duration: 1000 });
+      queryClient.refetchQueries({
+        queryKey: todoGetListOptions({
+          path: {
+            organizationId,
+          },
+        }).queryKey,
+      });
+    },
+    onError: (error) => {
+      toast.error(error.message || "エラーが発生しました", { duration: 500 });
+    },
+  });
+
   return (
     <DialogForm
       open={isOpenUpdateDialog}
@@ -103,7 +124,7 @@ export const TodoUpdateDialog = ({
       }}
     >
       <DialogHeader>
-        <DialogTitle>タスクを編集</DialogTitle>
+        <DialogTitle>タスクを編集・削除</DialogTitle>
         <DialogDescription>タスクの内容を変更できます。</DialogDescription>
       </DialogHeader>
       <Label>タスク</Label>
@@ -147,6 +168,15 @@ export const TodoUpdateDialog = ({
           <Button variant={"outline"}>キャンセル</Button>
         </DialogClose>
         <Button type="submit">保存する</Button>
+        <Button
+          type="button"
+          variant={"destructive"}
+          onClick={() => {
+            deleteMutation.mutate({ path: { id: todo.id } });
+          }}
+        >
+          削除する
+        </Button>
       </DialogFooter>
     </DialogForm>
   );

@@ -2,7 +2,7 @@ import type { TodoGetListResponse, TodoItem as TodoItemType } from "@/client/typ
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { TodoCreateDialog } from "./dialog/create-dialog";
-import { TodoUpdateDialog } from "./dialog/update-dialog";
+import { TodoUpdateDeleteDialog } from "./dialog/update-delete-dialog";
 
 const statusColor = (status?: string) => {
   switch (status) {
@@ -103,7 +103,7 @@ const TodoItem = ({ todo, status }: { todo: TodoItemType; status: string }) => {
         </span>
       </button>
       {isOpenUpdateDialog && (
-        <TodoUpdateDialog
+        <TodoUpdateDeleteDialog
           isOpenUpdateDialog={isOpenUpdateDialog}
           setIsOpenUpdateDialog={setIsOpenUpdateDialog}
           todo={todo}
