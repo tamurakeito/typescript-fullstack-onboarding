@@ -2,7 +2,7 @@ import type { TodoGetListResponse, TodoItem as TodoItemType } from "@/client/typ
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { TodoCreateDialog } from "./dialog/create-dialog";
-import { TodoUpdateDialog } from "./dialog/update-dialog";
+import { TodoUpdateDeleteDialog } from "./dialog/update-delete-dialog";
 
 const statusColor = (status?: string) => {
   switch (status) {
@@ -19,6 +19,8 @@ const statusColor = (status?: string) => {
 
 export const TodoList = ({ todoList }: { todoList: TodoGetListResponse }) => {
   const [isOpenCreateDialog, setIsOpenCreateDialog] = useState<boolean>(false);
+  const [isOpenUpdateDeleteDialog, setIsOpenUpdateDeleteDialog] = useState<boolean>(false);
+  const [selectedTodo, setSelectedTodo] = useState<TodoItemType | undefined>(undefined);
   return (
     <div className="min-h-screen p-6">
       <div className="max-w-7xl mx-auto">
@@ -37,14 +39,20 @@ export const TodoList = ({ todoList }: { todoList: TodoGetListResponse }) => {
           <TodoCulumn
             list={todoList?.list.filter((todo) => todo.status === "NotStarted") ?? []}
             status="未着手"
+            setSelectedTodo={setSelectedTodo}
+            setIsOpenUpdateDeleteDialog={setIsOpenUpdateDeleteDialog}
           />
           <TodoCulumn
             list={todoList?.list.filter((todo) => todo.status === "InProgress") ?? []}
             status="進行中"
+            setSelectedTodo={setSelectedTodo}
+            setIsOpenUpdateDeleteDialog={setIsOpenUpdateDeleteDialog}
           />
           <TodoCulumn
             list={todoList?.list.filter((todo) => todo.status === "Completed") ?? []}
             status="完了"
+            setSelectedTodo={setSelectedTodo}
+            setIsOpenUpdateDeleteDialog={setIsOpenUpdateDeleteDialog}
           />
         </div>
       </div>
@@ -53,17 +61,44 @@ export const TodoList = ({ todoList }: { todoList: TodoGetListResponse }) => {
         setIsOpenCreateDialog={setIsOpenCreateDialog}
         organizationId={todoList.organizationId}
       />
+      {isOpenUpdateDeleteDialog && selectedTodo && (
+        <TodoUpdateDeleteDialog
+          isOpenUpdateDeleteDialog={isOpenUpdateDeleteDialog}
+          setIsOpenUpdateDeleteDialog={setIsOpenUpdateDeleteDialog}
+          todo={selectedTodo}
+          setSelectedTodo={setSelectedTodo}
+          organizationId={todoList.organizationId}
+        />
+      )}
     </div>
   );
 };
 
-const TodoCulumn = ({ list, status }: { list: TodoGetListResponse["list"]; status: string }) => {
+const TodoCulumn = ({
+  list,
+  status,
+  setSelectedTodo,
+  setIsOpenUpdateDeleteDialog,
+}: {
+  list: TodoGetListResponse["list"];
+  status: string;
+  setSelectedTodo: (todo: TodoItemType) => void;
+  setIsOpenUpdateDeleteDialog: (isOpenUpdateDeleteDialog: boolean) => void;
+}) => {
   return (
     <div className="w-full">
       <h2 className="text-gray-500 text-l font-bold pl-2 mb-2">{status}</h2>
       <div className="space-y-2 overflow-y-auto pb-2 w-full h-[calc(100vh-180px)]">
         {list.length ? (
-          list.map((todo) => <TodoItem key={todo.id} todo={todo} status={status} />)
+          list.map((todo) => (
+            <TodoItem
+              key={todo.id}
+              todo={todo}
+              status={status}
+              setSelectedTodo={setSelectedTodo}
+              setIsOpenUpdateDeleteDialog={setIsOpenUpdateDeleteDialog}
+            />
+          ))
         ) : (
           <div className="text-gray-500 text-center py-10">タスクはありません</div>
         )}
@@ -72,44 +107,44 @@ const TodoCulumn = ({ list, status }: { list: TodoGetListResponse["list"]; statu
   );
 };
 
-const TodoItem = ({ todo, status }: { todo: TodoItemType; status: string }) => {
-  const [isOpenUpdateDialog, setIsOpenUpdateDialog] = useState<boolean>(false);
+const TodoItem = ({
+  todo,
+  status,
+  setSelectedTodo,
+  setIsOpenUpdateDeleteDialog,
+}: {
+  todo: TodoItemType;
+  status: string;
+  setSelectedTodo: (todo: TodoItemType) => void;
+  setIsOpenUpdateDeleteDialog: (isOpenUpdateDeleteDialog: boolean) => void;
+}) => {
   return (
-    <>
-      <button
-        key={todo.id}
-        type="button"
-        className="flex flex-col md:flex-row md:items-center justify-between bg-white rounded-lg cursor-pointer shadow p-4 border hover:bg-gray-100 transition w-full text-left"
-        onClick={() => {
-          setIsOpenUpdateDialog(true);
-        }}
-      >
-        <span className="flex-1 min-w-0">
-          <span className="flex items-center gap-2">
-            <span className="text-lg font-semibold text-gray-800">{todo.title}</span>
-          </span>
-          <span className="mt-1 text-gray-600 text-sm break-words block">
-            {todo.description ?? <span className="text-gray-400">説明なし</span>}
-          </span>
+    <button
+      key={todo.id}
+      type="button"
+      className="flex flex-col md:flex-row md:items-center justify-between bg-white rounded-lg cursor-pointer shadow p-4 border hover:bg-gray-100 transition w-full text-left"
+      onClick={() => {
+        setSelectedTodo(todo);
+        setIsOpenUpdateDeleteDialog(true);
+      }}
+    >
+      <span className="flex-1 min-w-0">
+        <span className="flex items-center gap-2">
+          <span className="text-lg font-semibold text-gray-800">{todo.title}</span>
         </span>
-        <span className="mt-3 md:mt-0 md:ml-6 flex-shrink-0">
-          <span
-            className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${statusColor(
-              todo.status
-            )}`}
-          >
-            {status}
-          </span>
+        <span className="mt-1 text-gray-600 text-sm break-words block">
+          {todo.description ?? <span className="text-gray-400">説明なし</span>}
         </span>
-      </button>
-      {isOpenUpdateDialog && (
-        <TodoUpdateDialog
-          isOpenUpdateDialog={isOpenUpdateDialog}
-          setIsOpenUpdateDialog={setIsOpenUpdateDialog}
-          todo={todo}
-          organizationId={todo.organizationId}
-        />
-      )}
-    </>
+      </span>
+      <span className="mt-3 md:mt-0 md:ml-6 flex-shrink-0">
+        <span
+          className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${statusColor(
+            todo.status
+          )}`}
+        >
+          {status}
+        </span>
+      </span>
+    </button>
   );
 };
