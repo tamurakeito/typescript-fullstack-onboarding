@@ -10,6 +10,7 @@ vi.mock("uuid", () => ({
 }));
 
 const mockTodoRepository = {
+  findById: vi.fn(),
   save: vi.fn(),
   delete: vi.fn(),
 };
@@ -57,6 +58,7 @@ describe("TodoCreateCommandImpl", () => {
       title: "テストタスク01",
       description: "テストタスク01の説明",
       status: "NotStarted",
+      organizationId: mockOrganizationId,
     };
 
     mockOrganizationRepository.findById.mockResolvedValue(ok(mockOrganizationId));
@@ -72,7 +74,7 @@ describe("TodoCreateCommandImpl", () => {
     if (result.isOk()) {
       const todoItem = result.value;
       expect(todoItem).toEqual(mockTodoItem);
-      expect(mockTodoRepository.save).toHaveBeenCalledWith(mockTodoItem, mockOrganizationId);
+      expect(mockTodoRepository.save).toHaveBeenCalledWith(mockTodoItem);
     }
   });
 
@@ -140,6 +142,7 @@ describe("TodoCreateCommandImpl", () => {
       title: "テストタスク01",
       description: "テストタスク01の説明",
       status: "NotStarted",
+      organizationId: mockOrganizationId,
     };
 
     mockOrganizationRepository.findById.mockResolvedValue(ok(mockOrganizationId));
@@ -155,7 +158,7 @@ describe("TodoCreateCommandImpl", () => {
     if (result.isErr()) {
       const error = result.error;
       expect(error).toBeInstanceOf(UnexpectedError);
-      expect(mockTodoRepository.save).toHaveBeenCalledWith(mockTodoItem, mockOrganizationId);
+      expect(mockTodoRepository.save).toHaveBeenCalledWith(mockTodoItem);
     }
   });
 });

@@ -29,12 +29,14 @@ describe("TodoListQueryImpl", () => {
         title: "テストタスク01",
         description: "テストタスク01の説明",
         status: "NotStarted",
+        organizationId: organizationId,
       },
       {
         id: "mock-uuid-todo-02",
         title: "テストタスク02",
         description: "テストタスク02の説明",
         status: "InProgress",
+        organizationId: organizationId,
       },
     ];
 

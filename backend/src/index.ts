@@ -22,6 +22,7 @@ import { OrganizationUpdateCommandImpl } from "./usecase/organization/command/up
 import { OrganizationListQueryImpl } from "./usecase/organization/query/get-list.js";
 import { OrganizationProfileQueryImpl } from "./usecase/organization/query/get-profile.js";
 import { TodoCreateCommandImpl } from "./usecase/todo/command/create.js";
+import { TodoUpdateCommandImpl } from "./usecase/todo/command/update.js";
 import { TodoListQueryImpl } from "./usecase/todo/query/get-list.js";
 import { UserCreateCommandImpl } from "./usecase/user/command/create.js";
 import { UserDeleteCommandImpl } from "./usecase/user/command/delete.js";
@@ -79,7 +80,8 @@ const userHandler = new UserHandler(
 const todoRepository = new TodoRepositoryImpl();
 const todoListQuery = new TodoListQueryImpl();
 const todoCreateCommand = new TodoCreateCommandImpl(todoRepository, organizationRepository);
-const todoHandler = new TodoHandler(todoListQuery, todoCreateCommand);
+const todoUpdateCommand = new TodoUpdateCommandImpl(todoRepository);
+const todoHandler = new TodoHandler(todoListQuery, todoCreateCommand, todoUpdateCommand);
 
 initRouting(app, authHandler, organizationHandler, userHandler, todoHandler, jwtService);
 
