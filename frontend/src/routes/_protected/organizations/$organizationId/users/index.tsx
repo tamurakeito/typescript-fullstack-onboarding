@@ -1,10 +1,10 @@
 import { organizationApiGetOptions } from "@/client/@tanstack/react-query.gen";
-import { OrganizationProfile } from "@/features/organization/profile";
+import { OrganizationProfile } from "@/features/users";
 import { queryClient } from "@/lib/query-client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/_protected/organization/$organizationId")({
+export const Route = createFileRoute("/_protected/organizations/$organizationId/users/")({
   loader: async ({ params }) => {
     await queryClient.ensureQueryData(
       organizationApiGetOptions({
