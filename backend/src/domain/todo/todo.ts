@@ -7,19 +7,28 @@ export class TodoItem {
   public readonly title: string;
   public readonly description: string;
   public readonly status: TodoStatus;
+  public readonly organizationId: string;
 
-  constructor(id: string, title: string, description: string, status: TodoStatus) {
+  constructor(
+    id: string,
+    title: string,
+    description: string,
+    status: TodoStatus,
+    organizationId: string
+  ) {
     this.id = id;
     this.title = title;
     this.description = description;
     this.status = status;
+    this.organizationId = organizationId;
   }
 
   static create(
     id: string,
     title: string,
     description: string,
-    status: TodoStatus
+    status: TodoStatus,
+    organizationId: string
   ): Result<TodoItem, Error> {
     if (!id) {
       return err(new Error("ID is required"));
@@ -30,7 +39,10 @@ export class TodoItem {
     if (!description) {
       return err(new Error("Description is required"));
     }
-    return ok(new TodoItem(id, title, description, status));
+    if (!organizationId) {
+      return err(new Error("Organization ID is required"));
+    }
+    return ok(new TodoItem(id, title, description, status, organizationId));
   }
 }
 
