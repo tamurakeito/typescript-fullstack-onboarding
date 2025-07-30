@@ -17,9 +17,7 @@ import { UserCreateDialog } from "./dialog/create-dialog";
 import { UserDeleteDialog } from "./dialog/delete-dialog";
 import { UserUpdateDialog } from "./dialog/update-dialog";
 
-export const OrganizationProfile = ({
-  organization,
-}: { organization: OrganizationProfileType }) => {
+export const UserList = ({ organization }: { organization: OrganizationProfileType }) => {
   const [isOpenCreateUserDialog, setIsOpenCreateUserDialog] = useState<boolean>(false);
   const [isOpenUpdateUserDialog, setIsOpenUpdateUserDialog] = useState<boolean>(false);
   const [isOpenDeleteUserDialog, setIsOpenDeleteUserDialog] = useState<boolean>(false);
