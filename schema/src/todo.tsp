@@ -13,6 +13,7 @@ model TodoItem {
   title: string;
   description: string;
   status: TodoStatus;
+  organizationId: string;
 }
 
 model TodoList {

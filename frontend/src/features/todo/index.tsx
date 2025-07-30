@@ -35,17 +35,14 @@ export const TodoList = ({ todoList }: { todoList: TodoGetListResponse }) => {
         </div>
         <div className="flex flex-row gap-4">
           <TodoCulumn
-            organizationId={todoList.organizationId}
             list={todoList?.list.filter((todo) => todo.status === "NotStarted") ?? []}
             status="未着手"
           />
           <TodoCulumn
-            organizationId={todoList.organizationId}
             list={todoList?.list.filter((todo) => todo.status === "InProgress") ?? []}
             status="進行中"
           />
           <TodoCulumn
-            organizationId={todoList.organizationId}
             list={todoList?.list.filter((todo) => todo.status === "Completed") ?? []}
             status="完了"
           />
@@ -60,19 +57,13 @@ export const TodoList = ({ todoList }: { todoList: TodoGetListResponse }) => {
   );
 };
 
-const TodoCulumn = ({
-  organizationId,
-  list,
-  status,
-}: { organizationId: string; list: TodoGetListResponse["list"]; status: string }) => {
+const TodoCulumn = ({ list, status }: { list: TodoGetListResponse["list"]; status: string }) => {
   return (
     <div className="w-full">
       <h2 className="text-gray-500 text-l font-bold pl-2 mb-2">{status}</h2>
       <div className="space-y-2 overflow-y-auto pb-2 w-full h-[calc(100vh-180px)]">
         {list.length ? (
-          list.map((todo) => (
-            <TodoItem key={todo.id} todo={todo} status={status} organizationId={organizationId} />
-          ))
+          list.map((todo) => <TodoItem key={todo.id} todo={todo} status={status} />)
         ) : (
           <div className="text-gray-500 text-center py-10">タスクはありません</div>
         )}
@@ -81,11 +72,7 @@ const TodoCulumn = ({
   );
 };
 
-const TodoItem = ({
-  todo,
-  status,
-  organizationId,
-}: { todo: TodoItemType; status: string; organizationId: string }) => {
+const TodoItem = ({ todo, status }: { todo: TodoItemType; status: string }) => {
   const [isOpenUpdateDialog, setIsOpenUpdateDialog] = useState<boolean>(false);
   return (
     <>
@@ -120,7 +107,7 @@ const TodoItem = ({
           isOpenUpdateDialog={isOpenUpdateDialog}
           setIsOpenUpdateDialog={setIsOpenUpdateDialog}
           todo={todo}
-          organizationId={organizationId}
+          organizationId={todo.organizationId}
         />
       )}
     </>
