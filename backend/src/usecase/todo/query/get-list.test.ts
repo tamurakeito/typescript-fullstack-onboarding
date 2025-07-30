@@ -1,6 +1,5 @@
 import { Account } from "@/domain/account/account.js";
 import type { Actor } from "@/domain/authorization/permission.js";
-import type { TodoItem } from "@/domain/todo/todo.js";
 import { ForbiddenError, NoOrganizationError } from "@/errors/errors.js";
 import { PrismaClient } from "@/generated/prisma/index.js";
 import { describe, expect, it, vi } from "vitest";
@@ -30,12 +29,14 @@ describe("TodoListQueryImpl", () => {
         title: "テストタスク01",
         description: "テストタスク01の説明",
         status: "NotStarted",
+        organizationId: organizationId,
       },
       {
         id: "mock-uuid-todo-02",
         title: "テストタスク02",
         description: "テストタスク02の説明",
         status: "InProgress",
+        organizationId: organizationId,
       },
     ];
 

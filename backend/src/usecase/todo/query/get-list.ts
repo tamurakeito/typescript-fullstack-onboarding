@@ -43,7 +43,7 @@ export class TodoListQueryImpl implements TodoListQuery {
     const datas = organizationWithTodos.todos;
 
     const items = datas.map((data) =>
-      TodoItem.create(data.id, data.title, data.description, data.status)
+      TodoItem.create(data.id, data.title, data.description, data.status, organizationId)
     );
 
     const validItems: Array<TodoItem> = [];

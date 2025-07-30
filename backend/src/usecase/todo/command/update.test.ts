@@ -41,19 +41,19 @@ describe("TodoUpdateCommandImpl", () => {
       "mock-uuid-todo-01",
       "テストタスク01",
       "テストタスク01の説明",
-      "NotStarted"
+      "NotStarted",
+      mockOrganizationId
     )._unsafeUnwrap();
 
     const mockNewTodoItem = TodoItem.create(
       "mock-uuid-todo-01",
       "テストタスク01の更新",
       "テストタスク01の更新の説明",
-      "InProgress"
+      "InProgress",
+      mockOrganizationId
     )._unsafeUnwrap();
 
-    mockTodoRepository.findById.mockResolvedValue(
-      ok({ todo: mockTodoItem, organizationId: mockOrganizationId })
-    );
+    mockTodoRepository.findById.mockResolvedValue(ok(mockTodoItem));
     mockTodoRepository.save.mockResolvedValue(ok(mockNewTodoItem));
 
     const result = await todoUpdateCommand.execute(
@@ -68,7 +68,7 @@ describe("TodoUpdateCommandImpl", () => {
     if (result.isOk()) {
       expect(result.value).toEqual(mockNewTodoItem);
       expect(mockTodoRepository.findById).toHaveBeenCalledWith(mockTodoItem.id);
-      expect(mockTodoRepository.save).toHaveBeenCalledWith(mockNewTodoItem, mockOrganizationId);
+      expect(mockTodoRepository.save).toHaveBeenCalledWith(mockNewTodoItem);
     }
   });
 
@@ -96,7 +96,8 @@ describe("TodoUpdateCommandImpl", () => {
       "mock-uuid-todo-01",
       "テストタスク01",
       "テストタスク01の説明",
-      "NotStarted"
+      "NotStarted",
+      mockOrganizationId
     )._unsafeUnwrap();
 
     mockTodoRepository.findById.mockResolvedValue(err(new UnExistTodoError()));
@@ -140,12 +141,11 @@ describe("TodoUpdateCommandImpl", () => {
       "mock-uuid-todo-01",
       "テストタスク01",
       "テストタスク01の説明",
-      "NotStarted"
+      "NotStarted",
+      mockOrganizationId
     )._unsafeUnwrap();
 
-    mockTodoRepository.findById.mockResolvedValue(
-      ok({ todo: mockTodoItem, organizationId: mockOrganizationId })
-    );
+    mockTodoRepository.findById.mockResolvedValue(ok(mockTodoItem));
 
     const result = await todoUpdateCommand.execute(
       mockTodoItem.id,
@@ -186,19 +186,19 @@ describe("TodoUpdateCommandImpl", () => {
       "mock-uuid-todo-01",
       "テストタスク01",
       "テストタスク01の説明",
-      "NotStarted"
+      "NotStarted",
+      mockOrganizationId
     )._unsafeUnwrap();
 
     const mockNewTodoItem = TodoItem.create(
       "mock-uuid-todo-01",
       "テストタスク01の更新",
       "テストタスク01の更新の説明",
-      "InProgress"
+      "InProgress",
+      mockOrganizationId
     )._unsafeUnwrap();
 
-    mockTodoRepository.findById.mockResolvedValue(
-      ok({ todo: mockTodoItem, organizationId: mockOrganizationId })
-    );
+    mockTodoRepository.findById.mockResolvedValue(ok(mockTodoItem));
     mockTodoRepository.save.mockResolvedValue(err(new UnexpectedError()));
 
     const result = await todoUpdateCommand.execute(
@@ -213,7 +213,7 @@ describe("TodoUpdateCommandImpl", () => {
     if (result.isErr()) {
       expect(result.error).toBeInstanceOf(UnexpectedError);
       expect(mockTodoRepository.findById).toHaveBeenCalledWith(mockTodoItem.id);
-      expect(mockTodoRepository.save).toHaveBeenCalledWith(mockNewTodoItem, mockOrganizationId);
+      expect(mockTodoRepository.save).toHaveBeenCalledWith(mockNewTodoItem);
     }
   });
 });

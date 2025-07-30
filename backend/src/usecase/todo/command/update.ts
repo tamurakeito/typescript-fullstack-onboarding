@@ -42,13 +42,19 @@ export class TodoUpdateCommandImpl implements TodoUpdateCommand {
       return err(new ForbiddenError());
     }
 
-    const updatedTodoItem = TodoItem.create(id, title, description, status);
+    const updatedTodoItem = TodoItem.create(
+      id,
+      title,
+      description,
+      status,
+      todo.value.organizationId
+    );
 
     if (updatedTodoItem.isErr()) {
       return err(new UnexpectedError());
     }
 
-    const result = await this.todoRepository.save(updatedTodoItem.value, todo.value.organizationId);
+    const result = await this.todoRepository.save(updatedTodoItem.value);
 
     if (result.isErr()) {
       return err(new UnexpectedError());

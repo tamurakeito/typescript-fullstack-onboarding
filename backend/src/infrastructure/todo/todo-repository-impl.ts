@@ -7,7 +7,7 @@ import { type Result, err, ok } from "neverthrow";
 export class TodoRepositoryImpl implements TodoRepository {
   private prisma = new PrismaClient();
 
-  async findById(id: string): Promise<Result<{ todo: TodoItem; organizationId: string }, Error>> {
+  async findById(id: string): Promise<Result<TodoItem, Error>> {
     try {
       const result = await this.prisma.todo.findUnique({ where: { id } });
 
@@ -15,19 +15,25 @@ export class TodoRepositoryImpl implements TodoRepository {
         return err(new UnExistTodoError());
       }
 
-      const data = TodoItem.create(result.id, result.title, result.description, result.status);
+      const data = TodoItem.create(
+        result.id,
+        result.title,
+        result.description,
+        result.status,
+        result.organizationId
+      );
 
       if (data.isErr()) {
         return err(new UnexpectedError(data.error.message));
       }
 
-      return ok({ todo: data.value, organizationId: result.organizationId });
+      return ok(data.value);
     } catch {
       return err(new UnexpectedError());
     }
   }
 
-  async save(todo: TodoItem, organizationId: string): Promise<Result<TodoItem, Error>> {
+  async save(todo: TodoItem): Promise<Result<TodoItem, Error>> {
     try {
       const result = await this.prisma.todo.upsert({
         where: { id: todo.id },
@@ -41,7 +47,7 @@ export class TodoRepositoryImpl implements TodoRepository {
           title: todo.title,
           description: todo.description,
           status: todo.status,
-          organizationId: organizationId,
+          organizationId: todo.organizationId,
         },
       });
 
@@ -49,7 +55,13 @@ export class TodoRepositoryImpl implements TodoRepository {
         return err(new UnexpectedError());
       }
 
-      const data = TodoItem.create(result.id, result.title, result.description, result.status);
+      const data = TodoItem.create(
+        result.id,
+        result.title,
+        result.description,
+        result.status,
+        result.organizationId
+      );
 
       if (data.isErr()) {
         return err(new UnexpectedError(data.error.message));

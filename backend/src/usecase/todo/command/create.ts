@@ -50,9 +50,10 @@ export class TodoCreateCommandImpl implements TodoCreateCommand {
       title: title,
       description: description,
       status: "NotStarted",
+      organizationId: organizationId,
     };
 
-    const result = await this.todoRepository.save(todoItem, organizationId);
+    const result = await this.todoRepository.save(todoItem);
 
     if (result.isErr()) {
       return err(new UnexpectedError(result.error.message));
