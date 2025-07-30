@@ -84,15 +84,15 @@ const TodoItem = ({ todo, status }: { todo: TodoItemType; status: string }) => {
           setIsOpenUpdateDialog(true);
         }}
       >
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
+        <span className="flex-1 min-w-0">
+          <span className="flex items-center gap-2">
             <span className="text-lg font-semibold text-gray-800">{todo.title}</span>
-          </div>
-          <div className="mt-1 text-gray-600 text-sm break-words">
+          </span>
+          <span className="mt-1 text-gray-600 text-sm break-words block">
             {todo.description ?? <span className="text-gray-400">説明なし</span>}
-          </div>
-        </div>
-        <div className="mt-3 md:mt-0 md:ml-6 flex-shrink-0">
+          </span>
+        </span>
+        <span className="mt-3 md:mt-0 md:ml-6 flex-shrink-0">
           <span
             className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${statusColor(
               todo.status
@@ -100,7 +100,7 @@ const TodoItem = ({ todo, status }: { todo: TodoItemType; status: string }) => {
           >
             {status}
           </span>
-        </div>
+        </span>
       </button>
       {isOpenUpdateDialog && (
         <TodoUpdateDialog
