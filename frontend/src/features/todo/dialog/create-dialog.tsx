@@ -1,5 +1,4 @@
 import { todoCreateMutation, todoGetListOptions } from "@/client/@tanstack/react-query.gen";
-import type { zCreateTodoItemRequest } from "@/client/zod.gen";
 import { Button } from "@/components/ui/button";
 import {
   DialogClose,
@@ -23,7 +22,6 @@ const formSchema = z.object({
   description: z.string().min(1, {
     message: "タスクの説明を入力してください。",
   }),
-  organizationId: z.string(),
 });
 
 export const TodoCreateDialog = ({
@@ -59,16 +57,15 @@ export const TodoCreateDialog = ({
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<z.infer<typeof zCreateTodoItemRequest>>({
+  } = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
       description: "",
-      organizationId: "",
     },
   });
 
-  const onSubmit: SubmitHandler<z.infer<typeof zCreateTodoItemRequest>> = async (data) => {
+  const onSubmit: SubmitHandler<z.infer<typeof formSchema>> = async (data) => {
     await mutation.mutateAsync({
       body: {
         title: data.title,
