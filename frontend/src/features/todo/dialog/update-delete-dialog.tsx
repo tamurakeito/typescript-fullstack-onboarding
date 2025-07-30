@@ -40,20 +40,23 @@ const formSchema = z.object({
 });
 
 export const TodoUpdateDeleteDialog = ({
-  isOpenUpdateDialog,
-  setIsOpenUpdateDialog,
+  isOpenUpdateDeleteDialog,
+  setIsOpenUpdateDeleteDialog,
   todo,
+  setSelectedTodo,
   organizationId,
 }: {
-  isOpenUpdateDialog: boolean;
-  setIsOpenUpdateDialog: (isOpenUpdateDialog: boolean) => void;
+  isOpenUpdateDeleteDialog: boolean;
+  setIsOpenUpdateDeleteDialog: (isOpenUpdateDialog: boolean) => void;
   todo: TodoType;
+  setSelectedTodo: (todo: TodoType | undefined) => void;
   organizationId: string;
 }) => {
   const queryClient = useQueryClient();
 
   const resetDialogState = () => {
-    setIsOpenUpdateDialog(false);
+    setSelectedTodo(undefined);
+    setIsOpenUpdateDeleteDialog(false);
   };
 
   const mutation = useMutation({
@@ -118,7 +121,7 @@ export const TodoUpdateDeleteDialog = ({
 
   return (
     <DialogForm
-      open={isOpenUpdateDialog}
+      open={isOpenUpdateDeleteDialog}
       onOpenChange={resetDialogState}
       formProps={{
         onSubmit: handleSubmit(onSubmit),
