@@ -77,4 +77,17 @@ interface Todo {
     | ForbiddenError
     | NotFoundError
     | InternalServerError;
+
+  @delete
+  @route("/todo/{id}")
+  @summary("Todoアイテム削除")
+  delete(@path id: string):
+    | {
+        @statusCode
+        statusCode: 204;
+      }
+    | BadRequestError
+    | ForbiddenError
+    | NotFoundError
+    | InternalServerError;
 }
