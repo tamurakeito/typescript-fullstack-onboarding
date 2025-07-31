@@ -32,7 +32,7 @@ resource "google_project_service" "cloudrun_api" {
   disable_on_destroy = false
 }
 
-// VPCネットワーク作成
+/* VPC */
 resource "google_compute_network" "peering_network" {
   name                    = "private-network"
   auto_create_subnetworks = "false"
@@ -60,15 +60,13 @@ resource "google_sql_database_instance" "postgres_instance" {
   settings {
     tier = "db-custom-2-7680"
     ip_configuration {
-      ipv4_enabled    = "false" // パブリックIPを無効化
-      private_network = google_compute_network.peering_network.id // プライベートIPを持たせる
+      ipv4_enabled    = "false"
+      private_network = google_compute_network.peering_network.id
     }
   }
 }
 
 /* Cloud Run */
-/// Secret Manager 
-// db user
 resource "google_secret_manager_secret" "dbuser" {
   secret_id = "dbusersecret"
   replication {
@@ -78,7 +76,7 @@ resource "google_secret_manager_secret" "dbuser" {
 }
 resource "google_secret_manager_secret_version" "dbuser_data" {
   secret      = google_secret_manager_secret.dbuser.id
-  secret_data = "secret-data"
+  secret_data = "org_todo_user"
 }
 resource "google_secret_manager_secret_iam_member" "secretaccess_compute_dbuser" {
   secret_id = google_secret_manager_secret.dbuser.id
@@ -86,17 +84,12 @@ resource "google_secret_manager_secret_iam_member" "secretaccess_compute_dbuser"
   member    = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
 }
 
-// db password
 resource "google_secret_manager_secret" "dbpass" {
   secret_id = "dbpasssecret"
   replication {
-     auto {} 
+    auto {}
   }
   depends_on = [google_project_service.secretmanager_api]
-}
-resource "google_secret_manager_secret_version" "dbpass_data" {
-  secret      = google_secret_manager_secret.dbpass.id
-  secret_data = "password123"
 }
 resource "google_secret_manager_secret_iam_member" "secretaccess_compute_dbpass" {
   secret_id = google_secret_manager_secret.dbpass.id
@@ -104,7 +97,6 @@ resource "google_secret_manager_secret_iam_member" "secretaccess_compute_dbpass"
   member    = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
 }
 
-// db name
 resource "google_secret_manager_secret" "dbname" {
   secret_id = "dbnamesecret"
   replication {
@@ -114,7 +106,7 @@ resource "google_secret_manager_secret" "dbname" {
 }
 resource "google_secret_manager_secret_version" "dbname_data" {
   secret      = google_secret_manager_secret.dbname.id
-  secret_data = "mydatabase" # 例: データベース名
+  secret_data = "org_todo_db"
 }
 resource "google_secret_manager_secret_iam_member" "secretaccess_compute_dbname" {
   secret_id = google_secret_manager_secret.dbname.id
@@ -199,7 +191,6 @@ resource "random_id" "bucket_prefix" {
   byte_length = 8
 }
 
-// GCSバケットを作成するブロック
 resource "google_storage_bucket" "static_website" {
   name                          = "${random_id.bucket_prefix.hex}-static-website-bucket"
   location                      = "US"
@@ -214,9 +205,4 @@ resource "google_storage_bucket_iam_member" "public_rule" {
   bucket = google_storage_bucket.static_website.name
   role   = "roles/storage.objectViewer"
   member = "allUsers"
-}
-
-output "static_website_bucket_name" {
-  description = "frontendアプリケーションのGCSバケット名"
-  value       = google_storage_bucket.static_website.name
 }
