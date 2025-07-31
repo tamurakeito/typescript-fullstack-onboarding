@@ -13,6 +13,25 @@ provider "google" {
   zone    = "us-central1-c"
 }
 
+data "google_project" "project" {}
+
+resource "google_project_service" "vpcaccess_api" {
+  service            = "vpcaccess.googleapis.com"
+  disable_on_destroy = false
+}
+resource "google_project_service" "secretmanager_api" {
+  service            = "secretmanager.googleapis.com"
+  disable_on_destroy = false
+}
+resource "google_project_service" "sqladmin_api" {
+  service            = "sqladmin.googleapis.com"
+  disable_on_destroy = false
+}
+resource "google_project_service" "cloudrun_api" {
+  service            = "run.googleapis.com"
+  disable_on_destroy = false
+}
+
 // VPCネットワーク作成
 resource "google_compute_network" "peering_network" {
   name                    = "private-network"
@@ -34,7 +53,7 @@ resource "google_service_networking_connection" "default" {
 }
 
 /* Cloud SQL */
-resource "google_sql_database_instance" "default" {
+resource "google_sql_database_instance" "postgres_instance" {
   name             = "private-ip-sql-instance"
   database_version = "POSTGRES_14"
   depends_on = [google_service_networking_connection.default]
@@ -45,6 +64,134 @@ resource "google_sql_database_instance" "default" {
       private_network = google_compute_network.peering_network.id // プライベートIPを持たせる
     }
   }
+}
+
+/* Cloud Run */
+/// Secret Manager 
+// db user
+resource "google_secret_manager_secret" "dbuser" {
+  secret_id = "dbusersecret"
+  replication {
+    auto {}
+  }
+  depends_on = [google_project_service.secretmanager_api]
+}
+resource "google_secret_manager_secret_version" "dbuser_data" {
+  secret      = google_secret_manager_secret.dbuser.id
+  secret_data = "secret-data"
+}
+resource "google_secret_manager_secret_iam_member" "secretaccess_compute_dbuser" {
+  secret_id = google_secret_manager_secret.dbuser.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+}
+
+// db password
+resource "google_secret_manager_secret" "dbpass" {
+  secret_id = "dbpasssecret"
+  replication {
+     auto {} 
+  }
+  depends_on = [google_project_service.secretmanager_api]
+}
+resource "google_secret_manager_secret_version" "dbpass_data" {
+  secret      = google_secret_manager_secret.dbpass.id
+  secret_data = "password123"
+}
+resource "google_secret_manager_secret_iam_member" "secretaccess_compute_dbpass" {
+  secret_id = google_secret_manager_secret.dbpass.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+}
+
+// db name
+resource "google_secret_manager_secret" "dbname" {
+  secret_id = "dbnamesecret"
+  replication {
+    auto {}
+  }
+  depends_on = [google_project_service.secretmanager_api]
+}
+resource "google_secret_manager_secret_version" "dbname_data" {
+  secret      = google_secret_manager_secret.dbname.id
+  secret_data = "mydatabase" # 例: データベース名
+}
+resource "google_secret_manager_secret_iam_member" "secretaccess_compute_dbname" {
+  secret_id = google_secret_manager_secret.dbname.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+}
+
+resource "google_vpc_access_connector" "connector" {
+  name          = "vpc-connector"
+  region        = "us-central1"
+  subnet {
+    name = google_compute_subnetwork.vpc_subnet.name
+  }
+  machine_type = "e2-micro"
+  depends_on = [google_project_service.vpcaccess_api]
+}
+
+resource "google_cloud_run_v2_service" "default" {
+  name     = "cloudrun-service"
+  location = "us-central1"
+
+  deletion_protection = false
+
+  template {
+    vpc_access {
+      connector = google_vpc_access_connector.connector.id
+      egress    = "ALL_TRAFFIC"
+    }
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello:latest"
+      
+      env {
+        name  = "INSTANCE_CONNECTION_NAME"
+        value = google_sql_database_instance.default.connection_name
+      }
+      env {
+        name = "DB_USER"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.dbuser.secret_id 
+            version = "latest"                                      
+          }
+        }
+      }
+      env {
+        name = "DB_PASS"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.dbpass.secret_id 
+            version = "latest"                                      
+          }
+        }
+      }
+      env {
+        name = "DB_NAME"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.dbname.secret_id 
+            version = "latest"                                      
+          }
+        }
+      }
+      
+      volume_mounts {
+        name       = "cloudsql"
+        mount_path = "/cloudsql"
+      }
+    }
+    volumes {
+      name = "cloudsql"
+      cloud_sql_instance {
+        instances = [google_sql_database_instance.default.connection_name]
+      }
+    }
+  }
+  client     = "terraform"
+  depends_on = [google_project_service.secretmanager_api, google_project_service.cloudrun_api, google_project_service.sqladmin_api]
 }
 
 /* Cloud Storage */
