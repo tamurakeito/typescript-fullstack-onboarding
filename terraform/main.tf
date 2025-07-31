@@ -7,9 +7,15 @@ terraform {
   } 
 }
 
+variable "gcp_region" {
+  description = "GCPリージョン"
+  type        = string
+  default     = "us-central1"
+}
+
 provider "google" { 
   project = "typescript-fullstack-onboard"
-  region  = "us-central1"
+  region  = var.gcp_region
   zone    = "us-central1-c"
 }
 
@@ -116,25 +122,19 @@ resource "google_secret_manager_secret_iam_member" "secretaccess_compute_dbname"
 
 resource "google_vpc_access_connector" "connector" {
   name          = "vpc-connector"
-  region        = "us-central1"
-  subnet {
-    name = google_compute_subnetwork.vpc_subnet.name
-  }
-  machine_type = "e2-micro"
-  depends_on = [google_project_service.vpcaccess_api]
+  region        = var.gcp_region
+  network       = google_compute_network.peering_network.name
+  ip_cidr_range = "10.8.0.0/28"
+  depends_on    = [google_project_service.vpcaccess_api]
 }
 
 resource "google_cloud_run_v2_service" "default" {
   name     = "cloudrun-service"
-  location = "us-central1"
+  location = var.gcp_region
 
   deletion_protection = false
 
   template {
-    vpc_access {
-      connector = google_vpc_access_connector.connector.id
-      egress    = "ALL_TRAFFIC"
-    }
     containers {
       image = "us-docker.pkg.dev/cloudrun/container/hello:latest"
       
@@ -180,6 +180,10 @@ resource "google_cloud_run_v2_service" "default" {
       cloud_sql_instance {
         instances = [google_sql_database_instance.default.connection_name]
       }
+    }
+    vpc_access {
+      connector = google_vpc_access_connector.connector.id
+      egress    = "ALL_TRAFFIC"
     }
   }
   client     = "terraform"
