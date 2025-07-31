@@ -8,15 +8,17 @@ terraform {
 }
 
 variable "gcp_region" {
-  description = "GCPリージョン"
   type        = string
   default     = "us-central1"
+}
+variable "domain_name" {
+  type        = string
+  default     = "atodesettei.com"
 }
 
 provider "google" { 
   project = "typescript-fullstack-onboard"
   region  = var.gcp_region
-  zone    = "us-central1-c"
 }
 
 data "google_project" "project" {}
@@ -209,4 +211,15 @@ resource "google_storage_bucket_iam_member" "public_rule" {
   bucket = google_storage_bucket.static_website.name
   role   = "roles/storage.objectViewer"
   member = "allUsers"
+}
+
+/* Load Balancer */
+resource "google_compute_global_address" "default" {
+  name = "lb-static-ip"
+}
+resource "google_certificate_manager_certificate" "default" {
+  name = "managed-cert"
+  managed {
+    domains = [var.domain_name]
+  }
 }
