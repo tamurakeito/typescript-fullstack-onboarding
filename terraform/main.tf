@@ -39,6 +39,11 @@ resource "google_project_service" "cloudrun_api" {
   service            = "run.googleapis.com"
   disable_on_destroy = false
 }
+resource "google_project_service" "certificatemanager_api" {
+  service            = "certificatemanager.googleapis.com"
+  disable_on_destroy = false
+}
+
 
 /* VPC */
 resource "google_compute_network" "peering_network" {
@@ -82,10 +87,6 @@ resource "google_secret_manager_secret" "dbuser" {
   }
   depends_on = [google_project_service.secretmanager_api]
 }
-resource "google_secret_manager_secret_version" "dbuser_data" {
-  secret      = google_secret_manager_secret.dbuser.id
-  secret_data = "org_todo_user"
-}
 resource "google_secret_manager_secret_iam_member" "secretaccess_compute_dbuser" {
   secret_id = google_secret_manager_secret.dbuser.id
   role      = "roles/secretmanager.secretAccessor"
@@ -111,10 +112,6 @@ resource "google_secret_manager_secret" "dbname" {
     auto {}
   }
   depends_on = [google_project_service.secretmanager_api]
-}
-resource "google_secret_manager_secret_version" "dbname_data" {
-  secret      = google_secret_manager_secret.dbname.id
-  secret_data = "org_todo_db"
 }
 resource "google_secret_manager_secret_iam_member" "secretaccess_compute_dbname" {
   secret_id = google_secret_manager_secret.dbname.id
@@ -142,7 +139,7 @@ resource "google_cloud_run_v2_service" "default" {
       
       env {
         name  = "INSTANCE_CONNECTION_NAME"
-        value = google_sql_database_instance.default.connection_name
+        value = google_sql_database_instance.postgres_instance.connection_name
       }
       env {
         name = "DB_USER"
@@ -180,7 +177,7 @@ resource "google_cloud_run_v2_service" "default" {
     volumes {
       name = "cloudsql"
       cloud_sql_instance {
-        instances = [google_sql_database_instance.default.connection_name]
+        instances = [google_sql_database_instance.postgres_instance.connection_name]
       }
     }
     vpc_access {
@@ -199,7 +196,7 @@ resource "random_id" "bucket_prefix" {
 
 resource "google_storage_bucket" "static_website" {
   name                          = "${random_id.bucket_prefix.hex}-static-website-bucket"
-  location                      = "US"
+  location                      = var.gcp_region
   uniform_bucket_level_access = true
   website {
     main_page_suffix = "index.html"
@@ -215,11 +212,85 @@ resource "google_storage_bucket_iam_member" "public_rule" {
 
 /* Load Balancer */
 resource "google_compute_global_address" "default" {
-  name = "lb-static-ip"
+  name       = "lb-ipv4-1"
+  ip_version = "IPV4"
 }
+
 resource "google_certificate_manager_certificate" "default" {
-  name = "managed-cert"
+  name    = "managed-cert"
   managed {
     domains = [var.domain_name]
   }
+  labels = {
+    "terraform" : true
+  }
+  depends_on = [google_project_service.certificatemanager_api]
+}
+resource "google_certificate_manager_certificate_map" "default" {
+  name = "managed-cert-map"
+  labels = {
+    "terraform" : true
+  }
+}
+resource "google_certificate_manager_certificate_map_entry" "default" {
+  name         = "managed-cert-map-entry"
+  map          = google_certificate_manager_certificate_map.default.name
+  labels = {
+    "terraform" : true
+  }
+  certificates = [google_certificate_manager_certificate.default.id]
+  hostname     = var.domain_name
+}
+
+
+resource "google_compute_backend_bucket" "gcs_backend" {
+  name        = "gcs-frontend-backend"
+  bucket_name = google_storage_bucket.static_website.name
+  enable_cdn  = true
+}
+
+resource "google_compute_backend_service" "cloudrun_backend" {
+  name                  = "cloudrun-api-backend"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  protocol              = "HTTP"
+  enable_cdn            = true
+
+  backend {
+    group = google_cloud_run_v2_service.default.id
+  }
+}
+
+resource "google_compute_url_map" "default" {
+  name            = "lb-url-map"
+  default_service = google_compute_backend_bucket.gcs_backend.id
+
+  host_rule {
+    hosts        = [var.domain_name]
+    path_matcher = "allpaths"
+  }
+
+  path_matcher {
+    name            = "allpaths"
+    default_service = google_compute_backend_bucket.gcs_backend.id
+
+    path_rule {
+      paths   = ["/api/*"]
+      service = google_compute_backend_service.cloudrun_backend.id
+    }
+  }
+}
+
+resource "google_compute_target_https_proxy" "default" {
+  name             = "https-lb-proxy"
+  url_map          = google_compute_url_map.default.id
+  certificate_map = "//certificatemanager.googleapis.com/${google_certificate_manager_certificate_map.default.id}"
+}
+
+resource "google_compute_global_forwarding_rule" "default" {
+  name                  = "https-content-rule"
+  ip_protocol           = "TCP"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  port_range            = "443"
+  target                = google_compute_target_https_proxy.default.id
+  ip_address            = google_compute_global_address.default.address
 }
