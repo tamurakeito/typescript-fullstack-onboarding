@@ -23,6 +23,10 @@ provider "google" {
 
 data "google_project" "project" {}
 
+resource "google_project_service" "compute_api" {
+  service            = "compute.googleapis.com"
+  disable_on_destroy = false
+}
 resource "google_project_service" "vpcaccess_api" {
   service            = "vpcaccess.googleapis.com"
   disable_on_destroy = false
@@ -46,9 +50,18 @@ resource "google_project_service" "certificatemanager_api" {
 
 
 /* VPC */
+resource "google_project_service" "servicenetworking_api" {
+  service            = "servicenetworking.googleapis.com"
+  disable_on_destroy = false
+}
+resource "google_project_service" "storage_api" {
+  service            = "storage.googleapis.com"
+  disable_on_destroy = false
+}
 resource "google_compute_network" "peering_network" {
   name                    = "private-network"
   auto_create_subnetworks = "false"
+  depends_on = [google_project_service.compute_api]
 }
 
 resource "google_compute_global_address" "private_ip_address" {
@@ -57,19 +70,21 @@ resource "google_compute_global_address" "private_ip_address" {
   address_type  = "INTERNAL"
   prefix_length = 16
   network       = google_compute_network.peering_network.id
+  depends_on = [google_project_service.compute_api]
 }
 
 resource "google_service_networking_connection" "default" {
   network                 = google_compute_network.peering_network.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
+  depends_on = [google_project_service.servicenetworking_api]
 }
 
 /* Cloud SQL */
 resource "google_sql_database_instance" "postgres_instance" {
   name             = "private-ip-sql-instance"
   database_version = "POSTGRES_14"
-  depends_on = [google_service_networking_connection.default]
+  depends_on = [google_service_networking_connection.default, google_project_service.sqladmin_api]
   settings {
     tier = "db-custom-2-7680"
     ip_configuration {
@@ -87,6 +102,10 @@ resource "google_secret_manager_secret" "dbuser" {
   }
   depends_on = [google_project_service.secretmanager_api]
 }
+resource "google_secret_manager_secret_version" "dbuser_data" {
+  secret      = google_secret_manager_secret.dbuser.id
+  secret_data = "dummy-user"
+}
 resource "google_secret_manager_secret_iam_member" "secretaccess_compute_dbuser" {
   secret_id = google_secret_manager_secret.dbuser.id
   role      = "roles/secretmanager.secretAccessor"
@@ -99,6 +118,10 @@ resource "google_secret_manager_secret" "dbpass" {
     auto {}
   }
   depends_on = [google_project_service.secretmanager_api]
+}
+resource "google_secret_manager_secret_version" "dbpass_data" {
+  secret      = google_secret_manager_secret.dbpass.id
+  secret_data = "dummy-password"
 }
 resource "google_secret_manager_secret_iam_member" "secretaccess_compute_dbpass" {
   secret_id = google_secret_manager_secret.dbpass.id
@@ -113,6 +136,10 @@ resource "google_secret_manager_secret" "dbname" {
   }
   depends_on = [google_project_service.secretmanager_api]
 }
+resource "google_secret_manager_secret_version" "dbname_data" {
+  secret      = google_secret_manager_secret.dbname.id
+  secret_data = "dummy-db"
+}
 resource "google_secret_manager_secret_iam_member" "secretaccess_compute_dbname" {
   secret_id = google_secret_manager_secret.dbname.id
   role      = "roles/secretmanager.secretAccessor"
@@ -125,6 +152,8 @@ resource "google_vpc_access_connector" "connector" {
   network       = google_compute_network.peering_network.name
   ip_cidr_range = "10.8.0.0/28"
   depends_on    = [google_project_service.vpcaccess_api]
+  min_instances = 2
+  max_instances = 3
 }
 
 resource "google_cloud_run_v2_service" "default" {
@@ -186,7 +215,14 @@ resource "google_cloud_run_v2_service" "default" {
     }
   }
   client     = "terraform"
-  depends_on = [google_project_service.secretmanager_api, google_project_service.cloudrun_api, google_project_service.sqladmin_api]
+  depends_on = [
+    google_project_service.secretmanager_api,
+    google_project_service.cloudrun_api,
+    google_project_service.sqladmin_api,
+    google_vpc_access_connector.connector,
+    google_sql_database_instance.postgres_instance,
+    google_project_service.compute_api
+  ]
 }
 
 /* Cloud Storage */
@@ -198,6 +234,7 @@ resource "google_storage_bucket" "static_website" {
   name                          = "${random_id.bucket_prefix.hex}-static-website-bucket"
   location                      = var.gcp_region
   uniform_bucket_level_access = true
+  depends_on = [google_project_service.storage_api]
   website {
     main_page_suffix = "index.html"
     not_found_page   = "index.html"
@@ -214,6 +251,7 @@ resource "google_storage_bucket_iam_member" "public_rule" {
 resource "google_compute_global_address" "default" {
   name       = "lb-ipv4-1"
   ip_version = "IPV4"
+  depends_on = [google_project_service.compute_api]
 }
 
 resource "google_certificate_manager_certificate" "default" {
@@ -249,14 +287,25 @@ resource "google_compute_backend_bucket" "gcs_backend" {
   enable_cdn  = true
 }
 
+resource "google_compute_region_network_endpoint_group" "cloudrun_neg" {
+  name                  = "cloudrun-neg"
+  network_endpoint_type = "SERVERLESS"
+  region                = var.gcp_region
+  depends_on = [google_project_service.compute_api]
+
+  cloud_run {
+    service = google_cloud_run_v2_service.default.name
+  }
+}
 resource "google_compute_backend_service" "cloudrun_backend" {
   name                  = "cloudrun-api-backend"
   load_balancing_scheme = "EXTERNAL_MANAGED"
   protocol              = "HTTP"
   enable_cdn            = true
+  depends_on = [google_cloud_run_v2_service.default]
 
   backend {
-    group = google_cloud_run_v2_service.default.id
+    group = google_compute_region_network_endpoint_group.cloudrun_neg.id
   }
 }
 
@@ -293,4 +342,9 @@ resource "google_compute_global_forwarding_rule" "default" {
   port_range            = "443"
   target                = google_compute_target_https_proxy.default.id
   ip_address            = google_compute_global_address.default.address
+}
+
+output "load_balancer_ip_address" {
+  description = "グローバル外部HTTPSロードバランサーのパブリックIPアドレス"
+  value       = google_compute_global_address.default.address
 }
