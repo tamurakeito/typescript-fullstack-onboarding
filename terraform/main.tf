@@ -13,7 +13,7 @@ variable "gcp_region" {
 }
 variable "domain_name" {
   type        = string
-  default     = "atodesettei.com"
+  default     = "sandbox.keiyousya.com"
 }
 
 provider "google" { 
