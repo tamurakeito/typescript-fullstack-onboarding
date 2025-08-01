@@ -1,0 +1,17 @@
+steps:
+  - name: 'gcr.io/cloud-builders/npm'
+    args: ['ci']
+    dir: 'frontend'
+
+  - name: 'gcr.io/cloud-builders/npm'
+    args: ['run', 'build']
+    dir: 'frontend'
+
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'storage'
+      - 'rsync'
+      - '-d'
+      - '-R'
+      - 'frontend/dist/'
+      - 'gs://${_BUCKET_NAME}'
