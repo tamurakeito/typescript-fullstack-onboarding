@@ -23,7 +23,11 @@
     "format": "biome format --write .",
     "lint": "biome lint .",
     "check": "biome check --write .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "tf:init": "cd terraform/environments/prd && terraform init",
+    "tf:plan": "cd terraform/environments/prd && terraform plan",
+    "tf:apply": "cd terraform/environments/prd && terraform apply",
+    "tf:destroy": "cd terraform/environments/prd && terraform destroy"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
