@@ -17,6 +17,9 @@ steps:
       - 'frontend/dist/'
       - 'gs://${_BUCKET_NAME}'
 
+options:
+  logging: CLOUD_LOGGING_ONLY
+
 availableSecrets:
   secretManager:
   - versionName: projects/typescript-fullstack-onboard/secrets/VITE_API_BASE_URL/versions/latest
