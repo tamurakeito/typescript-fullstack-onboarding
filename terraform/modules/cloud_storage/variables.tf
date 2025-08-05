@@ -4,7 +4,6 @@ variable "bucket_name_suffix" {
 }
 
 variable "gcp_region" {
-  description = "GCPリージョン"
   type        = string
 }
 
