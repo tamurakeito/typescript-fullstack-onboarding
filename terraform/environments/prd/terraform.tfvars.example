@@ -1,10 +1,7 @@
-# GCP設定
 gcp_region = "us-central1"
 project_id = "typescript-fullstack-onboard"
 
-# ドメイン設定
 domain_name = "sandbox.keiyousya.com"
 
-# シークレット値
 db_user_secret_value     = "db-user"
 db_name_secret_value     = "db-name"
