@@ -47,6 +47,10 @@ resource "google_project_service" "certificatemanager_api" {
   service            = "certificatemanager.googleapis.com"
   disable_on_destroy = false
 }
+resource "google_project_service" "cloudbuild_v2_api" {
+  service            = "cloudbuild.googleapis.com"
+  disable_on_destroy = false
+}
 
 /* Cloud SQL Module */
 resource "random_password" "pwd" {
@@ -159,3 +163,21 @@ module "load_balancer" {
   cloudrun_service_dependency = module.cloud_run.cloudrun_service
 }
 
+/* Cloud Build Module */
+module "cloud_build_pipeline" {
+  source = "../../modules/cloud-build"
+
+  project_id        = var.project_id
+  project_number    = var.project_number
+  gcp_region            = var.gcp_region
+  github_token          = var.github_token  
+  app_installation_id   = var.app_installation_id
+  repo_name             = "typescript-fullstack-onboarding"
+  repo_uri              = "https://github.com/tamurakeito/typescript-fullstack-onboarding.git"
+  branch_name           = "deploy"
+  substitutions = {
+    _BUCKET_NAME = module.cloud_storage.bucket_name
+  }
+  cloudbuild_v2_api_dependency = google_project_service.cloudbuild_v2_api
+  cloud_storage_dependency = module.cloud_storage.bucket
+}
