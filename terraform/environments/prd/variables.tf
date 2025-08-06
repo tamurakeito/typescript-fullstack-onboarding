@@ -3,6 +3,11 @@ variable "project_id" {
   default     = "typescript-fullstack-onboard"
 }
 
+variable "project_number" {
+  type        = string
+  default     = "998684226932"
+}
+
 variable "gcp_region" {
   type        = string
   default     = "us-central1"
@@ -22,5 +27,15 @@ variable "db_user_secret_value" {
 variable "db_name_secret_value" {
   type        = string
   default     = "db-name"
+  sensitive   = true
+}
+
+variable "app_installation_id" {
+  type        = string
+  default     = "78662661"
+}
+
+variable "github_token" {
+  type        = string
   sensitive   = true
 }

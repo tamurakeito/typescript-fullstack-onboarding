@@ -1,7 +1,11 @@
 gcp_region = "us-central1"
 project_id = "typescript-fullstack-onboard"
+project_number = "998684226932"
 
 domain_name = "sandbox.keiyousya.com"
 
 db_user_secret_value     = "db-user"
 db_name_secret_value     = "db-name"
+
+app_installation_id = "78662661"
+github_token = "your_github_token_here"
