@@ -30,6 +30,11 @@ variable "db_name_secret_value" {
   sensitive   = true
 }
 
+variable "vite_api_base_url_secret_value" {
+  type        = string
+  default     = "https://sandbox.keiyousya.com/api"
+}
+
 variable "app_installation_id" {
   type        = string
   default     = "78662661"

@@ -3,6 +3,7 @@ project_id = "typescript-fullstack-onboard"
 project_number = "998684226932"
 
 domain_name = "sandbox.keiyousya.com"
+vite_api_base_url_secret_value = "https://sandbox.keiyousya.com/api"
 
 db_user_secret_value     = "db-user"
 db_name_secret_value     = "db-name"

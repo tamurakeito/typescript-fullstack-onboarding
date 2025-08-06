@@ -164,6 +164,30 @@ module "load_balancer" {
 }
 
 /* Cloud Build Module */
+resource "google_service_account" "cloudbuild_service_account" {
+  account_id   = "cloudbuild-sa"
+  display_name = "cloudbuild-sa"
+  description  = "Cloud build service account"
+}
+
+resource "google_secret_manager_secret" "vite_api_base_url" {
+  secret_id = "VITE_API_BASE_URL"
+  replication {
+    auto {}
+  }
+  depends_on = [google_project_service.secretmanager_api]
+}
+resource "google_secret_manager_secret_version" "vite_api_base_url_data" {
+  secret      = google_secret_manager_secret.vite_api_base_url.id
+  secret_data = var.vite_api_base_url_secret_value
+  depends_on = [google_secret_manager_secret.vite_api_base_url]
+}
+resource "google_secret_manager_secret_iam_member" "vite_api_base_url_accessor" {
+  secret_id = google_secret_manager_secret.vite_api_base_url.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.cloudbuild_service_account.email}"
+}
+
 module "cloud_build_pipeline" {
   source = "../../modules/cloud-build"
 
@@ -180,4 +204,6 @@ module "cloud_build_pipeline" {
   }
   cloudbuild_v2_api_dependency = google_project_service.cloudbuild_v2_api
   cloud_storage_dependency = module.cloud_storage.bucket
+  cloudbuild_service_account = google_service_account.cloudbuild_service_account
+  static_website_bucket = module.cloud_storage.bucket
 }
