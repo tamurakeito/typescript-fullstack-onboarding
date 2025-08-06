@@ -49,20 +49,20 @@ resource "google_cloudbuildv2_repository" "my_repository" {
   remote_uri = "https://github.com/tamurakeito/typescript-fullstack-onboarding.git"
 }
 
-resource "google_service_account" "cloudbuild_service_account" {
-  account_id   = "cloudbuild-sa"
-  display_name = "cloudbuild-sa"
-  description  = "Cloud build service account"
-}
 resource "google_project_iam_member" "act_as" {
   project = var.project_id
   role    = "roles/iam.serviceAccountUser"
-  member  = "serviceAccount:${google_service_account.cloudbuild_service_account.email}"
+  member  = "serviceAccount:${var.cloudbuild_service_account.email}"
 }
 resource "google_project_iam_member" "logs_writer" {
   project = var.project_id
   role    = "roles/logging.logWriter"
-  member  = "serviceAccount:${google_service_account.cloudbuild_service_account.email}"
+  member  = "serviceAccount:${var.cloudbuild_service_account.email}"
+}
+resource "google_project_iam_member" "storage_admin" {
+  project = var.project_id
+  role    = "roles/storage.admin"
+  member  = "serviceAccount:${var.cloudbuild_service_account.email}"
 }
 
 resource "google_cloudbuild_trigger" "trigger-full-deploy" {
@@ -72,12 +72,12 @@ resource "google_cloudbuild_trigger" "trigger-full-deploy" {
   repository_event_config {
     repository = google_cloudbuildv2_repository.my_repository.id
     push {
-      branch = "main"
+      branch = "deploy"
     }
   }
 
   filename = "cloudbuild.yaml"
-  service_account = google_service_account.cloudbuild_service_account.id
+  service_account = var.cloudbuild_service_account.id
 
   substitutions = {
     _BUCKET_NAME = var.substitutions["_BUCKET_NAME"]
@@ -85,8 +85,9 @@ resource "google_cloudbuild_trigger" "trigger-full-deploy" {
   depends_on = [
     var.cloud_storage_dependency,
     var.cloudbuild_v2_api_dependency,
-    google_service_account.cloudbuild_service_account,
+    var.cloudbuild_service_account,
     google_project_iam_member.act_as,
-    google_project_iam_member.logs_writer
+    google_project_iam_member.logs_writer,
+    google_project_iam_member.storage_admin
   ]
 }

@@ -32,3 +32,9 @@ variable "cloudbuild_v2_api_dependency" {
 variable "cloud_storage_dependency" {
   type        = any
 }
+variable "cloudbuild_service_account" {
+  type        = any
+}
+variable "static_website_bucket" {
+  type        = any
+}

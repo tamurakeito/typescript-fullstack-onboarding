@@ -24,6 +24,7 @@
     "lint": "biome lint .",
     "check": "biome check --write .",
     "prepare": "husky",
+    "tf:login": "gcloud auth application-default login",
     "tf:init": "cd terraform/environments/prd && terraform init",
     "tf:plan": "cd terraform/environments/prd && terraform plan",
     "tf:apply": "cd terraform/environments/prd && terraform apply",
