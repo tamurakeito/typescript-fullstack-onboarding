@@ -72,7 +72,7 @@ resource "google_cloudbuild_trigger" "trigger-full-deploy" {
   repository_event_config {
     repository = google_cloudbuildv2_repository.my_repository.id
     push {
-      branch = "deploy"
+      branch = "main"
     }
   }
 
