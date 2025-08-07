@@ -7,6 +7,7 @@ resource "google_project_iam_member" "sql_client" {
 resource "google_cloud_run_v2_job" "migration_job" {
   name     = "migration-job"
   location = var.gcp_region
+  deletion_protection = false
 
   template {
     template {
