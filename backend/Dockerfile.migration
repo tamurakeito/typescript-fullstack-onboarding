@@ -12,19 +12,7 @@ COPY backend/package.json ./backend/
 RUN pnpm install --frozen-lockfile --filter backend --prod=false
 
 COPY backend/prisma ./backend/prisma/
-COPY backend/src ./backend/src/
 
 ENV NODE_ENV=production
 
-RUN echo '#!/bin/sh\n\
-echo "Starting database migration..."\n\
-pnpm --filter backend exec prisma migrate deploy\n\
-echo "Migration completed successfully"\n\
-echo "Starting database seeding..."\n\
-pnpm --filter backend exec tsx prisma/seed.ts\n\
-echo "Seeding completed successfully"\n\
-echo "Database setup completed!"' > /app/run-migration-and-seed.sh
-
-RUN chmod +x /app/run-migration-and-seed.sh
-
-CMD ["/app/run-migration-and-seed.sh"]
+CMD ["pnpm", "--filter", "backend", "exec", "prisma", "migrate", "deploy"]
