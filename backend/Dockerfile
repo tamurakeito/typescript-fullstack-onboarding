@@ -10,13 +10,19 @@ COPY package.json ./
 COPY pnpm-lock.yaml ./
 COPY pnpm-workspace.yaml ./
 COPY backend/package.json ./backend/
+COPY schema/package.json ./schema/
 
-RUN pnpm install --frozen-lockfile --filter backend --prod=false --ignore-scripts
+RUN pnpm install --frozen-lockfile --prod=false --ignore-scripts
 
 COPY backend/ ./backend/
+COPY schema/ ./schema/
+
+WORKDIR /app/schema
+RUN pnpm compile
 
 WORKDIR /app/backend
 RUN pnpm db:generate
+RUN pnpm generate:client
 RUN pnpm build
 
 FROM base AS runner
