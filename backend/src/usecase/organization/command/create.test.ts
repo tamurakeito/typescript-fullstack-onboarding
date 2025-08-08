@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { OrganizationCreateCommandImpl } from "./create.js";
 
 const mockOrganizationRepository = {
+  findById: vi.fn(),
   save: vi.fn(),
   delete: vi.fn(),
 };

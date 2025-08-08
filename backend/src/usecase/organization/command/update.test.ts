@@ -19,6 +19,7 @@ vi.mock("@/generated/prisma/index.js", () => ({
 }));
 
 const mockOrganizationRepository = {
+  findById: vi.fn(),
   save: vi.fn(),
   delete: vi.fn(),
 };

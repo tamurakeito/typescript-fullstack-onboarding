@@ -72,6 +72,11 @@ resource "random_password" "db_app_pwd" {
   special = true
 }
 
+resource "random_password" "jwt_secret" {
+  length  = 32
+  special = true
+}
+
 module "cloud_sql" {
   source = "../../modules/cloud_sql"
   
@@ -147,6 +152,51 @@ resource "google_secret_manager_secret_iam_member" "secretaccess_compute_dbname"
   role      = "roles/secretmanager.secretAccessor"
   member    = google_service_account.cloudrun_sa.member
 }
+
+resource "google_secret_manager_secret" "database_url" {
+  secret_id = "DATABASE_URL"
+  replication {
+    auto {}
+  }
+  depends_on = [google_project_service.secretmanager_api]
+}
+resource "google_secret_manager_secret_version" "database_url_data" {
+  secret      = google_secret_manager_secret.database_url.id
+  secret_data = "postgresql://${var.db_migration_user}:${random_password.db_migration_pwd.result}@localhost/${var.db_name}?host=/cloudsql/${module.cloud_sql.instance_connection_name}"
+}
+resource "google_secret_manager_secret_iam_member" "secretaccess_cloudrun_database_url" {
+  secret_id = google_secret_manager_secret.database_url.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = google_service_account.cloudrun_sa.member
+}
+resource "google_secret_manager_secret_iam_member" "secretaccess_cloudbuild_database_url" {
+  secret_id = google_secret_manager_secret.database_url.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.cloudbuild_service_account.email}"
+}
+
+resource "google_secret_manager_secret" "jwt_secret" {
+  secret_id = "JWT_SECRET"
+  replication {
+    auto {}
+  }
+  depends_on = [google_project_service.secretmanager_api]
+}
+resource "google_secret_manager_secret_version" "jwt_secret_data" {
+  secret      = google_secret_manager_secret.jwt_secret.id
+  secret_data = random_password.jwt_secret.result
+}
+resource "google_secret_manager_secret_iam_member" "secretaccess_cloudrun_jwt_secret" {
+  secret_id = google_secret_manager_secret.jwt_secret.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = google_service_account.cloudrun_sa.member
+}
+resource "google_secret_manager_secret_iam_member" "secretaccess_cloudbuild_jwt_secret" {
+  secret_id = google_secret_manager_secret.jwt_secret.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.cloudbuild_service_account.email}"
+}
+
 module "cloud_run" {
   source = "../../modules/cloud_run"
   
@@ -156,6 +206,8 @@ module "cloud_run" {
   db_user_secret = google_secret_manager_secret.dbuser.secret_id
   db_password_secret = google_secret_manager_secret.dbpass.secret_id
   db_name_secret = google_secret_manager_secret.dbname.secret_id
+  jwt_secret = google_secret_manager_secret.jwt_secret.secret_id
+  database_url_secret = google_secret_manager_secret.database_url.secret_id
   secretmanager_api_dependency = google_project_service.secretmanager_api
   cloudrun_api_dependency = google_project_service.cloudrun_api
   sqladmin_api_dependency = google_project_service.sqladmin_api
@@ -194,22 +246,6 @@ module "artifact_registry" {
 resource "google_service_account" "cloud_run_job_service_account" {
   account_id   = "cloud-run-job-sa"
   display_name = "Service Account for Cloud Run Job with SQL"
-}
-resource "google_secret_manager_secret" "database_url" {
-  secret_id = "DATABASE_URL"
-  replication {
-    auto {}
-  }
-  depends_on = [google_project_service.secretmanager_api]
-}
-resource "google_secret_manager_secret_version" "database_url_data" {
-  secret      = google_secret_manager_secret.database_url.id
-  secret_data = "postgresql://${var.db_migration_user}:${random_password.db_migration_pwd.result}@localhost/${var.db_name}?host=/cloudsql/${module.cloud_sql.instance_connection_name}"
-}
-resource "google_secret_manager_secret_iam_member" "secretaccess_cloudbuild_database_url" {
-  secret_id = google_secret_manager_secret.database_url.id
-  role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.cloudbuild_service_account.email}"
 }
 
 module "cloud_run_job" {
@@ -257,12 +293,8 @@ module "cloud_build_pipeline" {
   gcp_region            = var.gcp_region
   github_token          = var.github_token  
   app_installation_id   = var.app_installation_id
-  migration_repo_name = module.artifact_registry.migration_repo_name
-  migration_job_name = module.cloud_run_job.migration_job_name
   substitutions = {
     _BUCKET_NAME = module.cloud_storage.bucket_name
-    _DB_MIGRATION_USER = module.cloud_sql.db_migration_user
-    _DB_MIGRATION_PASSWORD = module.cloud_sql.db_migration_password
   }
   cloudbuild_v2_api_dependency = google_project_service.cloudbuild_v2_api
   cloud_storage_dependency = module.cloud_storage.bucket

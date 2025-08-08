@@ -1,0 +1,41 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/typescript-fullstack-onboard/backend-repo/backend-image'
+      - '-f'
+      - 'backend/Dockerfile'
+      - '.'
+    secretEnv: ['DATABASE_URL', 'JWT_SECRET']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'us-central1-docker.pkg.dev/typescript-fullstack-onboard/backend-repo/backend-image'
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'backend-service'
+      - '--image'
+      - 'us-central1-docker.pkg.dev/typescript-fullstack-onboard/backend-repo/backend-image'
+      - '--region'
+      - 'us-central1'
+      - '--allow-unauthenticated'
+    secretEnv: ['DATABASE_URL', 'JWT_SECRET']
+
+images:
+  - 'us-central1-docker.pkg.dev/typescript-fullstack-onboard/backend-repo/backend-image'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+availableSecrets:
+  secretManager:
+    - versionName: projects/typescript-fullstack-onboard/secrets/DATABASE_URL/versions/latest
+      env: 'DATABASE_URL'
+    - versionName: projects/typescript-fullstack-onboard/secrets/JWT_SECRET/versions/latest
+      env: 'JWT_SECRET'

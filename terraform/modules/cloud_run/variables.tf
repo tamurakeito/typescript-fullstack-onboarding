@@ -36,4 +36,12 @@ variable "sqladmin_api_dependency" {
 
 variable "compute_api_dependency" {
   type        = any
+}
+
+variable "jwt_secret" {
+  type        = string
 } 
+
+variable "database_url_secret" {
+  type        = string
+}

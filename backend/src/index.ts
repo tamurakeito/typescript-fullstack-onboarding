@@ -92,10 +92,12 @@ const todoHandler = new TodoHandler(
 
 initRouting(app, authHandler, organizationHandler, userHandler, todoHandler, jwtService);
 
+const port = Number(process.env.PORT) || 51002;
+
 serve(
   {
     fetch: app.fetch,
-    port: 51002,
+    port: port,
   },
   (info) => {
     console.log(`Server is running on http://localhost:${info.port}`);
