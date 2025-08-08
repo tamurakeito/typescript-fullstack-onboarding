@@ -2,10 +2,10 @@
   "name": "@typescript-fullstack-onboarding/backend",
   "version": "0.1.0",
   "description": "バックエンドアプリケーション",
-  "type": "module",
+  "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc",
+    "build": "tsc && tsc-alias",
     "start": "node dist/index.js",
     "clean": "rm -rf dist node_modules",
     "format": "biome format --write .",
@@ -30,22 +30,23 @@
     "@hono/node-server": "^1.15.0",
     "@hono/zod-validator": "^0.7.0",
     "@prisma/client": "^6.11.1",
-    "@types/bcrypt": "^5.0.2",
     "@zodios/core": "^10.9.6",
     "bcrypt": "^6.0.0",
     "hono": "^4.8.4",
     "neverthrow": "^8.2.0",
     "pino": "^9.7.0",
     "pino-http": "^10.5.0",
-    "zod": "^3.25.74"
+    "zod": "^3.25.74",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@pnpm/client": "^1000.0.20",
     "dotenv": "^17.1.0",
     "openapi-zod-client": "^1.18.3",
     "prisma": "^6.11.1",
-    "tsx": "^4.7.1",
-    "uuid": "^11.1.0"
+    "tsc-alias": "^1.8.16",
+    "tsx": "^4.7.1"
   },
   "prisma": {
     "schema": "./prisma"
