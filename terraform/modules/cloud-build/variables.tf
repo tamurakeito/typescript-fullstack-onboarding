@@ -14,13 +14,10 @@ variable "github_token" {
 variable "app_installation_id" {
   type        = string
 }
-variable "repo_name" {
+variable "migration_repo_name" {
   type        = string
 }
-variable "repo_uri" {
-  type        = string
-}
-variable "branch_name" {
+variable "migration_job_name" {
   type        = string
 }
 variable "substitutions" {

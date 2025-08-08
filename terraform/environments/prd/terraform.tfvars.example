@@ -3,10 +3,11 @@ project_id = "typescript-fullstack-onboard"
 project_number = "998684226932"
 
 domain_name = "sandbox.keiyousya.com"
-vite_api_base_url_secret_value = "https://sandbox.keiyousya.com/api"
+vite_api_base_url = "https://sandbox.keiyousya.com/api"
 
-db_user_secret_value     = "db-user"
-db_name_secret_value     = "db-name"
+db_name = "typescript-fullstack-onboard"
+db_migration_user = "migration-user"
+db_app_user = "app-user"
 
 app_installation_id = "78662661"
-github_token = "your_github_token_here"
+github_token = "your_access_token"

@@ -59,9 +59,26 @@ resource "google_project_iam_member" "logs_writer" {
   role    = "roles/logging.logWriter"
   member  = "serviceAccount:${var.cloudbuild_service_account.email}"
 }
+resource "google_project_iam_member" "sql_admin" {
+  project = var.project_id
+  role    = "roles/cloudsql.admin"
+  member  = "serviceAccount:${var.cloudbuild_service_account.email}"
+}
 resource "google_project_iam_member" "storage_admin" {
   project = var.project_id
   role    = "roles/storage.admin"
+  member  = "serviceAccount:${var.cloudbuild_service_account.email}"
+}
+resource "google_artifact_registry_repository_iam_member" "writer" {
+  project    = var.project_id
+  location   = var.gcp_region
+  repository = var.migration_repo_name
+  role       = "roles/artifactregistry.writer"
+  member     = "serviceAccount:${var.cloudbuild_service_account.email}"
+}
+resource "google_project_iam_member" "cloudbuild_run_developer" {
+  project = var.project_id
+  role    = "roles/run.developer"
   member  = "serviceAccount:${var.cloudbuild_service_account.email}"
 }
 
@@ -88,6 +105,7 @@ resource "google_cloudbuild_trigger" "trigger-full-deploy" {
     var.cloudbuild_service_account,
     google_project_iam_member.act_as,
     google_project_iam_member.logs_writer,
-    google_project_iam_member.storage_admin
+    google_project_iam_member.storage_admin,
+    google_artifact_registry_repository_iam_member.writer
   ]
 }

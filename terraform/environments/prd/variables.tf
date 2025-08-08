@@ -18,19 +18,21 @@ variable "domain_name" {
   default     = "sandbox.keiyousya.com"
 }
 
-variable "db_user_secret_value" {
-  type        = string
-  default     = "db-user"
-  sensitive   = true
-}
-
-variable "db_name_secret_value" {
+variable "db_name" {
   type        = string
   default     = "db-name"
   sensitive   = true
 }
 
-variable "vite_api_base_url_secret_value" {
+variable "db_migration_user" {
+  type        = string
+}
+
+variable "db_app_user" {
+  type        = string
+}
+
+variable "vite_api_base_url" {
   type        = string
   default     = "https://sandbox.keiyousya.com/api"
 }

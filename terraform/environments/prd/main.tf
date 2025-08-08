@@ -47,6 +47,10 @@ resource "google_project_service" "certificatemanager_api" {
   service            = "certificatemanager.googleapis.com"
   disable_on_destroy = false
 }
+resource "google_project_service" "artifactregistry_api" {
+  service            = "artifactregistry.googleapis.com"
+  disable_on_destroy = false
+}
 resource "google_project_service" "cloudbuild_v2_api" {
   service            = "cloudbuild.googleapis.com"
   disable_on_destroy = false
@@ -57,12 +61,28 @@ resource "random_password" "pwd" {
   length  = 16
   special = true
 }
+
+resource "random_password" "db_migration_pwd" {
+  length  = 16
+  special = true
+}
+
+resource "random_password" "db_app_pwd" {
+  length  = 16
+  special = true
+}
+
 module "cloud_sql" {
   source = "../../modules/cloud_sql"
   
   gcp_project   = var.project_id
   gcp_region    = var.gcp_region
   root_password = random_password.pwd.result
+  db_name = var.db_name
+  db_migration_user = var.db_migration_user
+  db_migration_password = random_password.db_migration_pwd.result
+  db_app_user = var.db_app_user
+  db_app_password = random_password.db_app_pwd.result
   sqladmin_api_dependency = google_project_service.sqladmin_api
 }
 
@@ -86,7 +106,7 @@ resource "google_secret_manager_secret" "dbuser" {
 }
 resource "google_secret_manager_secret_version" "dbuser_data" {
   secret      = google_secret_manager_secret.dbuser.id
-  secret_data = var.db_user_secret_value
+  secret_data = var.db_app_user
 }
 resource "google_secret_manager_secret_iam_member" "secretaccess_compute_dbuser" {
   secret_id = google_secret_manager_secret.dbuser.id
@@ -103,7 +123,7 @@ resource "google_secret_manager_secret" "dbpass" {
 }
 resource "google_secret_manager_secret_version" "dbpass_data" {
   secret      = google_secret_manager_secret.dbpass.id
-  secret_data = random_password.pwd.result
+  secret_data = random_password.db_app_pwd.result
 }
 resource "google_secret_manager_secret_iam_member" "secretaccess_compute_dbpass" {
   secret_id = google_secret_manager_secret.dbpass.id
@@ -120,7 +140,7 @@ resource "google_secret_manager_secret" "dbname" {
 }
 resource "google_secret_manager_secret_version" "dbname_data" {
   secret      = google_secret_manager_secret.dbname.id
-  secret_data = var.db_name_secret_value
+  secret_data = var.db_name
 }
 resource "google_secret_manager_secret_iam_member" "secretaccess_compute_dbname" {
   secret_id = google_secret_manager_secret.dbname.id
@@ -163,6 +183,47 @@ module "load_balancer" {
   cloudrun_service_dependency = module.cloud_run.cloudrun_service
 }
 
+/* Artifact Registry Module */
+module "artifact_registry" {
+  source = "../../modules/artifact-registry"
+  gcp_region = var.gcp_region
+  artifactregistry_api_dependency = google_project_service.artifactregistry_api
+}
+
+/* Cloud Run Job Module */
+resource "google_service_account" "cloud_run_job_service_account" {
+  account_id   = "cloud-run-job-sa"
+  display_name = "Service Account for Cloud Run Job with SQL"
+}
+resource "google_secret_manager_secret" "database_url" {
+  secret_id = "DATABASE_URL"
+  replication {
+    auto {}
+  }
+  depends_on = [google_project_service.secretmanager_api]
+}
+resource "google_secret_manager_secret_version" "database_url_data" {
+  secret      = google_secret_manager_secret.database_url.id
+  secret_data = "postgresql://${var.db_migration_user}:${random_password.db_migration_pwd.result}@localhost/${var.db_name}?host=/cloudsql/${module.cloud_sql.instance_connection_name}"
+}
+resource "google_secret_manager_secret_iam_member" "secretaccess_cloudbuild_database_url" {
+  secret_id = google_secret_manager_secret.database_url.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.cloudbuild_service_account.email}"
+}
+
+module "cloud_run_job" {
+  source = "../../modules/cloud_run_job"
+  project_id = var.project_id
+  gcp_region = var.gcp_region
+  cloud_run_job_service_account = google_service_account.cloud_run_job_service_account
+  db_name = var.db_name
+  db_migration_user = var.db_migration_user
+  db_migration_password = random_password.db_migration_pwd.result
+  cloud_sql_instance_connection_name = module.cloud_sql.instance_connection_name
+  database_url = google_secret_manager_secret_version.database_url_data.secret_data
+}
+
 /* Cloud Build Module */
 resource "google_service_account" "cloudbuild_service_account" {
   account_id   = "cloudbuild-sa"
@@ -179,7 +240,7 @@ resource "google_secret_manager_secret" "vite_api_base_url" {
 }
 resource "google_secret_manager_secret_version" "vite_api_base_url_data" {
   secret      = google_secret_manager_secret.vite_api_base_url.id
-  secret_data = var.vite_api_base_url_secret_value
+    secret_data = var.vite_api_base_url
   depends_on = [google_secret_manager_secret.vite_api_base_url]
 }
 resource "google_secret_manager_secret_iam_member" "vite_api_base_url_accessor" {
@@ -196,11 +257,12 @@ module "cloud_build_pipeline" {
   gcp_region            = var.gcp_region
   github_token          = var.github_token  
   app_installation_id   = var.app_installation_id
-  repo_name             = "typescript-fullstack-onboarding"
-  repo_uri              = "https://github.com/tamurakeito/typescript-fullstack-onboarding.git"
-  branch_name           = "deploy"
+  migration_repo_name = module.artifact_registry.migration_repo_name
+  migration_job_name = module.cloud_run_job.migration_job_name
   substitutions = {
     _BUCKET_NAME = module.cloud_storage.bucket_name
+    _DB_MIGRATION_USER = module.cloud_sql.db_migration_user
+    _DB_MIGRATION_PASSWORD = module.cloud_sql.db_migration_password
   }
   cloudbuild_v2_api_dependency = google_project_service.cloudbuild_v2_api
   cloud_storage_dependency = module.cloud_storage.bucket

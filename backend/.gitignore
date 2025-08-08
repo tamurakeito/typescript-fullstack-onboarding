@@ -20,5 +20,3 @@ lerna-debug.log*
 /src/generated/client/*
 /src/generated/prisma/*
 !*/.gitkeep
-
-/prisma/migrations/*
