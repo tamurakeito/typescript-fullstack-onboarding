@@ -1,5 +1,5 @@
 import { BadRequestError } from "@/errors/errors.js";
-import { schemas } from "@/generated/client/client.gen.js";
+import { schemas } from "@/generated/client/client.gen";
 import type { JwtService } from "@/infrastructure/account/jwt-service.js";
 import { zValidator } from "@hono/zod-validator";
 import type { Hono } from "hono";

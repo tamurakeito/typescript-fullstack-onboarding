@@ -1,6 +1,6 @@
 import type { Actor } from "@/domain/authorization/permission.js";
 import { type AppError, ForbiddenError, UnExistUserError } from "@/errors/errors.js";
-import type { schemas } from "@/generated/client/client.gen.js";
+import type { schemas } from "@/generated/client/client.gen";
 import { PrismaClient } from "@/generated/prisma/index.js";
 import { type Result, err, ok } from "neverthrow";
 import type { z } from "zod";

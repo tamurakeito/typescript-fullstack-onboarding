@@ -14,12 +14,6 @@ variable "github_token" {
 variable "app_installation_id" {
   type        = string
 }
-variable "migration_repo_name" {
-  type        = string
-}
-variable "migration_job_name" {
-  type        = string
-}
 variable "substitutions" {
   type        = map(string)
 }

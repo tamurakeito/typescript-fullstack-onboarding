@@ -1,6 +1,6 @@
-import { PrismaClient } from "@/generated/prisma/index.js";
 import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from "uuid";
+import { PrismaClient } from "../src/generated/prisma/index.js";
 
 const prisma = new PrismaClient();
 

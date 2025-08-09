@@ -69,12 +69,10 @@ resource "google_project_iam_member" "storage_admin" {
   role    = "roles/storage.admin"
   member  = "serviceAccount:${var.cloudbuild_service_account.email}"
 }
-resource "google_artifact_registry_repository_iam_member" "writer" {
-  project    = var.project_id
-  location   = var.gcp_region
-  repository = var.migration_repo_name
-  role       = "roles/artifactregistry.writer"
-  member     = "serviceAccount:${var.cloudbuild_service_account.email}"
+resource "google_project_iam_member" "cloudbuild_artifact_registry_writer" {
+  project = var.project_id
+  role    = "roles/artifactregistry.writer"
+  member  = "serviceAccount:${var.cloudbuild_service_account.email}"
 }
 resource "google_project_iam_member" "cloudbuild_run_developer" {
   project = var.project_id
@@ -82,8 +80,8 @@ resource "google_project_iam_member" "cloudbuild_run_developer" {
   member  = "serviceAccount:${var.cloudbuild_service_account.email}"
 }
 
-resource "google_cloudbuild_trigger" "trigger-full-deploy" {
-  name = "trigger-full-deploy"
+resource "google_cloudbuild_trigger" "trigger-migration" {
+  name = "trigger-migration"
   location = var.gcp_region
 
   repository_event_config {
@@ -93,7 +91,7 @@ resource "google_cloudbuild_trigger" "trigger-full-deploy" {
     }
   }
 
-  filename = "cloudbuild.yaml"
+  filename = "cloudbuild-migration.yaml"
   service_account = var.cloudbuild_service_account.id
 
   substitutions = {
@@ -106,6 +104,65 @@ resource "google_cloudbuild_trigger" "trigger-full-deploy" {
     google_project_iam_member.act_as,
     google_project_iam_member.logs_writer,
     google_project_iam_member.storage_admin,
-    google_artifact_registry_repository_iam_member.writer
+    google_project_iam_member.cloudbuild_artifact_registry_writer,
+    google_project_iam_member.cloudbuild_run_developer
+  ]
+}
+
+resource "google_cloudbuild_trigger" "trigger-backend" {
+  name = "trigger-backend"
+  location = var.gcp_region
+
+  repository_event_config {
+    repository = google_cloudbuildv2_repository.my_repository.id
+    push {
+      branch = "deploy"
+    }
+  }
+
+  filename = "cloudbuild-backend.yaml"
+  service_account = var.cloudbuild_service_account.id
+
+  substitutions = {
+    _BUCKET_NAME = var.substitutions["_BUCKET_NAME"]
+  }
+  depends_on = [
+    var.cloud_storage_dependency,
+    var.cloudbuild_v2_api_dependency,
+    var.cloudbuild_service_account,
+    google_project_iam_member.act_as,
+    google_project_iam_member.logs_writer,
+    google_project_iam_member.storage_admin,
+    google_project_iam_member.cloudbuild_artifact_registry_writer,
+    google_project_iam_member.cloudbuild_run_developer
+  ]
+}
+
+resource "google_cloudbuild_trigger" "trigger-frontend" {
+  name = "trigger-frontend"
+  location = var.gcp_region
+
+  repository_event_config {
+    repository = google_cloudbuildv2_repository.my_repository.id
+    push {
+      branch = "deploy"
+    }
+  }
+
+  filename = "cloudbuild-frontend.yaml"
+  service_account = var.cloudbuild_service_account.id
+
+  substitutions = {
+    _BUCKET_NAME = var.substitutions["_BUCKET_NAME"]
+  }
+  depends_on = [
+    var.cloud_storage_dependency,
+    var.cloudbuild_v2_api_dependency,
+    var.cloudbuild_service_account,
+    google_project_iam_member.act_as,
+    google_project_iam_member.logs_writer,
+    google_project_iam_member.storage_admin,
+    google_project_iam_member.cloudbuild_artifact_registry_writer,
+    google_project_iam_member.cloudbuild_run_developer
   ]
 }

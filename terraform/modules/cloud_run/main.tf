@@ -42,6 +42,24 @@ resource "google_cloud_run_v2_service" "default" {
           }
         }
       }
+      env {
+        name = "JWT_SECRET"
+        value_source {
+          secret_key_ref {
+            secret  = var.jwt_secret
+            version = "latest"                                      
+          }
+        }
+      }
+      env {
+        name = "DATABASE_URL"
+        value_source {
+          secret_key_ref {
+            secret  = var.database_url_secret
+            version = "latest"                                      
+          }
+        }
+      }
       
       volume_mounts {
         name       = "cloudsql"

@@ -1,4 +1,4 @@
-import { schemas } from "@/generated/client/client.gen.js";
+import { schemas } from "@/generated/client/client.gen";
 import type { UserCreateCommand } from "@/usecase/user/command/create.js";
 import type { UserDeleteCommand } from "@/usecase/user/command/delete.js";
 import type { UserUpdateRoleCommand } from "@/usecase/user/command/update-role.js";
