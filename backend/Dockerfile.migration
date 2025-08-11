@@ -14,7 +14,6 @@ RUN pnpm install --frozen-lockfile --filter backend --prod=false
 COPY backend/prisma ./backend/prisma/
 COPY backend/src ./backend/src/
 
-# Generate Prisma client
 RUN pnpm --filter backend exec prisma generate
 
 ENV NODE_ENV=production
