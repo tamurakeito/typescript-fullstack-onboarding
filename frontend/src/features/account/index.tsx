@@ -7,7 +7,7 @@ import { useAuthStore } from "@/store/auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLoaderData } from "@tanstack/react-router";
-import { Check, Pencil, X } from "lucide-react";
+import { Check, Eye, EyeOff, Pencil, X } from "lucide-react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -19,42 +19,59 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
   const [isUserIdEdit, setIsUserIdEdit] = useState<boolean>(false);
   const [isNameEdit, setIsNameEdit] = useState<boolean>(false);
   const [isPasswordEdit, setIsPasswordEdit] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
 
-  const accountFormSchema = z.object({
-    userId: z.string().refine(
-      (val) => {
-        if (isUserIdEdit) {
-          return val.length > 0;
+  const accountFormSchema = z
+    .object({
+      userId: z.string().refine(
+        (val) => {
+          if (isUserIdEdit) {
+            return val.length > 0;
+          }
+          return true;
+        },
+        {
+          message: "ユーザーIDを入力してください",
+        }
+      ),
+      name: z.string().refine(
+        (val) => {
+          if (isNameEdit) {
+            return val.length > 0;
+          }
+          return true;
+        },
+        {
+          message: "名前を入力してください",
+        }
+      ),
+      password: z.string().refine(
+        (val) => {
+          if (isPasswordEdit) {
+            return val.length > 0;
+          }
+          return true;
+        },
+        {
+          message: "パスワードを入力してください",
+        }
+      ),
+      confirmPassword: z.string().optional(),
+    })
+    .refine(
+      (data) => {
+        if (isPasswordEdit && data.password !== data.confirmPassword) {
+          return false;
         }
         return true;
       },
       {
-        message: "ユーザーIDを入力してください",
+        message: "パスワードが一致しません",
+        path: ["confirmPassword"],
       }
-    ),
-    name: z.string().refine(
-      (val) => {
-        if (isNameEdit) {
-          return val.length > 0;
-        }
-        return true;
-      },
-      {
-        message: "名前を入力してください",
-      }
-    ),
-    password: z.string().refine(
-      (val) => {
-        if (isPasswordEdit) {
-          return val.length > 0;
-        }
-        return true;
-      },
-      {
-        message: "パスワードを入力してください",
-      }
-    ),
-  });
+    );
+
   type AccountFormData = z.infer<typeof accountFormSchema>;
 
   const queryClient = useQueryClient();
@@ -95,6 +112,7 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
       userId: "",
       name: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
@@ -112,6 +130,15 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
     setIsUserIdEdit(false);
     setIsNameEdit(false);
     setIsPasswordEdit(false);
+    setShowPassword(false);
+    setShowConfirmPassword(false);
+    reset();
+  };
+
+  const resetPasswordEdit = () => {
+    setIsPasswordEdit(false);
+    setShowPassword(false);
+    setShowConfirmPassword(false);
     reset();
   };
 
@@ -265,23 +292,58 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
         <div className="flex flex-col gap-2 border-b pb-4">
           <span className="text-xs text-gray-400">パスワード</span>
           <div className="flex items-center justify-between">
-            <span className="text-base text-gray-400 tracking-widest select-none w-full">
+            <div className="w-full">
               {!isPasswordEdit ? (
-                "●●●●●●●●"
+                <span className="text-base text-gray-400 tracking-widest select-none">
+                  ●●●●●●●●
+                </span>
               ) : (
-                <Controller
-                  control={control}
-                  name="password"
-                  render={({ field }) => (
-                    <Input
-                      type="password"
-                      placeholder="新しいパスワードを入力してください"
-                      {...field}
+                <div className="space-y-3">
+                  <div className="relative">
+                    <Controller
+                      control={control}
+                      name="password"
+                      render={({ field }) => (
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="新しいパスワードを入力してください"
+                          className="pr-10"
+                          {...field}
+                        />
+                      )}
                     />
-                  )}
-                />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <Controller
+                      control={control}
+                      name="confirmPassword"
+                      render={({ field }) => (
+                        <Input
+                          type={showConfirmPassword ? "text" : "password"}
+                          placeholder="もう一度パスワードを入力してください"
+                          className="pr-10"
+                          {...field}
+                        />
+                      )}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    >
+                      {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
               )}
-            </span>
+            </div>
             {!isPasswordEdit ? (
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -320,8 +382,7 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
                       size={20}
                       onClick={(e) => {
                         e.stopPropagation();
-                        setIsPasswordEdit(false);
-                        reset();
+                        resetPasswordEdit();
                       }}
                       className="text-gray-600 hover:text-gray-900 cursor-pointer"
                     />
@@ -334,6 +395,9 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
             )}
           </div>
           {errors.password && <p className="text-red-500">{errors.password.message}</p>}
+          {errors.confirmPassword && (
+            <p className="text-red-500">{errors.confirmPassword.message}</p>
+          )}
         </div>
         {profile.organization && (
           <div className="flex flex-col gap-2 border-b pb-4">
