@@ -108,7 +108,9 @@ export const TodoCreateDialog = ({
         <DialogClose asChild>
           <Button variant={"outline"}>キャンセル</Button>
         </DialogClose>
-        <Button type="submit">作成する</Button>
+        <Button type="submit" disabled={mutation.isPending}>
+          {mutation.isPending ? "作成中..." : "作成する"}
+        </Button>
       </DialogFooter>
     </DialogForm>
   );

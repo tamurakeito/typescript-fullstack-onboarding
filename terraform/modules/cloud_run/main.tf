@@ -9,7 +9,7 @@ resource "google_cloud_run_v2_service" "default" {
     service_account = var.cloudrun_sa_email
 
     containers {
-      image = "us-docker.pkg.dev/cloudrun/container/hello:latest"
+      image = "us-central1-docker.pkg.dev/typescript-fullstack-onboard/backend-repo/backend-image"
       
       env {
         name  = "INSTANCE_CONNECTION_NAME"
@@ -80,4 +80,11 @@ resource "google_cloud_run_v2_service" "default" {
     var.sqladmin_api_dependency,
     var.compute_api_dependency
   ]
+}
+
+resource "google_cloud_run_service_iam_member" "allow_unauthenticated" {
+  location = var.gcp_region
+  service  = google_cloud_run_v2_service.default.name
+  member   = "allUsers"
+  role     = "roles/run.invoker"
 }

@@ -81,7 +81,9 @@ export const UserDeleteDialog = ({
         <DialogClose asChild>
           <Button variant={"outline"}>キャンセル</Button>
         </DialogClose>
-        <Button type="submit">削除する</Button>
+        <Button type="submit" disabled={mutation.isPending}>
+          {mutation.isPending ? "削除中..." : "削除する"}
+        </Button>
       </DialogFooter>
     </DialogForm>
   );

@@ -28,7 +28,10 @@
     "tf:init": "cd terraform/environments/prd && terraform init",
     "tf:plan": "cd terraform/environments/prd && terraform plan",
     "tf:apply": "cd terraform/environments/prd && terraform apply",
-    "tf:destroy": "cd terraform/environments/prd && terraform destroy"
+    "tf:destroy": "cd terraform/environments/prd && terraform destroy",
+    "cloudbuild:migration": "SA_ID=$(cd terraform/environments/prd && terraform output -raw cloudbuild_service_account_id) && gcloud builds submit --region=us-central1 --config=cloudbuild-migration.yaml --service-account=$SA_ID .",
+    "cloudbuild:backend": "SA_ID=$(cd terraform/environments/prd && terraform output -raw cloudbuild_service_account_id) && gcloud builds submit --region=us-central1 --config=cloudbuild-backend.yaml --service-account=$SA_ID .",
+    "cloudbuild:frontend": "BUCKET_NAME=$(cd terraform/environments/prd && terraform output -raw static_website_bucket_name) && SA_ID=$(cd terraform/environments/prd && terraform output -raw cloudbuild_service_account_id) && gcloud builds submit --region=us-central1 --config=cloudbuild-frontend.yaml --substitutions=_BUCKET_NAME=$BUCKET_NAME --service-account=$SA_ID ."
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

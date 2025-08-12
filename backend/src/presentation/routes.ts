@@ -2,7 +2,7 @@ import { BadRequestError } from "@/errors/errors.js";
 import { schemas } from "@/generated/client/client.gen";
 import type { JwtService } from "@/infrastructure/account/jwt-service.js";
 import { zValidator } from "@hono/zod-validator";
-import type { Hono } from "hono";
+import { Hono } from "hono";
 import { z } from "zod";
 import type { AuthHandler } from "./handlers/auth-handler.js";
 import type { OrganizationHandler } from "./handlers/organization-handler.js";
@@ -24,8 +24,10 @@ export function initRouting(
     return c.text("This is Org-Todo-App🐋");
   });
 
+  const api = new Hono<Env>();
+
   /* Auth */
-  app.post(
+  api.post(
     "/sign-in",
     zValidator("json", schemas.SignInRequest, (result, c) => {
       if (!result.success) {
@@ -35,18 +37,18 @@ export function initRouting(
     }),
     (c) => authHandler.signIn(c)
   );
-  app.get("/auth-check", jwtMiddleware(jwtService), (c) => {
+  api.get("/auth-check", jwtMiddleware(jwtService), (c) => {
     return c.text(`Auth Check Success: role=${c.get("actor").role}`);
   });
 
   /* Organization */
-  app.get(
+  api.get(
     "/organizations",
     jwtMiddleware(jwtService),
     permissionMiddleware("readAll", "Organization"),
     (c) => organizationHandler.getOrganizationList(c)
   );
-  app.get(
+  api.get(
     "/organization/:id",
     zValidator("param", z.object({ id: z.string().uuid() }), (result, c) => {
       if (!result.success) {
@@ -58,7 +60,7 @@ export function initRouting(
     permissionMiddleware("read", "Organization"),
     (c) => organizationHandler.getOrganizationProfile(c)
   );
-  app.post(
+  api.post(
     "/organization",
     zValidator("json", schemas.CreateOrganizationRequest, (result, c) => {
       if (!result.success) {
@@ -70,7 +72,7 @@ export function initRouting(
     permissionMiddleware("create", "Organization"),
     (c) => organizationHandler.createOrganization(c)
   );
-  app.put(
+  api.put(
     "/organization/:id",
     zValidator("param", z.object({ id: z.string().uuid() }), (result, c) => {
       if (!result.success) {
@@ -88,7 +90,7 @@ export function initRouting(
     permissionMiddleware("update", "Organization"),
     (c) => organizationHandler.updateOrganization(c)
   );
-  app.delete(
+  api.delete(
     "/organization/:id",
     zValidator("param", z.object({ id: z.string().uuid() }), (result, c) => {
       if (!result.success) {
@@ -102,7 +104,7 @@ export function initRouting(
   );
 
   /* User */
-  app.get(
+  api.get(
     "/user/:id",
     zValidator("param", z.object({ id: z.string().uuid() }), (result, c) => {
       if (!result.success) {
@@ -114,7 +116,7 @@ export function initRouting(
     permissionMiddleware("read", "Account"),
     (c) => userHandler.getUser(c)
   );
-  app.post(
+  api.post(
     "/user",
     zValidator("json", schemas.CreateUserRequest, (result, c) => {
       if (!result.success) {
@@ -126,7 +128,7 @@ export function initRouting(
     permissionMiddleware("create", "Account"),
     (c) => userHandler.createUser(c)
   );
-  app.put(
+  api.put(
     "/user/:id",
     zValidator("param", z.object({ id: z.string().uuid() }), (result, c) => {
       if (!result.success) {
@@ -144,7 +146,7 @@ export function initRouting(
     permissionMiddleware("update", "Account"),
     (c) => userHandler.updateUser(c)
   );
-  app.put(
+  api.put(
     "/user-role/:id",
     zValidator("param", z.object({ id: z.string().uuid() }), (result, c) => {
       if (!result.success) {
@@ -162,7 +164,7 @@ export function initRouting(
     permissionMiddleware("update", "Account"),
     (c) => userHandler.updateUserRole(c)
   );
-  app.delete(
+  api.delete(
     "/user/:id",
     zValidator("param", z.object({ id: z.string().uuid() }), (result, c) => {
       if (!result.success) {
@@ -176,7 +178,7 @@ export function initRouting(
   );
 
   /* Todo */
-  app.get(
+  api.get(
     "/:organizationId/todo-list",
     zValidator("param", z.object({ organizationId: z.string().uuid() }), (result, c) => {
       if (!result.success) {
@@ -188,7 +190,7 @@ export function initRouting(
     permissionMiddleware("read", "Todo"),
     (c) => todoHandler.getTodoList(c)
   );
-  app.post(
+  api.post(
     "/todo",
     zValidator("json", schemas.CreateTodoItemRequest, (result, c) => {
       if (!result.success) {
@@ -200,7 +202,7 @@ export function initRouting(
     permissionMiddleware("create", "Todo"),
     (c) => todoHandler.createTodo(c)
   );
-  app.put(
+  api.put(
     "/todo/:id",
     zValidator("param", z.object({ id: z.string().uuid() }), (result, c) => {
       if (!result.success) {
@@ -218,7 +220,7 @@ export function initRouting(
     permissionMiddleware("update", "Todo"),
     (c) => todoHandler.updateTodo(c)
   );
-  app.delete(
+  api.delete(
     "/todo/:id",
     zValidator("param", z.object({ id: z.string().uuid() }), (result, c) => {
       if (!result.success) {
@@ -230,4 +232,6 @@ export function initRouting(
     permissionMiddleware("delete", "Todo"),
     (c) => todoHandler.deleteTodo(c)
   );
+
+  app.route("/api", api);
 }
