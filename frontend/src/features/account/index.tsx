@@ -24,17 +24,30 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
 
   const accountFormSchema = z
     .object({
-      userId: z.string().refine(
-        (val) => {
-          if (isUserIdEdit) {
-            return val.length > 0;
+      userId: z
+        .string()
+        .refine(
+          (val) => {
+            if (isUserIdEdit) {
+              return val.length > 0;
+            }
+            return true;
+          },
+          {
+            message: "ユーザーIDを入力してください",
           }
-          return true;
-        },
-        {
-          message: "ユーザーIDを入力してください",
-        }
-      ),
+        )
+        .refine(
+          (val) => {
+            if (isUserIdEdit && val.length > 0) {
+              return /^[!-~]+$/.test(val);
+            }
+            return true;
+          },
+          {
+            message: "ユーザーIDは半角英数字記号が使用できます",
+          }
+        ),
       name: z.string().refine(
         (val) => {
           if (isNameEdit) {
