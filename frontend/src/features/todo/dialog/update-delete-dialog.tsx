@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Controller, type SubmitHandler, useForm } from "react-hook-form";
@@ -128,7 +129,7 @@ export const TodoUpdateDeleteDialog = ({
       }}
     >
       <DialogHeader>
-        <DialogTitle>タスクを編集・削除</DialogTitle>
+        <DialogTitle>タスクを編集</DialogTitle>
         <DialogDescription>タスクの内容を変更できます。</DialogDescription>
       </DialogHeader>
       <Label>タスク</Label>
@@ -174,6 +175,13 @@ export const TodoUpdateDeleteDialog = ({
         <Button type="submit" disabled={mutation.isPending}>
           {mutation.isPending ? "保存中..." : "保存する"}
         </Button>
+      </DialogFooter>
+      <Separator />
+      <DialogHeader>
+        <DialogTitle>タスクを削除</DialogTitle>
+        <DialogDescription>タスクを削除します。</DialogDescription>
+      </DialogHeader>
+      <DialogFooter>
         <Button
           type="button"
           variant={"destructive"}
