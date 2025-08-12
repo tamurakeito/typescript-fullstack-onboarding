@@ -62,6 +62,8 @@ export const SignIn = () => {
   });
 
   const onSubmit: SubmitHandler<z.infer<typeof zSignInRequest>> = async (data) => {
+    if (mutation.isPending) return;
+
     await mutation.mutateAsync({
       body: data,
     });
@@ -112,9 +114,10 @@ export const SignIn = () => {
             />
             <Button
               type="submit"
-              className="w-full h-12 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors duration-200"
+              disabled={mutation.isPending}
+              className="w-full h-12 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              ログイン
+              {mutation.isPending ? "ログイン中..." : "ログイン"}
             </Button>
           </form>
         </div>

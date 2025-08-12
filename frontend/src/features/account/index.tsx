@@ -161,13 +161,14 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
                   <TooltipTrigger asChild>
                     <button
                       type="submit"
-                      className="text-gray-600 hover:text-gray-900 cursor-pointer p-1"
+                      disabled={mutation.isPending}
+                      className="text-gray-600 hover:text-gray-900 cursor-pointer p-1 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Check size={20} />
                     </button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>保存</p>
+                    <p>{mutation.isPending ? "保存中..." : "保存"}</p>
                   </TooltipContent>
                 </Tooltip>
                 <Tooltip>
@@ -230,13 +231,14 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
                   <TooltipTrigger asChild>
                     <button
                       type="submit"
-                      className="text-gray-600 hover:text-gray-900 cursor-pointer p-1"
+                      disabled={mutation.isPending}
+                      className="text-gray-600 hover:text-gray-900 cursor-pointer p-1 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Check size={20} />
                     </button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>保存</p>
+                    <p>{mutation.isPending ? "保存中..." : "保存"}</p>
                   </TooltipContent>
                 </Tooltip>
                 <Tooltip>
@@ -302,13 +304,14 @@ export const Account = ({ profile }: { profile: UserProfile }) => {
                   <TooltipTrigger asChild>
                     <button
                       type="submit"
-                      className="text-gray-600 hover:text-gray-900 cursor-pointer p-1"
+                      disabled={mutation.isPending}
+                      className="text-gray-600 hover:text-gray-900 cursor-pointer p-1 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Check size={20} />
                     </button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>保存</p>
+                    <p>{mutation.isPending ? "保存中..." : "保存"}</p>
                   </TooltipContent>
                 </Tooltip>
                 <Tooltip>

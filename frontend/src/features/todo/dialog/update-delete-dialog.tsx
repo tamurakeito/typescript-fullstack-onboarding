@@ -171,15 +171,18 @@ export const TodoUpdateDeleteDialog = ({
         <DialogClose asChild>
           <Button variant={"outline"}>キャンセル</Button>
         </DialogClose>
-        <Button type="submit">保存する</Button>
+        <Button type="submit" disabled={mutation.isPending}>
+          {mutation.isPending ? "保存中..." : "保存する"}
+        </Button>
         <Button
           type="button"
           variant={"destructive"}
+          disabled={deleteMutation.isPending}
           onClick={() => {
             deleteMutation.mutate({ path: { id: todo.id } });
           }}
         >
-          削除する
+          {deleteMutation.isPending ? "削除中..." : "削除する"}
         </Button>
       </DialogFooter>
     </DialogForm>

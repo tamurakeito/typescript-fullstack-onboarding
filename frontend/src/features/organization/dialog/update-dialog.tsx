@@ -104,7 +104,9 @@ export const OrganizationUpdateDialog = ({
         <DialogClose asChild>
           <Button variant={"outline"}>キャンセル</Button>
         </DialogClose>
-        <Button type="submit">保存する</Button>
+        <Button type="submit" disabled={mutation.isPending}>
+          {mutation.isPending ? "保存中..." : "保存する"}
+        </Button>
       </DialogFooter>
     </DialogForm>
   );
