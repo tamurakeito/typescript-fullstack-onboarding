@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc && tsc-alias",
+    "build": "tsc && cp -r src/generated/prisma dist/generated/ && tsc-alias",
     "start": "node dist/index.js",
     "clean": "rm -rf dist node_modules",
     "format": "biome format --write .",
